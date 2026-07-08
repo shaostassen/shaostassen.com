@@ -40,7 +40,7 @@ export default function Styleguide() {
   if (process.env.NODE_ENV === "production") notFound();
 
   return (
-    <main>
+    <div>
       <Container>
         <Section>
           <p className="mb-3 font-mono text-sm text-muted">
@@ -164,6 +164,6 @@ export default function Styleguide() {
           </Card>
         </Section>
       </Container>
-    </main>
+    </div>
   );
 }

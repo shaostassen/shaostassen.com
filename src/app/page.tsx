@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-6">
+    <div className="flex flex-1 flex-col items-center justify-center px-6 py-24">
       <div className="w-full max-w-xl">
         <p className="mb-3 font-mono text-sm text-muted">shaostassen.com</p>
         <h1 className="font-display text-display">Shao Stassen</h1>
@@ -19,6 +19,6 @@ export default function Home() {
           .
         </p>
       </div>
-    </main>
+    </div>
   );
 }
