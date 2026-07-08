@@ -48,6 +48,17 @@ and I'll fold the answers in. Once confirmed, these move to `src/content/project
 - Was this an internship? What was the AUC target (take-up vs. default)? The revenue-lift figure?
 - **Confidentiality: confirm what Nomis allows public before this ships.**
 
+## Hero positioning line (S1.2 — shipped with option A, swap anytime)
+
+- **A (live):** "I work where software meets hardware — control loops on
+  microcontrollers, autonomous robots, and the ML systems that let them see."
+- B: "I build autonomous robots, the controllers that keep them stable, and
+  the ML infrastructure that trains them — from bare-metal firmware to CUDA."
+- C: "Embedded systems, controls, and machine learning — from Cortex-M
+  firmware to CUDA kernels."
+
+Also blocking hero completeness (F4): LinkedIn URL, public email, resume.pdf.
+
 ## Next step after review
 
 S0.1 — scaffold the repo (Next.js 15 + TS strict + Tailwind + pnpm), first Vercel deploy.

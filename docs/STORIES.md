@@ -10,7 +10,7 @@ here. Per-story working logs live in `log/`.
 | S0.2  | E0   | Claude Code harness                            | done   | CLAUDE.md + 6 skills; typecheck/lint/format/build/test/lighthouse gates wired (LH 99/100/100/100) |
 | S0.3  | E0   | Design system foundation                       | done   | light-dark() tokens, Space Grotesk/Inter/JetBrains Mono, 5 primitives, dev-only /styleguide; AA verified both themes |
 | S1.1  | E1   | App shell (nav, footer, theme toggle)          | done   | hide-on-scroll nav (focus-safe), theme toggle w/ system default + localStorage, skip link, footer; LH 97/100/100/100 |
-| S1.2  | E1   | Landing / hero                                 | todo   |        |
+| S1.2  | E1   | Landing / hero                                 | done   | hero + positioning line + featured strip (typed, confirmed facts); CSS fade-up, LCP-safe; LH 97/100/100/100 |
 | S2.1  | E2   | Typed content layer + one seeded project       | todo   |        |
 | S3.1  | E3   | Projects index with filtering                  | todo   |        |
 | S3.2  | E3   | Project detail template + migrate all projects | todo   |        |
@@ -35,9 +35,7 @@ E6 (M3), E7 (M4), then launch (M5).
 - **F2 (blocks S3.2 content quality):** Shao to answer the `[CONFIRM]` items
   in `docs/drafts/REVIEW.md` — links, timeframes, metrics, and the
   EmPRISE/Nomis publishability checks.
-- **F3 (after S1.2):** add Playwright coverage for the nav hide/reveal
-  behavior once a scrollable production page exists (verified via scripted
-  real-browser run in S1.1; see docs/log/S1.1.md).
+- ~~F3~~ resolved in S1.2 — nav hide/reveal covered in tests/smoke.spec.ts.
 - **F4 (with F2):** add confirmed social links (LinkedIn, email) to the
   footer and nav; GitHub-only until then.
 
