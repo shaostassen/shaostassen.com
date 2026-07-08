@@ -163,6 +163,15 @@
   border: 1px solid var(--border);
 }
 
+/* Theme-dependent visibility (e.g. ThemeToggle icons) without JS state. */
+.show-in-light {
+  display: light-dark(inline, none);
+}
+
+.show-in-dark {
+  display: light-dark(none, inline);
+}
+
 /* Motion is opt-out globally: reduced-motion users get no animation. */
 @media (prefers-reduced-motion: reduce) {
   *,
