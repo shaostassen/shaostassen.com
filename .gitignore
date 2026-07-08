@@ -12,6 +12,12 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
+/.lighthouseci/
+
+# machine-local agent notes
+CLAUDE.local.md
 
 # next.js
 /.next/
