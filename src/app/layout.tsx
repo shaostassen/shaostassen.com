@@ -17,6 +17,9 @@ const spaceGrotesk = Space_Grotesk({
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  // Mono only styles small accents — keep it off the critical path so the
+  // display/body fonts (which gate LCP) load first.
+  preload: false,
 });
 
 export const metadata: Metadata = {

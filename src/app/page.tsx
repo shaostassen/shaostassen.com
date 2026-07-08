@@ -1,24 +1,55 @@
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
+import { ProjectCard } from "@/components/projects/ProjectCard";
+import { featuredProjects } from "@/content/data/projects";
+
 export default function Home() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-6 py-24">
-      <div className="w-full max-w-xl">
-        <p className="mb-3 font-mono text-sm text-muted">shaostassen.com</p>
-        <h1 className="font-display text-display">Shao Stassen</h1>
-        <p className="mt-4 text-lg text-muted">
-          Engineer working across embedded systems, robotics, and machine
-          learning.
-        </p>
-        <p className="mt-8 font-mono text-sm text-muted">
-          Site under construction — being built in the open at{" "}
-          <a
-            href="https://github.com/shaostassen/shaostassen.com"
-            className="text-accent underline underline-offset-4 hover:decoration-2"
-          >
-            github.com/shaostassen/shaostassen.com
-          </a>
-          .
-        </p>
-      </div>
+    <div>
+      <Section className="pb-8 sm:pb-8">
+        <Container>
+          <p className="mb-3 font-mono text-sm text-muted">shaostassen.com</p>
+          <h1 className="font-display text-display">Shao Stassen</h1>
+          <p className="mt-5 max-w-2xl text-lg text-muted animate-fade-up [animation-delay:80ms]">
+            I work where software meets hardware — control loops on
+            microcontrollers, autonomous robots, and the ML systems that let
+            them see.
+          </p>
+          <p className="mt-8 font-mono text-sm text-muted animate-fade-up [animation-delay:160ms]">
+            <a
+              href="https://github.com/shaostassen"
+              className="text-accent underline underline-offset-4 hover:decoration-2"
+            >
+              GitHub ↗
+            </a>
+            <span className="mx-3" aria-hidden="true">
+              ·
+            </span>
+            <a
+              href="https://github.com/shaostassen/shaostassen.com"
+              className="underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              this site, built in the open ↗
+            </a>
+          </p>
+        </Container>
+      </Section>
+
+      <Section className="pt-8 sm:pt-8">
+        <Container>
+          <div className="animate-fade-up [animation-delay:240ms]">
+            <h2 className="font-display text-title">Selected work</h2>
+            <p className="mt-2 font-mono text-sm text-muted">
+              full case studies in progress
+            </p>
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {featuredProjects.map((p) => (
+                <ProjectCard key={p.title} project={p} />
+              ))}
+            </div>
+          </div>
+        </Container>
+      </Section>
     </div>
   );
 }
