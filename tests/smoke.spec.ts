@@ -14,11 +14,32 @@ test("home page renders without console errors", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Shao Stassen",
   );
-  await expect(
-    page.getByRole("link", { name: /github\.com\/shaostassen/ }),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "GitHub ↗" })).toBeVisible();
 
   expect(consoleErrors).toEqual([]);
+});
+
+test("featured projects strip renders from typed content", async ({ page }) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Selected work" }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(4);
+  await expect(page.getByText("~21× on 32 cores")).toBeVisible();
+});
+
+test("nav hides on scroll down and reveals on scroll up", async ({ page }) => {
+  await page.goto("/");
+  const room = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight,
+  );
+  test.skip(room < 300, "page not scrollable enough at this viewport");
+
+  const header = page.locator("header");
+  await page.mouse.wheel(0, 700);
+  await expect(header).toHaveClass(/-translate-y-full/);
+  await page.mouse.wheel(0, -300);
+  await expect(header).not.toHaveClass(/-translate-y-full/);
 });
 
 test("unknown routes return the 404 page", async ({ page }) => {
