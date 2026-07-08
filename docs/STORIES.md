@@ -8,7 +8,7 @@ here. Per-story working logs live in `log/`.
 | ----- | ---- | ---------------------------------------------- | ------ | ------ |
 | S0.1  | E0   | Repo + scaffold + first live deploy            | done   | Live at shaostassencom.vercel.app; repo shaostassen/shaostassen.com; push-triggered deploys verified |
 | S0.2  | E0   | Claude Code harness                            | done   | CLAUDE.md + 6 skills; typecheck/lint/format/build/test/lighthouse gates wired (LH 99/100/100/100) |
-| S0.3  | E0   | Design system foundation                       | todo   |        |
+| S0.3  | E0   | Design system foundation                       | done   | light-dark() tokens, Space Grotesk/Inter/JetBrains Mono, 5 primitives, dev-only /styleguide; AA verified both themes |
 | S1.1  | E1   | App shell (nav, footer, theme toggle)          | todo   |        |
 | S1.2  | E1   | Landing / hero                                 | todo   |        |
 | S2.1  | E2   | Typed content layer + one seeded project       | todo   |        |
