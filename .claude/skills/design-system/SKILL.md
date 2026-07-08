@@ -5,8 +5,8 @@ description: Visual language rules for shaostassen.com — tokens, type, spacing
 
 # Design system
 
-> **Status:** ground rules below are binding now; concrete token values land
-> in S0.3 and must be recorded here in the same commit that creates them.
+> **Status:** tokens live in `src/styles/globals.css` (S0.3). Summary below;
+> the CSS file is the source of truth. Update both together.
 
 ## Principles
 
@@ -16,18 +16,26 @@ site, make it earn its place with craft, not decoration.
 
 ## Tokens (source of truth)
 
-- All design values are CSS variables in `src/styles/` (S0.3), consumed
-  through Tailwind. Never hard-code a hex color, font stack, or arbitrary
-  pixel value in a component when a token exists.
-- **Color:** dark-first with a single restrained accent used deliberately —
-  links, active states, key numbers. Every fg/bg pair meets WCAG AA
-  (4.5:1 normal text, 3:1 large text). Both themes ship from S0.3 on.
-- **Type:** one display/heading face + one clean mono for code and technical
-  metadata (instrument aesthetic, not phosphor-green cosplay). Modular scale;
-  no ad-hoc font sizes.
-- **Space:** 8pt scale. Generous whitespace; consistent vertical rhythm
-  between sections. If spacing looks uneven, fix the scale usage, don't
-  nudge pixels.
+- All design values are CSS variables in `src/styles/globals.css`, consumed
+  through Tailwind utilities. Never hard-code a hex color, font stack, or
+  arbitrary pixel value in a component when a token exists.
+- **Color:** semantic tokens switch themes via `light-dark()` — components
+  NEVER use `dark:` variants. Utilities: `bg-background`, `bg-surface`,
+  `border-border`, `text-foreground`, `text-muted`, `text-accent`.
+  Values (light / dark): background `#ffffff/#0b0c0e`, surface
+  `#f4f5f6/#15171a`, border `#e3e5e8/#26292e`, foreground `#17181a/#e6e7e9`,
+  muted `#55595f/#9ba1a6`, accent (restrained cyan) `#0e7490/#22d3ee`.
+  All text pairs pass WCAG AA in both themes (muted ≥7:1, accent ≥5.4:1).
+  The accent is for links, active states, and key numbers — nothing else.
+- **Type:** `font-display` = Space Grotesk (headings), `font-sans` = Inter
+  (body), `font-mono` = JetBrains Mono (code, technical metadata) — all
+  self-hosted via next/font. Sizes: Tailwind defaults plus `text-display`
+  (clamp 2.5–3.25rem, for h1) and `text-title` (1.5rem, for h2). No ad-hoc
+  font sizes.
+- **Space:** 8pt scale — Tailwind spacing in multiples of 2 (`p-2/4/6/8`,
+  `gap-4/6`, `py-16/24`). `Section` owns vertical rhythm (`py-16 sm:py-24`);
+  `Container` owns gutters (`max-w-5xl px-6`). If spacing looks uneven, fix
+  the scale usage, don't nudge pixels.
 
 ## Motion
 
@@ -38,9 +46,10 @@ site, make it earn its place with craft, not decoration.
 
 ## Layout primitives
 
-Build UI from `Container`, `Section`, `Prose`, `Card`, `Tag`, `Nav`,
-`Footer` (S0.3+). Never write a one-off wrapper that duplicates a
-primitive's job — extend the primitive instead.
+Built in S0.3 (see `/styleguide` in dev): `Container`, `Section` in
+`src/components/layout/`; `Card`, `Tag`, `Prose` in `src/components/ui/`.
+`Nav`/`Footer` come in S1.1. Never write a one-off wrapper that duplicates
+a primitive's job — extend the primitive instead.
 
 ## Don'ts
 
