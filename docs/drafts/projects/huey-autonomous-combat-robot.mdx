@@ -1,0 +1,42 @@
+---
+slug: huey-autonomous-combat-robot
+title: "Huey: Autonomous 3 lb Combat Robot"
+oneLiner: "A beetleweight combat robot that finds and attacks its opponent on its own — vision-based detection feeding an orientation controller in an environment designed to destroy it."
+category: robotics
+tags: [YOLO, PID, Anti-windup, Computer vision, Motor control, Embedded]
+timeframe: "" # [CONFIRM: seasons/years active]
+role: "Autonomous subteam lead"
+org: "Cornell Combat Robotics"
+repo: "" # [CONFIRM: repo link, if public]
+demo: "" # [CONFIRM: match footage / video link]
+featured: true
+metrics:
+  - { label: "Weight class", value: "3 lb" }
+  - { label: "Detection", value: "[CONFIRM: e.g. inference rate or latency]" }
+---
+
+## Problem
+
+Combat robotics is almost universally teleoperated — a human closes the loop. Huey's goal was to close it in software: detect the opponent, orient toward it, and drive the engagement autonomously, in a domain where the environment is actively trying to break your sensors.
+
+## Constraints
+
+- A 3 lb total weight budget shared between armor, weapon, drivetrain, battery, *and* the compute and camera for autonomy — every gram of perception hardware is a gram not spent on surviving hits.
+- Match-length decision latency: hesitation loses fights.
+- Arena conditions are hostile to vision — harsh lighting, debris, motion blur, and an opponent whose appearance changes as it takes damage.
+
+## Approach
+
+I led the autonomous subteam. [CONFIRM: subteam size.] The stack: a YOLO model detecting the opponent from the onboard camera feed, an orientation PID controller with anti-windup turning detections into heading commands, and closed-loop drivetrain control underneath so commanded motion matches actual motion even as battery voltage sags and wheels lose grip. [CONFIRM: compute platform — e.g. Pi/Jetson/microcontroller split — and where inference ran.]
+
+## Why it's technically hard
+
+Everything is adversarial and non-stationary. The target detector's subject is trying not to be where you predict; impacts physically knock sensors out of calibration mid-match; and the controller has to handle the target vanishing from frame constantly — which is exactly why anti-windup matters, since a naive integrator saturates during every detection gap and then slams the robot past the target when it reacquires. The whole loop has to run within a weight and power budget that a phone would find restrictive.
+
+## Result
+
+[CONFIRM: competition results, matches run autonomously, and what worked/broke.]
+
+## What I'd do next
+
+[CONFIRM — candidates: opponent trajectory prediction, weapon-timing autonomy, training the detector on damage-degraded robot appearances.]

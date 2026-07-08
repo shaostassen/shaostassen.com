@@ -1,0 +1,40 @@
+---
+slug: ml-workstation-edge-pipeline
+title: "ML Workstation → Edge Deployment Pipeline"
+oneLiner: "Personal ML infrastructure done properly: a Ryzen 9 9950X / RTX 5090 training box and a Jetson Orin Nano edge target, joined by Tailscale, NFS, and an ONNX→TensorRT export path."
+category: systems-hpc
+tags: [TensorRT, ONNX, Jetson, Tailscale, NFS, Linux, CUDA]
+timeframe: "" # [CONFIRM: when built; 'Ongoing' fits if you keep evolving it]
+role: "Solo"
+repo: "" # [CONFIRM: if any config/scripts are public]
+featured: false # [CONFIRM — strong "systems" signal; could feature this over a course project]
+metrics:
+  - { label: "Train→deploy", value: "[CONFIRM: e.g. one command / N minutes from checkpoint to edge inference]" }
+  - { label: "Edge inference", value: "[CONFIRM: e.g. fps for a reference model on the Orin Nano]" }
+---
+
+## Problem
+
+Training on a desktop GPU and deploying to an edge device is conceptually simple and practically an afternoon of yak-shaving, every single time: mismatched CUDA versions, files scp'd around, models exported by hand, and a Jetson you can only reach when you're home. The goal was to turn train-on-workstation → run-on-edge into a paved path.
+
+## Constraints
+
+- Heterogeneous by nature: x86 + RTX 5090 (current CUDA) on one end, aarch64 + JetPack (its own pinned CUDA/TensorRT versions) on the other. You don't get to pick one toolchain.
+- Reachable from anywhere without opening ports to the internet.
+- Cheap and boring to maintain — this is infrastructure that serves other projects, so it has to fail rarely and obviously.
+
+## Approach
+
+Three layers. **Network:** a Tailscale mesh makes every machine reachable by name from anywhere with zero exposed ports. **Storage:** NFS exports from the workstation, so datasets and checkpoints have one home and the Jetson mounts rather than copies. **Model path:** train in PyTorch on the 5090, export to ONNX as the portable interchange point, then build a TensorRT engine *on the Jetson* — engines are hardware-specific, so the export path treats ONNX as the artifact and engine-building as a deploy step. [CONFIRM: precision used on the Orin — FP16? INT8 with calibration?]
+
+## Why it's technically hard
+
+None of the pieces is exotic; the engineering is in the seams. ONNX export is where models actually break — unsupported ops, dynamic shapes, and silent numerical drift — so the pipeline needs a parity check that compares PyTorch and TensorRT outputs before a deploy counts as done. And version alignment across CUDA, cuDNN, ONNX opsets, and JetPack's pinned TensorRT is the kind of dependency problem that only stays solved if it's written down and scripted.
+
+## Result
+
+[CONFIRM: what the working pipeline does end-to-end today, and one concrete number — e.g. a model that went through it and its fps/latency on the Orin.] SpeechLens rides on this infrastructure, which is the point: the pipeline exists so other projects don't have to solve deployment again.
+
+## What I'd do next
+
+[CONFIRM — candidates: INT8 calibration workflow, containerized JetPack builds, monitoring/auto-restart for long-running edge inference.]
