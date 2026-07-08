@@ -26,3 +26,9 @@ test("unknown routes return the 404 page", async ({ page }) => {
   expect(response?.status()).toBe(404);
   await expect(page.getByText(/could not be found/i)).toBeVisible();
 });
+
+test("styleguide is not exposed in production builds", async ({ page }) => {
+  await page.goto("/styleguide");
+  await expect(page.getByText(/could not be found/i)).toBeVisible();
+  await expect(page.getByText(/color tokens/i)).toHaveCount(0);
+});
