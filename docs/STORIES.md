@@ -11,7 +11,7 @@ here. Per-story working logs live in `log/`.
 | S0.3  | E0   | Design system foundation                       | done   | light-dark() tokens, Space Grotesk/Inter/JetBrains Mono, 5 primitives, dev-only /styleguide; AA verified both themes |
 | S1.1  | E1   | App shell (nav, footer, theme toggle)          | done   | hide-on-scroll nav (focus-safe), theme toggle w/ system default + localStorage, skip link, footer; LH 97/100/100/100 |
 | S1.2  | E1   | Landing / hero                                 | done   | hero + positioning line + featured strip (typed, confirmed facts); CSS fade-up, LCP-safe; LH 97/100/100/100 |
-| S2.1  | E2   | Typed content layer + one seeded project       | todo   |        |
+| S2.1  | E2   | Typed content layer + one seeded project       | done   | Zod schemas (incl. school/individual track), MDX pipeline, Fast Robots live at /projects/fast-robots; invalid frontmatter fails build (proven) |
 | S3.1  | E3   | Projects index with filtering                  | todo   |        |
 | S3.2  | E3   | Project detail template + migrate all projects | todo   |        |
 | S4.1  | E4   | About + skills                                 | todo   |        |
@@ -27,6 +27,13 @@ here. Per-story working logs live in `log/`.
 Human checkpoints (do not cross without review): after E1 (M1), E3 (M2),
 E6 (M3), E7 (M4), then launch (M5).
 
+## Plan amendments
+
+- **2026-07-08 (Shao):** top-level sections become **School work** (high
+  school + college projects) and **Individual work**, rather than a single
+  flat projects list. `projectSchema.track` carries the split (S2.1);
+  S3.1's index should group by it. High-school content TBD.
+
 ## Follow-ups
 
 - **F1 (after S5.1, low priority):** migrate the Fast Robots lab reports into
@@ -38,6 +45,9 @@ E6 (M3), E7 (M4), then launch (M5).
 - ~~F3~~ resolved in S1.2 — nav hide/reveal covered in tests/smoke.spec.ts.
 - **F4 (with F2):** add confirmed social links (LinkedIn, email) to the
   footer and nav; GitHub-only until then.
+- **F5 (S3.x):** ECE 6750 produced several projects — present them as a
+  collection ("one tab") per Shao; SpGEMM is the first.
+- **F6:** attach the SpGEMM paper to its case study when Shao provides it.
 
 ## Open decisions (PLAN §13, still unanswered)
 

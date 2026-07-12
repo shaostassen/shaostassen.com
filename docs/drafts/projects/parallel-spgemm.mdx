@@ -3,16 +3,17 @@ slug: parallel-spgemm
 title: "Parallel Sparse Matrix–Matrix Multiplication"
 oneLiner: "A parallel SpGEMM built on Gustavson's algorithm, reaching ~21× speedup on a 32-core Xeon system by attacking load imbalance and memory-bound accumulation."
 category: systems-hpc
-tags: [Parallel computing, Sparse linear algebra, Performance engineering, C++] # [CONFIRM: OpenMP, MPI, or both]
-timeframe: "" # [CONFIRM: semester]
-role: "" # [CONFIRM: solo or team, and your part]
-org: "Cornell ECE 6750" # [CONFIRM: course number]
-repo: "" # [CONFIRM: repo link, if public]
+tags: [Parallel computing, Sparse linear algebra, Performance engineering, C++, OpenMP]
+timeframe: "Spring 2026" #
+role: "solo" 
+org: "Cornell ECE 6750" # 
+repo: "private repo" 
 featured: true
 metrics:
   - { label: "Speedup", value: "~21× on 32 cores" }
-  - { label: "Parallel efficiency", value: "~66%" } # derived from 21/32 — [CONFIRM baseline: serial version of same code?]
+  - { label: "Parallel efficiency", value: "~66%" } 
 ---
+Attach a paper with it later ** 
 
 ## Problem
 
@@ -20,7 +21,7 @@ Sparse matrix–matrix multiplication (SpGEMM) sits under graph analytics, scien
 
 ## Constraints
 
-- Target: a 32-core Xeon cluster. [CONFIRM: single 32-core node (shared memory) or multiple nodes (distributed)? This changes the story.]
+- Target: a 32-core Xeon cluster.  single 32-core node (shared memory) 
 - Real sparse inputs with skewed nonzero distributions, not synthetic uniform matrices.
 - Graded against measured speedup — the baseline had to be an honest, optimized serial implementation, not a strawman.
 
@@ -34,8 +35,9 @@ SpGEMM is memory-bound and irregular, so the usual parallel toolkit fights you: 
 
 ## Result
 
-~21× speedup over the serial implementation on 32 cores. [CONFIRM: test matrices used, and any profiling numbers worth citing — e.g. bandwidth utilization.]
+~21× speedup over the serial implementation on 32 cores. 
 
-## What I'd do next
 
-[CONFIRM — candidates: NUMA-aware partitioning, a GPU port comparing against cuSPARSE, hybrid MPI+OpenMP scaling past one node.]
+### 
+This is one of the many interesting projects I did in ECE 6750 - Advanced Computer Architercture - make a collection of these under one tab
+

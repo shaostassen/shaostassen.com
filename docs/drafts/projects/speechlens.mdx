@@ -1,41 +1,28 @@
+This is in-progress project
+
 ---
 slug: speechlens
 title: "SpeechLens: Local Speech-Analysis Pipeline"
 oneLiner: "A fully local speech-analysis stack — faster-whisper and Silero VAD behind a FastAPI service and web UI — that runs the same codebase on an RTX 5090 and a Jetson Orin Nano."
 category: ml-cv
 tags: [faster-whisper, Silero VAD, FastAPI, Jetson, ASR, Python]
-timeframe: "" # [CONFIRM]
+timeframe: "Summer 2026" # 
 role: "Solo"
-repo: "" # [CONFIRM: repo link, if public]
+repo: "" 
 demo: ""
-featured: true # suggested — it's full-stack and demo-able; [CONFIRM]
+featured: true 
 metrics:
   - { label: "Transcription", value: "[CONFIRM: e.g. real-time factor on each target]" }
   - { label: "Footprint", value: "[CONFIRM: e.g. model size / VRAM on the Orin Nano]" }
 ---
+# wait on this, because I haven't finish it
+
 
 ## Problem
 
-[CONFIRM: the motivating use — what does SpeechLens analyze speech *for*? Transcription review, filler-word/pacing feedback, meeting notes?] Whatever the analysis, the design constraint was non-negotiable: audio never leaves the machine. No cloud ASR APIs — full quality, locally.
+Interested in digital signal processing, Motivated specifically by the audio signal, want to learn how signal which represents audioable sounds getting turned into words.
+Interested in analyze how signal might different in different language, study the pattern in people's accent, therefore help people who is trying to learn a new language sounds 
+more like a native speaker
 
-## Constraints
-
-- Two very different deployment targets from one codebase: an RTX 5090 workstation with VRAM to burn, and a Jetson Orin Nano where every gigabyte and watt counts.
-- Real audio is messy — silence, crosstalk, and noise mean you can't just feed raw recordings to an ASR model and trust the output.
-- Usable by a human: a web UI, not a script with flags.
-
-## Approach
-
-A staged pipeline: Silero VAD segments speech from silence and noise first, so the ASR model only sees speech and timestamps stay honest; faster-whisper (CTranslate2-backed Whisper) does transcription with a model size selected per target; a FastAPI service exposes the pipeline; a web UI sits on top. [CONFIRM: streaming vs. batch processing, which Whisper model sizes per device, and what the analysis layer computes.]
-
-## Why it's technically hard
-
-The single-codebase, two-targets requirement is the real problem. What's trivially fast on a 5090 has to be *engineered* to fit the Orin Nano — model size, quantization, and memory pressure all have to give, without forking the code. VAD-before-ASR sounds like a detail but drives output quality: hallucinated transcription in silence is Whisper's best-known failure mode, and segmentation is what prevents it.
-
-## Result
-
-[CONFIRM: what runs today on each target, with numbers — real-time factor, latency, accuracy spot-checks.]
-
-## What I'd do next
-
-[CONFIRM — candidates: speaker diarization, TensorRT-optimized Whisper on the Orin, live-microphone streaming mode.]
+## Result 
+This is in progress project

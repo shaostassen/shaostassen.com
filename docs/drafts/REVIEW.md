@@ -1,5 +1,25 @@
 # Case-study drafts — review checklist
 
+## Status after Shao's pass (2026-07-08)
+
+- **fast-robots** — confirmed and **migrated to `src/content/projects/`**
+  (S2.1); live at /projects/fast-robots. Drafts file is now historical.
+- **parallel-spgemm** — mostly confirmed (Spring 2026, solo, ECE 6750
+  Advanced Computer Architecture, OpenMP, single 32-core shared-memory
+  node, private repo). Open: attach paper when provided (F6); optional
+  detail on accumulator/scheduling choices.
+- **emprise-vlm** (renamed from -vla) — now "VLM & Diffusion Model
+  Research", Fall 2024–Spring 2026, undergraduate researcher. Content
+  intentionally blank — on hold.
+- **speechlens** — in progress (Summer 2026), motivation rewritten (DSP /
+  accent-analysis for language learners). On hold until the project is
+  further along.
+- **New direction:** site sections split into **school work** (high school
+  + college) and **individual work** — schema now carries
+  `track: school | individual`. High-school projects still need content.
+- Still open: quant + nomis (untouched), workstation pipeline metrics,
+  socials/resume (F4), Smith & Nephew detail level.
+
 Eight drafts live in `docs/drafts/projects/`. Everything stated as fact came from PLAN.md §8;
 everything I inferred is marked `[CONFIRM: …]` inline. Edit the files directly, or answer here
 and I'll fold the answers in. Once confirmed, these move to `src/content/projects/` in S2.1/S3.2.
