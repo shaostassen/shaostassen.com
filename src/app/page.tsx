@@ -26,10 +26,19 @@ export default function Home() {
               ·
             </span>
             <a
+              href="https://www.linkedin.com/in/shaostassen"
+              className="text-accent underline underline-offset-4 hover:decoration-2"
+            >
+              LinkedIn ↗
+            </a>
+            <span className="mx-3" aria-hidden="true">
+              ·
+            </span>
+            <a
               href="https://github.com/shaostassen/shaostassen.com"
               className="underline underline-offset-4 transition-colors hover:text-foreground"
             >
-              this site, built in the open ↗
+              built in the open ↗
             </a>
           </p>
         </Container>

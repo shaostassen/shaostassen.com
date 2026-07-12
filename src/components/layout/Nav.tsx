@@ -12,6 +12,7 @@ const links: Array<{ href: string; label: string }> = [
   { href: "/about", label: "About" },
   { href: "/projects", label: "Projects" },
   { href: "/coursework", label: "Coursework" },
+  { href: "/contact", label: "Contact" },
 ];
 
 const linkClasses =
