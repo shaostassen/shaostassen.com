@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 // Page links join this list as their routes ship (About in S4.1, …) — the
 // nav never points at a route that doesn't exist yet.
 const links: Array<{ href: string; label: string }> = [
+  { href: "/about", label: "About" },
   { href: "/projects", label: "Projects" },
 ];
 
