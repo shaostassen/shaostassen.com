@@ -1,0 +1,55 @@
+---
+slug: fast-robots
+title: "Fast Robots: Sensor Fusion and Autonomous Navigation"
+oneLiner: "A hand-built differential-drive robot that localizes with a Bayes filter and pulls off high-speed maneuvers by Kalman-filtering sensor data faster than the sensors themselves update."
+category: robotics
+track: school
+tags: [Kalman filter, Bayes filter, PID, LQR, Embedded C++, BLE, IMU, ToF]
+timeframe: "Spring 2026"
+role: "Solo"
+org: "Cornell ECE 4160"
+demo: "https://shaostassen.github.io/ShaoFastRobots/Fast%20Robots%20Stuff/"
+featured: true
+---
+
+## Problem
+
+Make a small, cheap robot do fast, precise autonomous maneuvers — the regime
+where you can't just drive slowly and average the sensor noise away. The
+robot has to sense, estimate, decide, and act on a microcontroller, with
+sensors that update slower than the dynamics it's trying to control.
+
+## Constraints
+
+- All onboard compute is a SparkFun Artemis (Cortex-M4F) — no companion
+  computer during runs.
+- Time-of-flight distance sensors sample far slower than the robot closes
+  distance at speed; the IMU drifts.
+- BLE is the only telemetry channel, so debugging means designing your own
+  logging protocol.
+- Consumer RC-car hardware: motor deadbands, battery sag, and real friction,
+  not simulation.
+
+## Approach
+
+The build progressed as an integrated stack rather than isolated demos: BLE
+communication and onboard telemetry first, then sensor characterization,
+then PID control on orientation and wall-approach, then a Kalman filter
+fusing the ToF readings with a fitted dynamics model — which lets the robot
+_predict_ distance between slow sensor samples and brake later than raw
+sensing would allow. On top of that: high-speed stunts (a drift turn and a
+flip), an inverted-pendulum balance, and grid-based Bayes-filter
+localization from ToF scans feeding waypoint navigation.
+
+## Why it's technically hard
+
+The interesting problems are all about acting faster than you can sense.
+The Kalman filter isn't academic here — without it, the robot literally
+cannot stop in time. The Bayes filter has to work with a coarse pose grid
+and a noisy beam sensor model, and every gain was tuned on real hardware
+where latency, noise, and battery state change run to run.
+
+## Result
+
+Full lab-by-lab reports with data and video live on the
+[Fast Robots report site](https://shaostassen.github.io/ShaoFastRobots/Fast%20Robots%20Stuff/).
