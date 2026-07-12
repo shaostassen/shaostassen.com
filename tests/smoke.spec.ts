@@ -214,6 +214,29 @@ test("coursework page links out to fast robots reports", async ({ page }) => {
   await expect(page).toHaveURL(/\/projects\/parallel-spgemm/);
 });
 
+test("contact page: obfuscated email assembles client-side only", async ({
+  page,
+}) => {
+  // the prerendered HTML must never contain the address or a mailto:
+  const res = await page.request.get("/contact");
+  const rawHtml = await res.text();
+  expect(rawHtml).not.toContain("shaostassen225@gmail.com");
+  expect(rawHtml).not.toContain("mailto:");
+
+  // after hydration the human-usable link exists
+  await page.goto("/contact");
+  const emailLink = page.getByRole("link", {
+    name: "shaostassen225@gmail.com",
+  });
+  await expect(emailLink).toBeVisible();
+  await expect(emailLink).toHaveAttribute(
+    "href",
+    "mailto:shaostassen225@gmail.com",
+  );
+  await expect(page.getByRole("button", { name: "copy" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "LinkedIn ↗" })).toBeVisible();
+});
+
 test("styleguide is not exposed in production builds", async ({ page }) => {
   await page.goto("/styleguide");
   await expect(page.getByText(/could not be found/i)).toBeVisible();
