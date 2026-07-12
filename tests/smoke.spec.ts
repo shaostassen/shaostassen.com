@@ -136,6 +136,29 @@ test("projects filter deep-links via URL", async ({ page }) => {
   );
 });
 
+test("about page renders bio and evidence-linked skills", async ({ page }) => {
+  await page.goto("/about");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About");
+  await expect(page.getByText(/Cornell \(Class of 2026\)/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Skills" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Controls & estimation" }),
+  ).toBeVisible();
+  // a skill links to the project that evidences it
+  await page.getByRole("link", { name: "Kalman filtering" }).click();
+  await expect(page).toHaveURL(/\/projects\/fast-robots/);
+});
+
+test("nav links to about", async ({ page }) => {
+  await page.goto("/");
+  await page
+    .getByRole("navigation", { name: "Site" })
+    .getByRole("link", { name: "About" })
+    .click();
+  await expect(page).toHaveURL(/\/about/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About");
+});
+
 test("styleguide is not exposed in production builds", async ({ page }) => {
   await page.goto("/styleguide");
   await expect(page.getByText(/could not be found/i)).toBeVisible();
