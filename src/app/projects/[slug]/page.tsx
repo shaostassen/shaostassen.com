@@ -6,7 +6,7 @@ import { Section } from "@/components/layout/Section";
 import { Prose } from "@/components/ui/Prose";
 import { Tag } from "@/components/ui/Tag";
 import { projectSchema, type Project } from "@/content/schema";
-import { projectSlugs, projectSource } from "@/lib/content";
+import { allProjects, projectSlugs, projectSource } from "@/lib/content";
 
 export const dynamicParams = false;
 
@@ -48,6 +48,10 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { content, project } = await loadProject((await params).slug);
+  const projects = await allProjects();
+  const index = projects.findIndex((p) => p.slug === project.slug);
+  const prev = index > 0 ? projects[index - 1] : undefined;
+  const next = index < projects.length - 1 ? projects[index + 1] : undefined;
 
   const meta = [project.org, project.timeframe, project.role]
     .filter(Boolean)
@@ -120,6 +124,32 @@ export default async function ProjectPage({
         </header>
 
         <Prose className="mt-12">{content}</Prose>
+
+        <nav
+          aria-label="More projects"
+          className="mt-16 flex items-center justify-between gap-6 border-t border-border pt-8 font-mono text-sm"
+        >
+          {prev ? (
+            <Link
+              href={`/projects/${prev.slug}`}
+              className="max-w-[45%] truncate text-muted underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              ← {prev.title}
+            </Link>
+          ) : (
+            <span aria-hidden="true" />
+          )}
+          {next ? (
+            <Link
+              href={`/projects/${next.slug}`}
+              className="max-w-[45%] truncate text-muted underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              {next.title} →
+            </Link>
+          ) : (
+            <span aria-hidden="true" />
+          )}
+        </nav>
       </Container>
     </Section>
   );

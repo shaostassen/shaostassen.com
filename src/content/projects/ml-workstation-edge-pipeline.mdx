@@ -1,0 +1,52 @@
+---
+slug: ml-workstation-edge-pipeline
+title: "ML Workstation → Edge Pipeline"
+oneLiner: "Personal ML infrastructure: a Ryzen 9 9950X / RTX 5090 workstation and a Jetson Orin Nano edge target, joined by Tailscale, NFS, and an ONNX→TensorRT export path."
+category: systems-hpc
+track: individual
+tags: [TensorRT, ONNX, Jetson, Tailscale, NFS, Linux]
+timeframe: "Ongoing"
+role: "Solo"
+featured: false
+---
+
+## Problem
+
+Training on a desktop GPU and deploying to an edge device is conceptually
+simple and practically an afternoon of yak-shaving, every time: mismatched
+CUDA versions, files copied around by hand, models exported ad hoc, and a
+Jetson that's only reachable from the home network. The goal is a paved
+path from train-on-workstation to run-on-edge.
+
+## Constraints
+
+- Heterogeneous by nature: x86 with a current-generation RTX 5090 on one
+  end, aarch64 with JetPack's pinned CUDA/TensorRT stack on the other. You
+  don't get to pick one toolchain.
+- Reachable from anywhere without exposing ports to the internet.
+- Boring to maintain — this is infrastructure that serves other projects,
+  so it has to fail rarely and obviously.
+
+## Approach
+
+Three layers. **Network:** a Tailscale mesh makes every machine reachable
+by name from anywhere, with zero open ports. **Storage:** NFS exports from
+the workstation give datasets and checkpoints one home; the Jetson mounts
+instead of copying. **Model path:** train on the 5090, export to ONNX as
+the portable artifact, and build the TensorRT engine on the Jetson itself —
+engines are hardware-specific, so engine-building is a deploy step, not a
+build artifact.
+
+## Why it's technically hard
+
+None of the pieces is exotic; the engineering is in the seams. ONNX export
+is where models actually break — unsupported ops, dynamic shapes — and
+version alignment across CUDA, ONNX opsets, and JetPack's pinned TensorRT
+is the kind of dependency problem that only stays solved if it's scripted
+and written down.
+
+## Result
+
+The pipeline is the substrate for in-progress projects like SpeechLens —
+which is the point: solve deployment once so individual projects don't
+have to.
