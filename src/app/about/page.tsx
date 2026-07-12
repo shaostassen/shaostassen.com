@@ -4,6 +4,9 @@ import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Card } from "@/components/ui/Card";
 import { Prose } from "@/components/ui/Prose";
+import { Timeline } from "@/components/ui/Timeline";
+import { education } from "@/content/data/education";
+import { experience } from "@/content/data/experience";
 import { skillGroups } from "@/content/data/skills";
 
 export const metadata: Metadata = {
@@ -75,6 +78,28 @@ export default function AboutPage() {
             </Card>
           ))}
         </div>
+
+        <h2 className="mt-16 font-display text-title">Experience</h2>
+        <Timeline
+          className="mt-6"
+          entries={experience.map((e) => ({
+            heading: e.company,
+            subheading: e.title,
+            dates: e.end ? `${e.start} — ${e.end}` : `${e.start} — present`,
+            items: e.bullets,
+          }))}
+        />
+
+        <h2 className="mt-16 font-display text-title">Education</h2>
+        <Timeline
+          className="mt-6"
+          entries={education.map((e) => ({
+            heading: e.school,
+            subheading: e.credential,
+            dates: e.end,
+            items: e.details,
+          }))}
+        />
 
         <p className="mt-12 font-mono text-sm text-muted">
           <Link

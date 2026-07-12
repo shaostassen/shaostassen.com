@@ -81,8 +81,8 @@ export type SkillGroup = z.infer<typeof skillGroupSchema>;
 
 export const educationSchema = z.object({
   school: z.string(),
-  credential: z.string(), // e.g. "B.S. Electrical & Computer Engineering"
-  start: z.string(),
+  credential: z.string(), // e.g. "Electrical & Computer Engineering"
+  start: z.string().optional(),
   end: z.string().optional(),
   details: z.array(z.string()).optional(),
 });
