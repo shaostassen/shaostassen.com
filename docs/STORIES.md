@@ -17,7 +17,7 @@ here. Per-story working logs live in `log/`.
 | S4.1  | E4   | About + skills                                 | done   | bio from confirmed facts (S&N minimal — review flag), evidence-linked typed skills, /about + nav link |
 | S4.2  | E4   | Experience & education timeline + resume       | doing  | timelines live from typed data; needs S&N bullets/title, education details incl. high school, resume.pdf |
 | S5.1  | E5   | Coursework section with Fast Robots            | done   | /coursework with outbound reports link (no iframe, pinned by test) + ECE 6750 entry seeding F5; mobile nav menu added |
-| S6.1  | E6   | Contact + links                                | todo   |        |
+| S6.1  | E6   | Contact + links                                | done   | mailto-only w/ client-side-assembled email (no address in HTML, pinned by test); LinkedIn added site-wide |
 | S7.1  | E7   | Accessibility & responsive hardening           | todo   |        |
 | S7.2  | E7   | Performance, SEO, and metadata                 | todo   |        |
 | S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | todo   |        |
@@ -43,8 +43,8 @@ E6 (M3), E7 (M4), then launch (M5).
   in `docs/drafts/REVIEW.md` — links, timeframes, metrics, and the
   EmPRISE/Nomis publishability checks.
 - ~~F3~~ resolved in S1.2 — nav hide/reveal covered in tests/smoke.spec.ts.
-- **F4 (with F2):** add confirmed social links (LinkedIn, email) to the
-  footer and nav; GitHub-only until then.
+- ~~F4~~ resolved in S6.1 (LinkedIn + email live) — except `resume.pdf`,
+  still pending from Shao (S4.2).
 - **F5 (S3.x):** ECE 6750 produced several projects — present them as a
   collection ("one tab") per Shao; SpGEMM is the first.
 - **F6:** attach the SpGEMM paper to its case study when Shao provides it.
