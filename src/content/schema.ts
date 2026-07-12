@@ -66,7 +66,15 @@ export type Experience = z.infer<typeof experienceSchema>;
 
 export const skillGroupSchema = z.object({
   group: z.string(), // e.g. "Embedded", "Controls", "ML · CV", "Systems · HPC"
-  items: z.array(z.string()).min(1),
+  items: z
+    .array(
+      z.object({
+        name: z.string(),
+        /** Internal link to the project that evidences the skill. */
+        href: z.string().optional(),
+      }),
+    )
+    .min(1),
 });
 
 export type SkillGroup = z.infer<typeof skillGroupSchema>;
