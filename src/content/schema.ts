@@ -38,6 +38,21 @@ export const projectSchema = z.object({
 
 export type Project = z.infer<typeof projectSchema>;
 
+export const categoryLabels: Record<
+  (typeof projectCategories)[number],
+  string
+> = {
+  embedded: "Embedded",
+  robotics: "Robotics",
+  "ml-cv": "ML · CV",
+  "systems-hpc": "Systems · HPC",
+};
+
+export const trackLabels: Record<(typeof projectTracks)[number], string> = {
+  school: "School work",
+  individual: "Individual work",
+};
+
 export const experienceSchema = z.object({
   company: z.string(),
   title: z.string(),

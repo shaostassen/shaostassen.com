@@ -39,6 +39,7 @@ export const featuredProjects: FeaturedProject[] = [
     category: "Systems · HPC",
     tags: ["c++", "sparse linear algebra"],
     metric: { label: "speedup", value: "~21× on 32 cores" },
+    href: "/projects/parallel-spgemm",
   },
   {
     title: "SpeechLens",

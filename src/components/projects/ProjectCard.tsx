@@ -1,15 +1,26 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
-import type { FeaturedProject } from "@/content/data/projects";
 
-function CardBody({ project }: { project: FeaturedProject }) {
+/** Normalized card shape — landing (interim data) and /projects (validated
+ *  frontmatter) both map into this. */
+export type ProjectCardData = {
+  title: string;
+  description: string;
+  categoryLabel: string;
+  tags: string[];
+  metric?: { label: string; value: string };
+  href?: string;
+  inProgress?: boolean;
+};
+
+function CardBody({ project }: { project: ProjectCardData }) {
   return (
     <>
       <div className="flex items-baseline justify-between gap-4">
         <h3 className="font-display font-semibold">{project.title}</h3>
         <span className="shrink-0 font-mono text-xs text-muted">
-          {project.category}
+          {project.categoryLabel}
         </span>
       </div>
       <p className="text-sm leading-relaxed text-muted">
@@ -26,6 +37,9 @@ function CardBody({ project }: { project: FeaturedProject }) {
           <Tag key={tag}>{tag}</Tag>
         ))}
       </div>
+      {project.inProgress && (
+        <p className="font-mono text-sm text-muted">in progress</p>
+      )}
       {project.href && (
         <p className="font-mono text-sm text-accent">case study →</p>
       )}
@@ -33,8 +47,8 @@ function CardBody({ project }: { project: FeaturedProject }) {
   );
 }
 
-/** Landing-strip project card; links to the case study when one exists. */
-export function ProjectCard({ project }: { project: FeaturedProject }) {
+/** Project card; links to the case study when one exists. */
+export function ProjectCard({ project }: { project: ProjectCardData }) {
   if (project.href) {
     return (
       <Link
