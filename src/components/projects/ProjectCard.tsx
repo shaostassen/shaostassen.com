@@ -1,11 +1,11 @@
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import type { FeaturedProject } from "@/content/data/projects";
 
-/** Landing-strip project card. Gains a link once detail pages exist (S3.2). */
-export function ProjectCard({ project }: { project: FeaturedProject }) {
+function CardBody({ project }: { project: FeaturedProject }) {
   return (
-    <Card className="flex flex-col gap-4">
+    <>
       <div className="flex items-baseline justify-between gap-4">
         <h3 className="font-display font-semibold">{project.title}</h3>
         <span className="shrink-0 font-mono text-xs text-muted">
@@ -26,6 +26,33 @@ export function ProjectCard({ project }: { project: FeaturedProject }) {
           <Tag key={tag}>{tag}</Tag>
         ))}
       </div>
+      {project.href && (
+        <p className="font-mono text-sm text-accent">case study →</p>
+      )}
+    </>
+  );
+}
+
+/** Landing-strip project card; links to the case study when one exists. */
+export function ProjectCard({ project }: { project: FeaturedProject }) {
+  if (project.href) {
+    return (
+      <Link
+        href={project.href}
+        className="rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        <Card
+          interactive
+          className="flex h-full flex-col gap-4 hover:border-accent"
+        >
+          <CardBody project={project} />
+        </Card>
+      </Link>
+    );
+  }
+  return (
+    <Card className="flex h-full flex-col gap-4">
+      <CardBody project={project} />
     </Card>
   );
 }

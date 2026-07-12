@@ -11,6 +11,8 @@ export type FeaturedProject = {
   category: ProjectCategory;
   tags: string[];
   metric?: { label: string; value: string };
+  /** Set once the case study exists at /projects/[slug]. */
+  href?: string;
 };
 
 export const featuredProjects: FeaturedProject[] = [
@@ -20,6 +22,7 @@ export const featuredProjects: FeaturedProject[] = [
       "A hand-built differential-drive robot that localizes with a Bayes filter and uses a Kalman filter to act faster than its sensors update.",
     category: "Robotics",
     tags: ["kalman", "bayes", "pid", "embedded c++"],
+    href: "/projects/fast-robots",
   },
   {
     title: "Huey — autonomous combat robot",
