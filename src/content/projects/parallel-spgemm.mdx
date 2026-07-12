@@ -1,0 +1,65 @@
+---
+slug: parallel-spgemm
+title: "Parallel Sparse Matrix–Matrix Multiplication"
+oneLiner: "A parallel SpGEMM built on Gustavson's algorithm, reaching ~21× speedup on a 32-core Xeon system by attacking load imbalance and memory-bound accumulation."
+category: systems-hpc
+track: school
+tags:
+  [
+    Parallel computing,
+    Sparse linear algebra,
+    Performance engineering,
+    C++,
+    OpenMP,
+  ]
+timeframe: "Spring 2026"
+role: "Solo"
+org: "Cornell ECE 6750 — Advanced Computer Architecture"
+featured: true
+metrics:
+  - { label: "speedup", value: "~21× on 32 cores" }
+  - { label: "parallel efficiency", value: "~66%" }
+---
+
+## Problem
+
+Sparse matrix–matrix multiplication (SpGEMM) sits under graph analytics,
+scientific computing, and ML workloads — and it parallelizes badly by
+default. Unlike dense GEMM, the work per row is wildly uneven, the memory
+access pattern is irregular, and you don't even know how big the output is
+until you've essentially computed it.
+
+## Constraints
+
+- Target: a single 32-core Xeon node (shared memory), parallelized with
+  OpenMP.
+- Real sparse inputs with skewed nonzero distributions, not synthetic
+  uniform matrices.
+- Graded against measured speedup — the baseline had to be an honest,
+  optimized serial implementation, not a strawman.
+
+## Approach
+
+Gustavson's row-wise formulation: each output row is a sparse accumulation
+of scaled rows of B, selected by the nonzeros of A's corresponding row.
+That structure gives clean row-level parallelism, but naive static
+partitioning collapses when a few heavy rows dominate. The implementation
+dealt with the three classic SpGEMM problems — accumulator strategy for
+merging sparse partial products, sizing the output without a full symbolic
+pre-pass, and scheduling rows so cores finish together instead of one core
+inheriting all the heavy rows.
+
+## Why it's technically hard
+
+SpGEMM is memory-bound and irregular, so the usual parallel toolkit fights
+you: prefetchers can't predict the access pattern, cache lines are mostly
+wasted, and per-row work varies by orders of magnitude. Getting to ~21× on
+32 cores (~66% parallel efficiency) on a memory-bound kernel means the
+remaining gap is bandwidth and imbalance you can measure and explain — not
+synchronization overhead you ignored.
+
+## Result
+
+~21× speedup over the serial implementation on 32 cores, ~66% parallel
+efficiency. One of several projects from ECE 6750 (Advanced Computer
+Architecture); the accompanying paper will be linked here.
