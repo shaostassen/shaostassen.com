@@ -50,6 +50,7 @@ export function Nav() {
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const lastY = useRef(0);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     let ticking = false;
@@ -70,6 +71,12 @@ export function Nav() {
   return (
     <header
       onFocusCapture={() => setHidden(false)}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && menuOpen) {
+          setMenuOpen(false);
+          menuButtonRef.current?.focus();
+        }
+      }}
       className={cn(
         "sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur transition-transform duration-300 ease-out motion-reduce:transition-none",
         hidden && !menuOpen && "-translate-y-full",
@@ -94,6 +101,7 @@ export function Nav() {
           </div>
           <ThemeToggle />
           <button
+            ref={menuButtonRef}
             type="button"
             aria-label="Menu"
             aria-expanded={menuOpen}
