@@ -13,10 +13,10 @@ here. Per-story working logs live in `log/`.
 | S1.2  | E1   | Landing / hero                                 | done   | hero + positioning line + featured strip (typed, confirmed facts); CSS fade-up, LCP-safe; LH 97/100/100/100 |
 | S2.1  | E2   | Typed content layer + one seeded project       | done   | Zod schemas (incl. school/individual track), MDX pipeline, Fast Robots live at /projects/fast-robots; invalid frontmatter fails build (proven) |
 | S3.1  | E3   | Projects index with filtering                  | done   | /projects grouped School/Individual, accessible category chips, URL deep-link, empty states; SpGEMM authored as 2nd case study |
-| S3.2  | E3   | Project detail template + migrate all projects | todo   |        |
+| S3.2  | E3   | Project detail template + migrate all projects | doing  | prev/next + workstation project done; Huey/SpeechLens/EmPRISE/quant/Nomis blocked on confirms; OG → S7.2 |
 | S4.1  | E4   | About + skills                                 | done   | bio from confirmed facts (S&N minimal — review flag), evidence-linked typed skills, /about + nav link |
-| S4.2  | E4   | Experience & education timeline + resume       | todo   |        |
-| S5.1  | E5   | Coursework section with Fast Robots            | todo   |        |
+| S4.2  | E4   | Experience & education timeline + resume       | doing  | timelines live from typed data; needs S&N bullets/title, education details incl. high school, resume.pdf |
+| S5.1  | E5   | Coursework section with Fast Robots            | done   | /coursework with outbound reports link (no iframe, pinned by test) + ECE 6750 entry seeding F5; mobile nav menu added |
 | S6.1  | E6   | Contact + links                                | todo   |        |
 | S7.1  | E7   | Accessibility & responsive hardening           | todo   |        |
 | S7.2  | E7   | Performance, SEO, and metadata                 | todo   |        |
