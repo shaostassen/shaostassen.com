@@ -18,7 +18,7 @@ here. Per-story working logs live in `log/`.
 | S4.2  | E4   | Experience & education timeline + resume       | doing  | timelines live from typed data; needs S&N bullets/title, education details incl. high school, resume.pdf |
 | S5.1  | E5   | Coursework section with Fast Robots            | done   | /coursework with outbound reports link (no iframe, pinned by test) + ECE 6750 entry seeding F5; mobile nav menu added |
 | S6.1  | E6   | Contact + links                                | done   | mailto-only w/ client-side-assembled email (no address in HTML, pinned by test); LinkedIn added site-wide |
-| S7.1  | E7   | Accessibility & responsive hardening           | todo   |        |
+| S7.1  | E7   | Accessibility & responsive hardening           | done   | axe suite 9 routes × 2 themes (40 checks green), menu Escape+focus return, reduced-motion delay bug fixed; A11y=100 |
 | S7.2  | E7   | Performance, SEO, and metadata                 | todo   |        |
 | S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | todo   |        |
 | S10.1 | E10  | README + "about this site" colophon            | todo   |        |
