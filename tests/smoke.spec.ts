@@ -72,6 +72,26 @@ test("theme toggle overrides the system theme", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
+test("case study renders from validated MDX", async ({ page }) => {
+  await page.goto("/projects/fast-robots");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Fast Robots",
+  );
+  await expect(
+    page.getByRole("heading", { name: /technically hard/i }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: /full reports/i })).toBeVisible();
+});
+
+test("landing card links to the case study", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: /Fast Robots/ }).click();
+  await expect(page).toHaveURL(/\/projects\/fast-robots/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Fast Robots",
+  );
+});
+
 test("styleguide is not exposed in production builds", async ({ page }) => {
   await page.goto("/styleguide");
   await expect(page.getByText(/could not be found/i)).toBeVisible();
