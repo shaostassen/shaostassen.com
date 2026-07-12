@@ -14,7 +14,7 @@ here. Per-story working logs live in `log/`.
 | S2.1  | E2   | Typed content layer + one seeded project       | done   | Zod schemas (incl. school/individual track), MDX pipeline, Fast Robots live at /projects/fast-robots; invalid frontmatter fails build (proven) |
 | S3.1  | E3   | Projects index with filtering                  | done   | /projects grouped School/Individual, accessible category chips, URL deep-link, empty states; SpGEMM authored as 2nd case study |
 | S3.2  | E3   | Project detail template + migrate all projects | todo   |        |
-| S4.1  | E4   | About + skills                                 | todo   |        |
+| S4.1  | E4   | About + skills                                 | done   | bio from confirmed facts (S&N minimal — review flag), evidence-linked typed skills, /about + nav link |
 | S4.2  | E4   | Experience & education timeline + resume       | todo   |        |
 | S5.1  | E5   | Coursework section with Fast Robots            | todo   |        |
 | S6.1  | E6   | Contact + links                                | todo   |        |

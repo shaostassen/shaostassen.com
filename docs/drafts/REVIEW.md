@@ -68,6 +68,20 @@ and I'll fold the answers in. Once confirmed, these move to `src/content/project
 - Was this an internship? What was the AUC target (take-up vs. default)? The revenue-lift figure?
 - **Confidentiality: confirm what Nomis allows public before this ships.**
 
+## About page (S4.1 — live, review these)
+
+1. **Smith & Nephew mention** is LinkedIn-level: company + "embedded
+   software for medical devices (IEC 62304, MicroBlaze soft-core FPGAs)".
+   No products, no project detail. Trim or expand — this is the open
+   "detail level" decision made minimally.
+2. Bio claims all trace to your confirmed facts. Flag anything that reads
+   off-voice.
+3. Skills are evidence-based only; the plan's draft also listed RTOS —
+   omitted (no confirmed project). Add/remove freely in
+   `src/content/data/skills.ts`.
+4. "software engineer + PM" self-description (from your notes) was NOT
+   used in the bio — say the word if you want the PM identity surfaced.
+
 ## Hero positioning line (S1.2 — shipped with option A, swap anytime)
 
 - **A (live):** "I work where software meets hardware — control loops on
