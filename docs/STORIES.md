@@ -12,7 +12,7 @@ here. Per-story working logs live in `log/`.
 | S1.1  | E1   | App shell (nav, footer, theme toggle)          | done   | hide-on-scroll nav (focus-safe), theme toggle w/ system default + localStorage, skip link, footer; LH 97/100/100/100 |
 | S1.2  | E1   | Landing / hero                                 | done   | hero + positioning line + featured strip (typed, confirmed facts); CSS fade-up, LCP-safe; LH 97/100/100/100 |
 | S2.1  | E2   | Typed content layer + one seeded project       | done   | Zod schemas (incl. school/individual track), MDX pipeline, Fast Robots live at /projects/fast-robots; invalid frontmatter fails build (proven) |
-| S3.1  | E3   | Projects index with filtering                  | todo   |        |
+| S3.1  | E3   | Projects index with filtering                  | done   | /projects grouped School/Individual, accessible category chips, URL deep-link, empty states; SpGEMM authored as 2nd case study |
 | S3.2  | E3   | Project detail template + migrate all projects | todo   |        |
 | S4.1  | E4   | About + skills                                 | todo   |        |
 | S4.2  | E4   | Experience & education timeline + resume       | todo   |        |
