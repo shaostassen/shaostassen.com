@@ -36,9 +36,13 @@ test("nav hides on scroll down and reveals on scroll up", async ({ page }) => {
   test.skip(room < 300, "page not scrollable enough at this viewport");
 
   const header = page.locator("header");
+  await page.mouse.move(300, 300);
   await page.mouse.wheel(0, 700);
   await expect(header).toHaveClass(/-translate-y-full/);
-  await page.mouse.wheel(0, -300);
+  // two separate up-wheels so a scroll event definitely lands after the
+  // rAF from the previous batch
+  await page.mouse.wheel(0, -150);
+  await page.mouse.wheel(0, -150);
   await expect(header).not.toHaveClass(/-translate-y-full/);
 });
 
@@ -89,6 +93,46 @@ test("landing card links to the case study", async ({ page }) => {
   await expect(page).toHaveURL(/\/projects\/fast-robots/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "Fast Robots",
+  );
+});
+
+test("projects index groups by track and filters by category", async ({
+  page,
+}) => {
+  await page.goto("/projects");
+  await expect(
+    page.getByRole("heading", { name: "School work" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Individual work" }),
+  ).toBeVisible();
+  await expect(page.getByText("write-ups in progress")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(2);
+
+  // filter to Robotics: SpGEMM disappears, Fast Robots stays
+  await page.getByRole("button", { name: "Robotics" }).click();
+  await expect(page.getByRole("button", { name: "Robotics" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(1);
+  await expect(page).toHaveURL(/category=robotics/);
+
+  // empty category shows the edge state
+  await page.getByRole("button", { name: "Embedded" }).click();
+  await expect(
+    page.getByText("no projects in this category yet"),
+  ).toBeVisible();
+});
+
+test("projects filter deep-links via URL", async ({ page }) => {
+  await page.goto("/projects?category=systems-hpc");
+  await expect(
+    page.getByRole("button", { name: "Systems · HPC" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 3 })).toContainText(
+    "Sparse Matrix",
   );
 });
 
