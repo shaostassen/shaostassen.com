@@ -6,9 +6,11 @@ import { cn } from "@/lib/cn";
 import { Container } from "@/components/layout/Container";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
-// Page links join this list as their routes ship (About in S4.1, Projects in
-// S3.1, …) — the nav never points at a route that doesn't exist yet.
-const links: Array<{ href: string; label: string }> = [];
+// Page links join this list as their routes ship (About in S4.1, …) — the
+// nav never points at a route that doesn't exist yet.
+const links: Array<{ href: string; label: string }> = [
+  { href: "/projects", label: "Projects" },
+];
 
 /**
  * Sticky header that hides on scroll-down and reveals on scroll-up (or when
