@@ -19,7 +19,7 @@ here. Per-story working logs live in `log/`.
 | S5.1  | E5   | Coursework section with Fast Robots            | done   | /coursework with outbound reports link (no iframe, pinned by test) + ECE 6750 entry seeding F5; mobile nav menu added |
 | S6.1  | E6   | Contact + links                                | done   | mailto-only w/ client-side-assembled email (no address in HTML, pinned by test); LinkedIn added site-wide |
 | S7.1  | E7   | Accessibility & responsive hardening           | done   | axe suite 9 routes × 2 themes (40 checks green), menu Escape+focus return, reduced-motion delay bug fixed; A11y=100 |
-| S7.2  | E7   | Performance, SEO, and metadata                 | todo   |        |
+| S7.2  | E7   | Performance, SEO, and metadata                 | done   | title template + OG/Twitter, generated OG images (root + per project), sitemap/robots, JSON-LD Person; analytics: none; LH 96/100/100/100 |
 | S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | todo   |        |
 | S10.1 | E10  | README + "about this site" colophon            | todo   |        |
 | S8.1  | E8   | Interactive control-systems demo (optional)    | todo   | deliberately last — fundamentals first |
@@ -49,9 +49,9 @@ E6 (M3), E7 (M4), then launch (M5).
   collection ("one tab") per Shao; SpGEMM is the first.
 - **F6:** attach the SpGEMM paper to its case study when Shao provides it.
 
-## Open decisions (PLAN §13, still unanswered)
+## Open decisions (PLAN §13)
 
-- Contact: `mailto` only vs. free static form service (decide by S6.1).
-- Analytics: none vs. privacy-friendly free tier (decide by S7.2).
-- Headshot vs. text-forward (decide by S4.1).
-- Smith & Nephew public detail level (decide by S4.2).
+All resolved: repo name + public ✅, Vercel + Route 53 ✅, direct-to-main
+✅, contact = mailto ✅, analytics = none ✅, text-forward (no headshot)
+✅. Smith & Nephew detail level remains at the LinkedIn-level minimum
+until Shao says otherwise (see docs/drafts/REVIEW.md).
