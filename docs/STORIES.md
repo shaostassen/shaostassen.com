@@ -20,7 +20,7 @@ here. Per-story working logs live in `log/`.
 | S6.1  | E6   | Contact + links                                | done   | mailto-only w/ client-side-assembled email (no address in HTML, pinned by test); LinkedIn added site-wide |
 | S7.1  | E7   | Accessibility & responsive hardening           | done   | axe suite 9 routes × 2 themes (40 checks green), menu Escape+focus return, reduced-motion delay bug fixed; A11y=100 |
 | S7.2  | E7   | Performance, SEO, and metadata                 | done   | title template + OG/Twitter, generated OG images (root + per project), sitemap/robots, JSON-LD Person; analytics: none; LH 96/100/100/100 |
-| S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | doing  | domain added to Vercel; DNS resolving (both hosts → 76.76.21.21); awaiting SSL, then flip SITE_URL |
+| S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | done   | live at https://shaostassen.com w/ Let's Encrypt SSL; www → apex 308; all absolute URLs flipped. Open: one mistyped NS at the registrar (ns-1657 → ns-1697) |
 | S10.1 | E10  | README + "about this site" colophon            | done   | README rewritten as a work sample; /colophon with decisions + LH scores + what's next; footer link |
 | S8.1  | E8   | Interactive control-systems demo (optional)    | todo   | deliberately last — fundamentals first |
 
@@ -35,6 +35,13 @@ E6 (M3), E7 (M4), then launch (M5).
   S3.1's index should group by it. High-school content TBD.
 
 ## Follow-ups
+
+- **F8 (Shao, small but real):** the registrar's nameserver list has a
+  typo — `ns-1657.awsdns-20.co.uk` should be `ns-1697.awsdns-20.co.uk`.
+  `ns-1657` does not respond, so ~1 in 4 DNS lookups stalls before
+  retrying. Route 53 → Registered domains → Edit name servers.
+- **F9 (Shao):** set the GitHub repo description + topics (the API token
+  on this machine belongs to a different account).
 
 - **F1 (after S5.1, low priority):** migrate the Fast Robots lab reports into
   native MDX under `/coursework/fast-robots/*`, retiring the old GitHub Pages
