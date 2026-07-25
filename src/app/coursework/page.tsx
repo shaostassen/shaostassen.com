@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 
 export const metadata: Metadata = {
-  title: "Coursework — Shao Stassen",
+  title: "Coursework",
   description:
     "Course-based engineering work at Cornell: Fast Robots lab reports, Advanced Computer Architecture projects, and more.",
 };

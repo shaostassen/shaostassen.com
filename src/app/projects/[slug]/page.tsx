@@ -37,7 +37,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { project } = await loadProject((await params).slug);
   return {
-    title: `${project.title} — Shao Stassen`,
+    title: project.title,
     description: project.oneLiner,
   };
 }

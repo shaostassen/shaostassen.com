@@ -5,7 +5,7 @@ import { ProjectsExplorer } from "@/components/projects/ProjectsExplorer";
 import { allProjects } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Projects — Shao Stassen",
+  title: "Projects",
   description:
     "School and individual engineering projects — embedded systems, robotics, ML/CV, and systems/HPC.",
 };

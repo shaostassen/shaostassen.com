@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
 import { Card } from "@/components/ui/Card";
 import { Prose } from "@/components/ui/Prose";
 import { Timeline } from "@/components/ui/Timeline";
@@ -10,7 +11,7 @@ import { experience } from "@/content/data/experience";
 import { skillGroups } from "@/content/data/skills";
 
 export const metadata: Metadata = {
-  title: "About — Shao Stassen",
+  title: "About",
   description:
     "Cornell ECE engineer working across embedded systems, controls, ML/CV, and systems/HPC.",
 };
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <Section>
+      <PersonJsonLd />
       <Container>
         <h1 className="font-display text-display">About</h1>
 

@@ -7,7 +7,7 @@ import { Tag } from "@/components/ui/Tag";
 import { Prose } from "@/components/ui/Prose";
 
 export const metadata: Metadata = {
-  title: "Styleguide — Shao Stassen",
+  title: "Styleguide",
   robots: { index: false },
 };
 

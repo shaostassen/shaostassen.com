@@ -5,7 +5,7 @@ import { ContactEmail } from "@/components/contact/ContactEmail";
 import { profile } from "@/content/data/profile";
 
 export const metadata: Metadata = {
-  title: "Contact — Shao Stassen",
+  title: "Contact",
   description: "How to reach Shao Stassen.",
 };
 
