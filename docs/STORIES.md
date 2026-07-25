@@ -20,8 +20,8 @@ here. Per-story working logs live in `log/`.
 | S6.1  | E6   | Contact + links                                | done   | mailto-only w/ client-side-assembled email (no address in HTML, pinned by test); LinkedIn added site-wide |
 | S7.1  | E7   | Accessibility & responsive hardening           | done   | axe suite 9 routes × 2 themes (40 checks green), menu Escape+focus return, reduced-motion delay bug fixed; A11y=100 |
 | S7.2  | E7   | Performance, SEO, and metadata                 | done   | title template + OG/Twitter, generated OG images (root + per project), sitemap/robots, JSON-LD Person; analytics: none; LH 96/100/100/100 |
-| S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | todo   |        |
-| S10.1 | E10  | README + "about this site" colophon            | todo   |        |
+| S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | doing  | domain added to Vercel; DNS resolving (both hosts → 76.76.21.21); awaiting SSL, then flip SITE_URL |
+| S10.1 | E10  | README + "about this site" colophon            | done   | README rewritten as a work sample; /colophon with decisions + LH scores + what's next; footer link |
 | S8.1  | E8   | Interactive control-systems demo (optional)    | todo   | deliberately last — fundamentals first |
 
 Human checkpoints (do not cross without review): after E1 (M1), E3 (M2),
