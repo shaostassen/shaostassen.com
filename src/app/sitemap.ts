@@ -6,7 +6,14 @@ export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-  const staticPaths = ["", "/about", "/projects", "/coursework", "/contact"];
+  const staticPaths = [
+    "",
+    "/about",
+    "/projects",
+    "/coursework",
+    "/contact",
+    "/colophon",
+  ];
   return [
     ...staticPaths.map((path) => ({
       url: `${SITE_URL}${path}`,
