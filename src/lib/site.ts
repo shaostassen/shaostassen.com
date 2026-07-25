@@ -1,6 +1,6 @@
-// Canonical site URL — flips to https://shaostassen.com at the S9.1
-// domain cutover (update here, rebuild, done).
-export const SITE_URL = "https://shaostassencom.vercel.app";
+// Canonical site URL. Every absolute URL (metadataBase, OG images,
+// sitemap, robots, JSON-LD) derives from this one constant.
+export const SITE_URL = "https://shaostassen.com";
 
 export const SITE_NAME = "Shao Stassen";
 
