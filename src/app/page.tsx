@@ -1,11 +1,13 @@
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
 import { featuredProjects } from "@/content/data/projects";
 
 export default function Home() {
   return (
     <div>
+      <PersonJsonLd />
       <Section className="pb-8 sm:pb-8">
         <Container>
           <p className="mb-3 font-mono text-sm text-muted">shaostassen.com</p>
