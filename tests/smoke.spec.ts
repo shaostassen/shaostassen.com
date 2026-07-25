@@ -63,7 +63,25 @@ test("app shell: skip link is first tab stop, landmarks present", async ({
   await expect(page.getByRole("banner")).toBeVisible();
   await expect(page.getByRole("main")).toBeVisible();
   await expect(page.getByRole("contentinfo")).toBeVisible();
-  await expect(page.getByRole("contentinfo")).toContainText("Built with");
+  await expect(page.getByRole("contentinfo")).toContainText("source");
+});
+
+test("colophon documents the stack and links from the footer", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("contentinfo")
+    .getByRole("link", { name: "colophon" })
+    .click();
+  await expect(page).toHaveURL(/\/colophon/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Colophon");
+  await expect(
+    page.getByRole("heading", { name: "Decisions worth explaining" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "What I would do next" }),
+  ).toBeVisible();
 });
 
 test("theme toggle overrides the system theme", async ({ page }) => {

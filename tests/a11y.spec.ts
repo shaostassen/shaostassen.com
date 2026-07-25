@@ -10,6 +10,7 @@ const pages = [
   "/projects/ml-workstation-edge-pipeline",
   "/coursework",
   "/contact",
+  "/colophon",
   "/definitely-not-a-page", // 404 boundary
 ];
 

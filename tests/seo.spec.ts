@@ -9,6 +9,7 @@ test("sitemap lists every route", async ({ page }) => {
     "/projects",
     "/coursework",
     "/contact",
+    "/colophon",
     "/projects/fast-robots",
     "/projects/parallel-spgemm",
     "/projects/ml-workstation-edge-pipeline",
