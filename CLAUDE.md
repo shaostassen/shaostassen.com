@@ -19,8 +19,14 @@
 4. **Build** — commit at logical checkpoints (see `git-workflow` skill).
 5. **Validate** — ALL must pass:
    `pnpm typecheck` · `pnpm lint` · `pnpm format:check` · `pnpm build` ·
-   `pnpm test` · `pnpm lighthouse` (Performance ≥ 95, Accessibility = 100,
+   `pnpm test` · `pnpm lighthouse` (Performance ≥ 90, Accessibility = 100,
    Best Practices ≥ 95, SEO = 100) · no console errors or warnings.
+
+   The performance floor was 95 until the S11.2 photography landed. Lowered
+   to 90 by Shao's explicit decision, as a deliberate trade: a photo-rich
+   design for ~2 points of simulated-mobile LCP. It is a floor, not a
+   target — do not spend it casually.
+
 6. **Evaluate** — every acceptance criterion met; check layout at
    375 / 768 / 1440 px; design-system, accessibility, and copy-voice review
    (see `qa-gate` skill). Fix now or log an explicit follow-up in STORIES.md.

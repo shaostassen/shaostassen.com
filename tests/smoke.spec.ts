@@ -22,7 +22,7 @@ test("home page renders without console errors", async ({ page }) => {
 test("featured projects strip renders from typed content", async ({ page }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Selected work" }),
+    page.getByRole("heading", { name: "Things I have built" }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { level: 3 })).toHaveCount(4);
   await expect(page.getByText("~21× on 32 cores")).toBeVisible();
@@ -161,7 +161,9 @@ test("about page renders bio and evidence-linked skills", async ({ page }) => {
   await page.goto("/about");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("About");
   await expect(page.getByText(/Cornell \(Class of 2026\)/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Skills" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "What I work in" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Controls & estimation" }),
   ).toBeVisible();

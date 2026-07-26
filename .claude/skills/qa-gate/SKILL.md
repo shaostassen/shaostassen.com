@@ -21,10 +21,12 @@ pnpm test           # Playwright smoke tests against the export
 pnpm lighthouse     # LHCI against out/ — budgets below are hard gates
 ```
 
-Budgets: **Performance ≥ 95 · Accessibility = 100 · Best Practices ≥ 95 ·
+Budgets: **Performance ≥ 90 · Accessibility = 100 · Best Practices ≥ 95 ·
 SEO = 100.** Plus: no console errors or warnings in the browser.
 
 A failed gate is fixed now — never waived, never "temporarily" lowered.
+Changing a budget is Shao's call, made explicitly, and recorded with the
+reason (see the S11.2 log for the one time it has happened).
 
 ## Phase 2 — Evaluate (quality & intent)
 
