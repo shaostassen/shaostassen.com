@@ -34,6 +34,10 @@ export const projectSchema = z.object({
   metrics: z
     .array(z.object({ label: z.string(), value: z.string() }))
     .optional(),
+  /** Photo plates shown under the case study; slugs from data/photos.ts. */
+  gallery: z
+    .array(z.object({ slug: z.string(), caption: z.string() }))
+    .optional(),
 });
 
 export type Project = z.infer<typeof projectSchema>;

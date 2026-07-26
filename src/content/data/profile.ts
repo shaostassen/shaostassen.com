@@ -9,3 +9,6 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/shaostassen",
   siteRepo: "https://github.com/shaostassen/shaostassen.com",
 };
+
+// Photography now lives in content/data/photos.ts, keyed by slug and
+// backed by build-time derivatives (see scripts/process-photos.mjs).
