@@ -57,6 +57,7 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
       >
         <Card
           interactive
+          framed
           className="flex h-full flex-col gap-4 hover:border-accent"
         >
           <CardBody project={project} />

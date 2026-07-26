@@ -13,6 +13,9 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
+  --color-grid: var(--grid);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display:
@@ -55,14 +58,26 @@
  * data-theme on <html> to override. Every fg/bg pair below passes WCAG AA
  * in both themes — ratios documented on /styleguide (dev).
  */
+/*
+ * Palette: oscilloscope channel colors. Scopes label CH1 amber, CH2 cyan,
+ * CH3 magenta — so the accents are literal instrument convention rather
+ * than decoration. Amber leads because it carries warmth against photos;
+ * cyan is secondary; magenta is a rare highlight. Light theme is lab-paper
+ * warm white, dark theme is scope-bezel black.
+ * Every text pair below is >= 5:1 against both background and surface.
+ */
 :root {
   color-scheme: light dark;
-  --background: light-dark(#ffffff, #0b0c0e);
-  --surface: light-dark(#f4f5f6, #15171a);
-  --border: light-dark(#e3e5e8, #26292e);
-  --foreground: light-dark(#17181a, #e6e7e9);
-  --muted: light-dark(#55595f, #9ba1a6);
-  --accent: light-dark(#0e7490, #22d3ee);
+  --background: light-dark(#fbfaf7, #07090c);
+  --surface: light-dark(#f2efe8, #0f1318);
+  --border: light-dark(#dcd6c8, #262c35);
+  --foreground: light-dark(#14161a, #e8e9ec);
+  --muted: light-dark(#54585f, #99a0a8);
+  --accent: light-dark(#8a5300, #f5b544);
+  --accent-2: light-dark(#0e6f88, #3ad7ee);
+  --accent-3: light-dark(#9b2c6f, #f070c0);
+  /* graph-paper rule; decorative only, never carries meaning */
+  --grid: light-dark(rgba(20, 22, 26, 0.055), rgba(232, 233, 236, 0.045));
 }
 
 :root[data-theme="light"] {
@@ -179,6 +194,81 @@
 .prose :where(img) {
   border-radius: 0.5rem;
   border: 1px solid var(--border);
+}
+
+/*
+ * Instrument motifs. All decorative: aria-hidden where they are elements,
+ * pure CSS where they are texture, and none of them carry meaning that
+ * isn't also in the text.
+ */
+
+/* Graph paper. 8pt minor rule, 5x major rule — engineering pad, not a
+   spreadsheet. Fades out toward the bottom so content stays dominant. */
+.grid-paper {
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size:
+    8px 8px,
+    8px 8px,
+    40px 40px,
+    40px 40px;
+  background-position: -1px -1px;
+}
+
+.grid-fade {
+  mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+}
+
+/* Corner brackets — a scope screen's framing marks. */
+.brackets {
+  position: relative;
+}
+
+.brackets::before,
+.brackets::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--accent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.brackets::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.brackets::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+/* Monospace annotation with a leading tick, like a measurement callout. */
+.annotation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.annotation::before {
+  content: "";
+  width: 1.5rem;
+  height: 1px;
+  background: var(--accent);
 }
 
 /* Theme-dependent visibility (e.g. ThemeToggle icons) without JS state. */

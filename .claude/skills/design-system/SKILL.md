@@ -47,9 +47,27 @@ site, make it earn its place with craft, not decoration.
 ## Layout primitives
 
 Built in S0.3 (see `/styleguide` in dev): `Container`, `Section` in
-`src/components/layout/`; `Card`, `Tag`, `Prose` in `src/components/ui/`.
-`Nav`/`Footer` come in S1.1. Never write a one-off wrapper that duplicates
-a primitive's job — extend the primitive instead.
+`src/components/layout/`; `Card`, `Tag`, `Prose` in `src/components/ui/`;
+`Timeline` in S4.2; `Nav`/`Footer` in S1.1. Never write a one-off wrapper
+that duplicates a primitive's job — extend the primitive instead.
+
+## Art direction (S11.1) — instrument / lab
+
+The site reads as a measuring instrument, not decoration. Motifs live in
+`src/components/instrument/`: `GridBackdrop` (graph paper), `WaveDivider`
+(signal traces), `Annotation` (measurement callouts), plus the `.brackets`
+utility for scope-style corner framing (`<Card framed>`).
+
+Rules:
+
+- **Every motif is decorative.** `aria-hidden`, never the sole carrier of
+  meaning, never a focus target. If removing it loses information, it was
+  the wrong tool.
+- **Accents are oscilloscope channels:** `accent` amber (CH1, primary),
+  `accent-2` cyan (CH2), `accent-3` magenta (CH3, rare). Do not introduce
+  a fourth.
+- **Grid stays under 6% opacity** and fades out; content always dominates.
+- Corners are `rounded-sm` — drafted, not soft.
 
 ## Don'ts
 
