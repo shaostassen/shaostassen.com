@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { Annotation } from "@/components/instrument/Annotation";
+import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 
@@ -16,16 +18,18 @@ const FAST_ROBOTS_REPORTS =
 
 export default function CourseworkPage() {
   return (
-    <Section>
+    <Section className="relative isolate">
+      <GridBackdrop />
       <Container>
-        <h1 className="font-display text-display">Coursework</h1>
+        <Annotation>coursework</Annotation>
+        <h1 className="mt-5 font-display text-display">Coursework</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted">
           The course-based side of the school work — lab reports and project
           series, with links to the full write-ups.
         </p>
 
         <div className="mt-10 space-y-6">
-          <Card className="max-w-3xl">
+          <Card framed className="max-w-3xl">
             <p className="font-mono text-xs text-muted">
               Cornell ECE 4160 · Spring 2026
             </p>
@@ -62,7 +66,7 @@ export default function CourseworkPage() {
             </p>
           </Card>
 
-          <Card className="max-w-3xl">
+          <Card framed className="max-w-3xl">
             <p className="font-mono text-xs text-muted">
               Cornell ECE 6750 · Spring 2026
             </p>

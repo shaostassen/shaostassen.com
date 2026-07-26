@@ -3,6 +3,10 @@ import Link from "next/link";
 import { compileMDX } from "next-mdx-remote/rsc";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { GridBackdrop } from "@/components/instrument/GridBackdrop";
+import { WaveDivider } from "@/components/instrument/WaveDivider";
+import { Plate } from "@/components/photo/Plate";
+import type { PhotoSlug } from "@/content/data/photos";
 import { Prose } from "@/components/ui/Prose";
 import { Tag } from "@/components/ui/Tag";
 import { projectSchema, type Project } from "@/content/schema";
@@ -58,7 +62,8 @@ export default async function ProjectPage({
     .join(" · ");
 
   return (
-    <Section>
+    <Section className="relative isolate">
+      <GridBackdrop />
       <Container>
         <p className="mb-8 font-mono text-sm">
           <Link
@@ -123,7 +128,28 @@ export default async function ProjectPage({
           )}
         </header>
 
-        <Prose className="mt-12">{content}</Prose>
+        <WaveDivider variant="step" className="mt-10" />
+
+        <Prose className="mt-10">{content}</Prose>
+
+        {project.gallery && project.gallery.length > 0 && (
+          <section aria-labelledby="plates" className="mt-16">
+            <h2 id="plates" className="font-display text-title">
+              Plates
+            </h2>
+            <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {project.gallery.map((item, i) => (
+                <Plate
+                  key={item.slug}
+                  slug={item.slug as PhotoSlug}
+                  fig={String(i + 1).padStart(2, "0")}
+                  caption={item.caption}
+                  aspect="4 / 3"
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         <nav
           aria-label="More projects"

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { Annotation } from "@/components/instrument/Annotation";
+import { GridBackdrop } from "@/components/instrument/GridBackdrop";
+import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { Prose } from "@/components/ui/Prose";
@@ -30,7 +33,17 @@ const colorTokens = [
   {
     name: "accent",
     cls: "bg-accent",
-    note: "links, key numbers — 5.4:1 light / 10.8:1 dark",
+    note: "CH1 amber — links, key numbers — 6.1:1 light / 11.0:1 dark",
+  },
+  {
+    name: "accent-2",
+    cls: "bg-accent-2",
+    note: "CH2 cyan — secondary — 5.5:1 light / 11.5:1 dark",
+  },
+  {
+    name: "accent-3",
+    cls: "bg-accent-3",
+    note: "CH3 magenta — rare highlight — 6.7:1 light / 7.4:1 dark",
   },
 ];
 
@@ -117,6 +130,28 @@ export default function Styleguide() {
                 />
               </div>
             ))}
+          </div>
+        </Section>
+
+        <Section className="pt-0">
+          <h2 className="font-display text-title">Instrument motifs</h2>
+          <p className="mt-2 text-sm text-muted">
+            All decorative: aria-hidden, never the sole carrier of meaning.
+          </p>
+          <div className="relative isolate mt-6 overflow-hidden rounded-sm border border-border p-6">
+            <GridBackdrop />
+            <Annotation>annotation label</Annotation>
+            <p className="mt-4 text-sm text-muted">
+              Graph paper backdrop behind this block, annotation above.
+            </p>
+          </div>
+          <div className="mt-6 space-y-2">
+            <p className="font-mono text-xs text-muted">step (PID response)</p>
+            <WaveDivider variant="step" />
+            <p className="font-mono text-xs text-muted">sine</p>
+            <WaveDivider variant="sine" />
+            <p className="font-mono text-xs text-muted">square (clock)</p>
+            <WaveDivider variant="square" />
           </div>
         </Section>
 

@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { Annotation } from "@/components/instrument/Annotation";
+import { GridBackdrop } from "@/components/instrument/GridBackdrop";
+import { WaveDivider } from "@/components/instrument/WaveDivider";
+import { Card } from "@/components/ui/Card";
 import { Prose } from "@/components/ui/Prose";
 import { profile } from "@/content/data/profile";
 
@@ -12,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 const scores = [
-  { label: "performance", value: "96" },
+  { label: "performance", value: "93" },
   { label: "accessibility", value: "100" },
   { label: "best practices", value: "100" },
   { label: "seo", value: "100" },
@@ -20,27 +24,38 @@ const scores = [
 
 export default function ColophonPage() {
   return (
-    <Section>
+    <Section className="relative isolate">
+      <GridBackdrop />
       <Container>
-        <h1 className="font-display text-display">Colophon</h1>
+        <Annotation>colophon</Annotation>
+        <h1 className="mt-5 font-display text-display">Colophon</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted">
           This site is one of the projects. Here is how it is built and what I
           decided along the way.
         </p>
 
-        <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-3 font-mono text-sm">
-          {scores.map((s) => (
-            <div key={s.label}>
-              <dt className="inline text-muted">{s.label} </dt>
-              <dd className="inline text-accent">{s.value}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className="mt-2 font-mono text-xs text-muted">
-          Lighthouse, asserted on every build — not a one-off screenshot
-        </p>
+        {/* Scope-style readout of the enforced budgets. */}
+        <Card framed className="mt-10 max-w-2xl">
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-4 font-mono text-sm sm:grid-cols-4">
+            {scores.map((s) => (
+              <div key={s.label}>
+                <dt className="text-xs uppercase tracking-wider text-muted">
+                  {s.label}
+                </dt>
+                <dd className="mt-1 text-2xl text-accent">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-5 font-mono text-xs text-muted">
+            Lighthouse, asserted on every build — not a one-off screenshot.
+            Performance held at 96 before the photography; the floor is now 90,
+            spent deliberately on images.
+          </p>
+        </Card>
 
-        <Prose className="mt-14">
+        <WaveDivider variant="square" className="mt-14" />
+
+        <Prose className="mt-10">
           <h2>Stack</h2>
           <p>
             Next.js 15 (App Router) with React 19 and TypeScript in strict mode,
@@ -100,8 +115,9 @@ export default function ColophonPage() {
               describes.
             </li>
             <li>
-              Push the remaining case studies past the write-up stage, and
-              revisit the performance score once real images land.
+              Push the remaining case studies past the write-up stage, and win
+              back the performance the photography cost — the heading is waiting
+              on a font, so subsetting is the next thing to try.
             </li>
           </ul>
 
