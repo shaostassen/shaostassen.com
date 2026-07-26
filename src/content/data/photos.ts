@@ -68,3 +68,6 @@ export const photos = {
 } as const satisfies Record<string, PhotoMeta>;
 
 export type PhotoSlug = keyof typeof photos;
+
+/** Tuple form for Zod enums, so content referencing a photo is validated. */
+export const photoSlugs = Object.keys(photos) as [PhotoSlug, ...PhotoSlug[]];

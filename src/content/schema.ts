@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { photoSlugs } from "@/content/data/photos";
 
 /**
  * Content schemas — the contract between MDX/data files and the site.
@@ -23,20 +24,31 @@ export const projectSchema = z.object({
   category: z.enum(projectCategories),
   track: z.enum(projectTracks),
   tags: z.array(z.string()).min(1),
-  timeframe: z.string().min(1),
+  /** Optional: an entry may be real before its dates are confirmed. */
+  timeframe: z.string().min(1).optional(),
   role: z.string().min(1),
   org: z.string().optional(),
   repo: z.string().url().optional(),
   demo: z.string().url().optional(),
   featured: z.boolean().default(false),
   status: z.enum(["complete", "in-progress"]).default("complete"),
+  /**
+   * False for projects that are real and worth listing but have no
+   * write-up yet: they appear in listings, unlinked, and get no detail
+   * route. Prevents "coming soon" pages, which are worse than nothing.
+   */
+  caseStudy: z.boolean().default(true),
   cover: z.string().optional(),
   metrics: z
     .array(z.object({ label: z.string(), value: z.string() }))
     .optional(),
-  /** Photo plates shown under the case study; slugs from data/photos.ts. */
+  /**
+   * Photo plates shown under the case study. The slug is validated against
+   * the real photo manifest, so a typo fails the build with a message
+   * naming the bad slug instead of crashing on an undefined lookup.
+   */
   gallery: z
-    .array(z.object({ slug: z.string(), caption: z.string() }))
+    .array(z.object({ slug: z.enum(photoSlugs), caption: z.string() }))
     .optional(),
 });
 

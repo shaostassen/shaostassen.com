@@ -6,16 +6,17 @@ import { Section } from "@/components/layout/Section";
 import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Plate } from "@/components/photo/Plate";
-import type { PhotoSlug } from "@/content/data/photos";
 import { Prose } from "@/components/ui/Prose";
 import { Tag } from "@/components/ui/Tag";
 import { projectSchema, type Project } from "@/content/schema";
-import { allProjects, projectSlugs, projectSource } from "@/lib/content";
+import { caseStudyProjects, projectSource } from "@/lib/content";
 
 export const dynamicParams = false;
 
-export function generateStaticParams() {
-  return projectSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  // Only projects with a write-up get a route — listing-only entries must
+  // not resolve to an empty page.
+  return (await caseStudyProjects()).map((p) => ({ slug: p.slug }));
 }
 
 // Compile + validate. Zod throwing here fails the build — invalid
@@ -52,7 +53,7 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { content, project } = await loadProject((await params).slug);
-  const projects = await allProjects();
+  const projects = await caseStudyProjects();
   const index = projects.findIndex((p) => p.slug === project.slug);
   const prev = index > 0 ? projects[index - 1] : undefined;
   const next = index < projects.length - 1 ? projects[index + 1] : undefined;
@@ -141,7 +142,7 @@ export default async function ProjectPage({
               {project.gallery.map((item, i) => (
                 <Plate
                   key={item.slug}
-                  slug={item.slug as PhotoSlug}
+                  slug={item.slug}
                   fig={String(i + 1).padStart(2, "0")}
                   caption={item.caption}
                   aspect="4 / 3"
