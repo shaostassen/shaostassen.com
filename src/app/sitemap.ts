@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
-import { projectSlugs } from "@/lib/content";
+import { caseStudyProjects } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-static";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const staticPaths = [
     "",
@@ -19,8 +19,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE_URL}${path}`,
       lastModified: now,
     })),
-    ...projectSlugs().map((slug) => ({
-      url: `${SITE_URL}/projects/${slug}`,
+    ...(await caseStudyProjects()).map((p) => ({
+      url: `${SITE_URL}/projects/${p.slug}`,
       lastModified: now,
     })),
   ];

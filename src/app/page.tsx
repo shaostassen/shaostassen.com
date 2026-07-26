@@ -7,9 +7,11 @@ import { Photo } from "@/components/photo/Photo";
 import { Plate } from "@/components/photo/Plate";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
-import { featuredProjects } from "@/content/data/projects";
+import { allProjects } from "@/lib/content";
 
-export default function Home() {
+export default async function Home() {
+  const featured = (await allProjects()).filter((p) => p.featured);
+
   return (
     <div>
       <PersonJsonLd />
@@ -83,18 +85,8 @@ export default function Home() {
               full case studies in progress
             </p>
             <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {featuredProjects.map((p) => (
-                <ProjectCard
-                  key={p.title}
-                  project={{
-                    title: p.title,
-                    description: p.description,
-                    categoryLabel: p.category,
-                    tags: p.tags,
-                    metric: p.metric,
-                    href: p.href,
-                  }}
-                />
+              {featured.map((p) => (
+                <ProjectCard key={p.slug} project={p} />
               ))}
             </div>
           </div>

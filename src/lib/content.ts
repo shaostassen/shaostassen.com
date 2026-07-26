@@ -5,7 +5,7 @@ import { projectSchema, type Project } from "@/content/schema";
 
 const PROJECTS_DIR = path.join(process.cwd(), "src/content/projects");
 
-/** Slugs of every authored case study (one .mdx per project). */
+/** Slugs of every project entry (one .mdx per project, page or not). */
 export function projectSlugs(): string[] {
   return fs
     .readdirSync(PROJECTS_DIR)
@@ -42,4 +42,9 @@ export async function allProjects(): Promise<Project[]> {
     (a, b) =>
       Number(b.featured) - Number(a.featured) || a.title.localeCompare(b.title),
   );
+}
+
+/** Projects that have a written case study, i.e. a detail route. */
+export async function caseStudyProjects(): Promise<Project[]> {
+  return (await allProjects()).filter((p) => p.caseStudy);
 }

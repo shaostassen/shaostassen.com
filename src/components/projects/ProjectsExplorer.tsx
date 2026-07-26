@@ -81,18 +81,7 @@ export function ProjectsExplorer({ projects }: { projects: Project[] }) {
             {group.length > 0 ? (
               <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
                 {group.map((p) => (
-                  <ProjectCard
-                    key={p.slug}
-                    project={{
-                      title: p.title,
-                      description: p.oneLiner,
-                      categoryLabel: categoryLabels[p.category],
-                      tags: p.tags,
-                      metric: p.metrics?.[0],
-                      href: `/projects/${p.slug}`,
-                      inProgress: p.status === "in-progress",
-                    }}
-                  />
+                  <ProjectCard key={p.slug} project={p} />
                 ))}
               </div>
             ) : (

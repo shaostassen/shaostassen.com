@@ -1,0 +1,53 @@
+---
+slug: huey-autonomous-combat-robot
+title: "Huey: Autonomous 3 lb Combat Robot"
+oneLiner: "A beetleweight combat robot that finds and engages its opponent on its own — vision-based detection feeding an orientation controller, in an environment built to destroy it."
+category: robotics
+track: school
+tags: [YOLO, PID, Anti-windup, Computer vision, Motor control, Embedded]
+role: "Autonomy subteam lead"
+org: "Cornell Combat Robotics"
+status: in-progress
+featured: true
+metrics:
+  - { label: "weight class", value: "3 lb" }
+---
+
+## Problem
+
+Combat robotics is almost universally teleoperated — a human closes the
+loop. Huey's goal was to close it in software: detect the opponent, orient
+toward it, and drive the engagement autonomously, in a domain actively
+trying to break your sensors.
+
+## Constraints
+
+- A 3 lb budget shared between armour, weapon, drivetrain, battery **and**
+  the compute and camera for autonomy. Every gram spent on perception is a
+  gram not spent surviving hits.
+- Match-length decision latency: hesitation loses fights.
+- Arena conditions are hostile to vision — harsh lighting, debris, motion
+  blur, and an opponent whose appearance changes as it takes damage.
+
+## Approach
+
+I led the autonomy subteam. A YOLO model detects the opponent from the
+onboard camera; an orientation PID controller with anti-windup turns
+detections into heading commands; closed-loop drivetrain control underneath
+keeps commanded motion matching actual motion as battery voltage sags and
+wheels lose grip.
+
+## Why it's technically hard
+
+Everything is adversarial and non-stationary. The detector's subject is
+trying not to be where you predict, impacts knock sensors out of
+calibration mid-match, and the target leaves frame constantly — which is
+exactly why anti-windup matters, since a naive integrator saturates during
+every detection gap and then slams the robot past the target on
+reacquisition. All of it inside a weight and power budget a phone would
+find restrictive.
+
+## Status
+
+Write-up in progress — competition results and the compute breakdown are
+still being collected.

@@ -1,14 +1,14 @@
 import { ImageResponse } from "next/og";
 import { categoryLabels } from "@/content/schema";
-import { allProjects, projectSlugs } from "@/lib/content";
+import { caseStudyProjects } from "@/lib/content";
 
 export const dynamic = "force-static";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = "Project case study";
 
-export function generateStaticParams() {
-  return projectSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  return (await caseStudyProjects()).map((p) => ({ slug: p.slug }));
 }
 
 export default async function OpengraphImage({
@@ -17,7 +17,7 @@ export default async function OpengraphImage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = (await allProjects()).find((p) => p.slug === slug);
+  const project = (await caseStudyProjects()).find((p) => p.slug === slug);
   if (!project) throw new Error(`No project for og image: ${slug}`);
 
   const titleSize = project.title.length > 40 ? 56 : 72;
@@ -36,7 +36,9 @@ export default async function OpengraphImage({
       }}
     >
       <div style={{ fontSize: 26, color: "#9ba1a6" }}>
-        {[categoryLabels[project.category], project.timeframe].join(" · ")}
+        {[categoryLabels[project.category], project.timeframe]
+          .filter(Boolean)
+          .join(" · ")}
       </div>
       <div
         style={{
