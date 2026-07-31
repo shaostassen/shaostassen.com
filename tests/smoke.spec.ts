@@ -301,3 +301,95 @@ test("styleguide is not exposed in production builds", async ({ page }) => {
   );
   await expect(page.getByText(/color tokens/i)).toHaveCount(0);
 });
+
+// --- S8.1: the PID demo ---------------------------------------------------
+
+/** Overshoot percentage parsed out of the plot's accessible summary. */
+async function overshootOf(page: import("@playwright/test").Page) {
+  const label = await page
+    .getByRole("img", { name: /Step response plot/ })
+    .getAttribute("aria-label");
+  return Number(/Overshoot (-?[\d.]+) percent/.exec(label ?? "")?.[1]);
+}
+
+test("pid demo is fully rendered in the export, before any JS runs", async ({
+  page,
+}) => {
+  // The simulation is deterministic precisely so the default curve ships in
+  // the HTML — a visitor without JS gets a real chart, just no sliders.
+  const raw = await (await page.request.get("/projects/fast-robots")).text();
+  expect(raw).toContain("<polyline");
+  expect(raw).toContain("Step response plot");
+  // both traces (output + control effort) and every control
+  expect(raw.match(/<polyline/g)).toHaveLength(2);
+  expect(raw.match(/type="range"/g)).toHaveLength(3);
+  expect(raw).toContain('type="checkbox"');
+  // real computed numbers, not placeholders
+  expect(raw).toMatch(/Settles in \d+\.\d+ seconds/);
+});
+
+test("pid demo hydrates cleanly and reacts to input", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (m) => {
+    if (m.type() === "error") errors.push(m.text());
+  });
+  page.on("pageerror", (e) => errors.push(e.message));
+
+  await page.goto("/projects/fast-robots");
+  const baseline = await overshootOf(page);
+  expect(baseline).toBeLessThan(5); // the default is a good tune
+
+  // Windup: with the actuator saturating, dropping anti-windup should make
+  // a high Ki overshoot dramatically worse. This is the demo's whole point.
+  await page.locator("#pid-ki").fill("20");
+  const withAnti = await overshootOf(page);
+  await page.locator("#pid-anti").uncheck();
+  const withoutAnti = await overshootOf(page);
+
+  expect(withoutAnti).toBeGreaterThan(withAnti * 2);
+  expect(withoutAnti).toBeGreaterThan(20);
+
+  // A hydration mismatch would surface here as a console error.
+  expect(errors).toEqual([]);
+});
+
+test("pid demo shows integral action closing steady-state error", async ({
+  page,
+}) => {
+  await page.goto("/projects/fast-robots");
+  const err = async () => {
+    const label = await page
+      .getByRole("img", { name: /Step response plot/ })
+      .getAttribute("aria-label");
+    // anchored digits-dot-digits: a greedy [\d.]+ swallows the sentence's
+    // full stop and yields NaN
+    return Number(/Steady-state error (\d+\.\d+)/.exec(label ?? "")?.[1]);
+  };
+
+  // Proportional only: a residual error that more Kp shrinks but never closes.
+  await page.locator("#pid-ki").fill("0");
+  await page.locator("#pid-kp").fill("2");
+  const loose = await err();
+  await page.locator("#pid-kp").fill("10");
+  const tight = await err();
+  expect(loose).toBeGreaterThan(0.1);
+  expect(tight).toBeLessThan(loose);
+  expect(tight).toBeGreaterThan(0);
+
+  // Integral action closes it — compared at the same Kp as `loose`, since
+  // the residual depends on Kp too and a 2 s window is not t → ∞.
+  await page.locator("#pid-kp").fill("2");
+  await page.locator("#pid-ki").fill("8");
+  expect(await err()).toBeLessThan(loose / 20);
+});
+
+test("pid demo reset restores the default tune", async ({ page }) => {
+  await page.goto("/projects/fast-robots");
+  await page.locator("#pid-ki").fill("20");
+  await page.locator("#pid-anti").uncheck();
+  expect(await overshootOf(page)).toBeGreaterThan(20);
+
+  await page.getByRole("button", { name: "reset" }).click();
+  await expect(page.locator("#pid-anti")).toBeChecked();
+  expect(await overshootOf(page)).toBeLessThan(5);
+});
