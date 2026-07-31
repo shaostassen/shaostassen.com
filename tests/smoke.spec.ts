@@ -64,10 +64,22 @@ test("nav hides on scroll down and reveals on scroll up", async ({ page }) => {
   await expect(header).not.toHaveClass(/-translate-y-full/);
 });
 
-test("unknown routes return the 404 page", async ({ page }) => {
+test("unknown routes return a designed 404 that routes back", async ({
+  page,
+}) => {
   const response = await page.goto("/definitely-not-a-page");
   expect(response?.status()).toBe(404);
-  await expect(page.getByText(/could not be found/i)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Nothing at this address",
+  );
+  await expect(page).toHaveTitle("Not found — Shao Stassen");
+
+  // it is a real page in the site's chrome, not Next's stock screen
+  await expect(page.getByRole("banner")).toBeVisible();
+  await expect(page.getByRole("contentinfo")).toBeVisible();
+
+  await page.getByRole("link", { name: "projects →" }).click();
+  await expect(page).toHaveURL(/\/projects/);
 });
 
 test("app shell: skip link is first tab stop, landmarks present", async ({
@@ -284,6 +296,8 @@ test("contact page: obfuscated email assembles client-side only", async ({
 
 test("styleguide is not exposed in production builds", async ({ page }) => {
   await page.goto("/styleguide");
-  await expect(page.getByText(/could not be found/i)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Nothing at this address",
+  );
   await expect(page.getByText(/color tokens/i)).toHaveCount(0);
 });
