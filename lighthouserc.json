@@ -2,7 +2,15 @@
   "ci": {
     "collect": {
       "staticDistDir": "out",
-      "url": ["http://localhost/"],
+      "url": [
+        "http://localhost/index.html",
+        "http://localhost/about.html",
+        "http://localhost/projects.html",
+        "http://localhost/coursework.html",
+        "http://localhost/contact.html",
+        "http://localhost/colophon.html",
+        "http://localhost/projects/fast-robots.html"
+      ],
       "numberOfRuns": 1
     },
     "assert": {
