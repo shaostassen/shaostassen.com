@@ -20,7 +20,7 @@ here. Per-story working logs live in `log/`.
 | S6.1  | E6   | Contact + links                                | done   | mailto-only w/ client-side-assembled email (no address in HTML, pinned by test); LinkedIn added site-wide |
 | S7.1  | E7   | Accessibility & responsive hardening           | done   | axe suite 9 routes × 2 themes (40 checks green), menu Escape+focus return, reduced-motion delay bug fixed; A11y=100 |
 | S7.2  | E7   | Performance, SEO, and metadata                 | done   | title template + OG/Twitter, generated OG images (root + per project), sitemap/robots, JSON-LD Person; analytics: none; LH 96/100/100/100 |
-| S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | done   | live at https://shaostassen.com w/ Let's Encrypt SSL; www → apex 308; all absolute URLs flipped. Open: one mistyped NS at the registrar (ns-1657 → ns-1697) |
+| S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | done   | live at https://shaostassen.com w/ Let's Encrypt SSL; www → apex 308; all absolute URLs flipped; registrar NS typo since corrected (F8) |
 | S10.1 | E10  | README + "about this site" colophon            | done   | README rewritten as a work sample; /colophon with decisions + LH scores + what's next; footer link |
 | S7.3  | E7   | Share-correctness: per-page metadata, full-site budgets, real 404 | doing | from Shao's 2026-07-31 review; on `feat/site-review` at his request |
 | S8.1  | E8   | Interactive control-systems demo (optional)    | todo   | deliberately last — fundamentals first |
@@ -51,10 +51,12 @@ E6 (M3), E7 (M4), then launch (M5).
 
 ## Follow-ups
 
-- **F8 (Shao, small but real):** the registrar's nameserver list has a
-  typo — `ns-1657.awsdns-20.co.uk` should be `ns-1697.awsdns-20.co.uk`.
-  `ns-1657` does not respond, so ~1 in 4 DNS lookups stalls before
-  retrying. Route 53 → Registered domains → Edit name servers.
+- ~~F8~~ **resolved** — verified 2026-07-31 against the `.com` registry, not
+  just a resolver cache. The delegation now reads `ns-241.awsdns-30.com`,
+  `ns-531.awsdns-02.net`, `ns-1480.awsdns-57.org`, and
+  `ns-1697.awsdns-20.co.uk`; all four answer for the apex in 53–120 ms.
+  The typo'd `ns-1657.awsdns-20.co.uk` still does not respond, but it is no
+  longer delegated, so nothing queries it.
 - **F9 (Shao):** set the GitHub repo description + topics (the API token
   on this machine belongs to a different account).
 
