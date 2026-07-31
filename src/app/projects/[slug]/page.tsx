@@ -6,6 +6,7 @@ import { Section } from "@/components/layout/Section";
 import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Plate } from "@/components/photo/Plate";
+import { PidLab } from "@/components/demo/PidLab";
 import { Prose } from "@/components/ui/Prose";
 import { Tag } from "@/components/ui/Tag";
 import { projectSchema, type Project } from "@/content/schema";
@@ -20,12 +21,18 @@ export async function generateStaticParams() {
   return (await caseStudyProjects()).map((p) => ({ slug: p.slug }));
 }
 
+// Interactive pieces a case study may place in its own body. Kept to an
+// explicit allow-list rather than a generic escape hatch: content should
+// only be able to reach components that were built for it.
+const mdxComponents = { PidLab };
+
 // Compile + validate. Zod throwing here fails the build — invalid
 // frontmatter must never ship.
 async function loadProject(slug: string) {
   const { content, frontmatter } = await compileMDX<Record<string, unknown>>({
     source: projectSource(slug),
     options: { parseFrontmatter: true },
+    components: mdxComponents,
   });
   const project: Project = projectSchema.parse(frontmatter);
   if (project.slug !== slug) {
