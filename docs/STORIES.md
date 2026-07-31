@@ -22,7 +22,7 @@ here. Per-story working logs live in `log/`.
 | S7.2  | E7   | Performance, SEO, and metadata                 | done   | title template + OG/Twitter, generated OG images (root + per project), sitemap/robots, JSON-LD Person; analytics: none; LH 96/100/100/100 |
 | S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | done   | live at https://shaostassen.com w/ Let's Encrypt SSL; www → apex 308; all absolute URLs flipped; registrar NS typo since corrected (F8) |
 | S10.1 | E10  | README + "about this site" colophon            | done   | README rewritten as a work sample; /colophon with decisions + LH scores + what's next; footer link |
-| S7.3  | E7   | Share-correctness: per-page metadata, full-site budgets, real 404 | doing | from Shao's 2026-07-31 review; on `feat/site-review` at his request |
+| S7.3  | E7   | Share-correctness: per-page metadata, full-site budgets, real 404 | done  | per-page canonical/OG/Twitter via one builder (every page used to share as the homepage); LH budgets now assert 7 routes, perf 93–97; designed 404; tests 84 → 112 |
 | S8.1  | E8   | Interactive control-systems demo (optional)    | todo   | deliberately last — fundamentals first |
 | S11.1 | E11  | Instrument/lab art direction + scope palette   | done   | scope-channel palette, graph paper, signal-trace dividers, corner brackets, annotations across all pages |
 | S11.2 | E11  | Photography as a field log                     | done   | committed image pipeline (99 derivatives), plates w/ FIG numbers, hero split, photo band, Fast Robots gallery; perf floor 95 → 90 by Shao's decision |
