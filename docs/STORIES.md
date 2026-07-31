@@ -22,6 +22,7 @@ here. Per-story working logs live in `log/`.
 | S7.2  | E7   | Performance, SEO, and metadata                 | done   | title template + OG/Twitter, generated OG images (root + per project), sitemap/robots, JSON-LD Person; analytics: none; LH 96/100/100/100 |
 | S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | done   | live at https://shaostassen.com w/ Let's Encrypt SSL; www → apex 308; all absolute URLs flipped. Open: one mistyped NS at the registrar (ns-1657 → ns-1697) |
 | S10.1 | E10  | README + "about this site" colophon            | done   | README rewritten as a work sample; /colophon with decisions + LH scores + what's next; footer link |
+| S7.3  | E7   | Share-correctness: per-page metadata, full-site budgets, real 404 | doing | from Shao's 2026-07-31 review; on `feat/site-review` at his request |
 | S8.1  | E8   | Interactive control-systems demo (optional)    | todo   | deliberately last — fundamentals first |
 | S11.1 | E11  | Instrument/lab art direction + scope palette   | done   | scope-channel palette, graph paper, signal-trace dividers, corner brackets, annotations across all pages |
 | S11.2 | E11  | Photography as a field log                     | done   | committed image pipeline (99 derivatives), plates w/ FIG numbers, hero split, photo band, Fast Robots gallery; perf floor 95 → 90 by Shao's decision |
@@ -30,6 +31,12 @@ Human checkpoints (do not cross without review): after E1 (M1), E3 (M2),
 E6 (M3), E7 (M4), then launch (M5).
 
 ## Plan amendments
+
+- **2026-07-31 (Shao): S7.3 from a review pass.** Shao asked for a
+  codebase review rather than the next backlog story; the top three
+  findings became S7.3, ahead of S8.1. Built on a `feat/site-review`
+  branch at his request — a one-story deviation from the direct-to-main
+  rule in PLAN §13 / the `git-workflow` skill, which otherwise stands.
 
 - **2026-07-25 (Shao): Epic 11 — art direction.** The site should be more
   artistic and personal, with photos of Shao including one as a hero
@@ -50,6 +57,14 @@ E6 (M3), E7 (M4), then launch (M5).
   retrying. Route 53 → Registered domains → Edit name servers.
 - **F9 (Shao):** set the GitHub repo description + topics (the API token
   on this machine belongs to a different account).
+
+- **F10 (from S7.3, small):** inline accent links — the hero's GitHub/LinkedIn
+  row, contact, coursework, colophon, and the new 404 — fall back to the
+  browser's default 1px focus ring, while nav links and buttons use the
+  site's `focus-visible:outline-2 outline-accent`. Visible either way (axe
+  passes), and consistent across those pages today, so S7.3 matched the
+  existing pattern rather than making the 404 the odd one out. Worth
+  unifying in one pass rather than page by page.
 
 - **F1 (after S5.1, low priority):** migrate the Fast Robots lab reports into
   native MDX under `/coursework/fast-robots/*`, retiring the old GitHub Pages
