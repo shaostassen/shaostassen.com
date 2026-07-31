@@ -115,6 +115,17 @@ export default function ColophonPage() {
             to get that right is one place to test it.
           </p>
           <p>
+            <strong>The interactive demo is deterministic on purpose.</strong>{" "}
+            The PID lab on the Fast Robots case study runs no random numbers and
+            reads no clock, so the server render and the browser compute the
+            same curve. That is what lets the default response — both traces and
+            the measured overshoot, settling time, and steady-state error — ship
+            inside the exported HTML: without JavaScript you still get a real
+            chart with real numbers, just no sliders. It costs 2.4 kB of
+            JavaScript and no dependency, and it did not move that page off the
+            top of the performance range.
+          </p>
+          <p>
             <strong>Accessibility measured, not claimed.</strong> axe-core runs
             over every route in both themes and both viewports on each test run.
             It has already earned its place: it caught a reduced-motion rule
@@ -130,9 +141,10 @@ export default function ColophonPage() {
               lives under one domain and one design system.
             </li>
             <li>
-              Add an interactive control-systems demo — a PID or Kalman
-              visualizer — as the one piece of the site that shows rather than
-              describes.
+              Extend the interactive work past the PID lab on the{" "}
+              <Link href="/projects/fast-robots">Fast Robots case study</Link> —
+              a Kalman visualizer is the obvious next one, though it needs
+              noise, which is harder to keep deterministic.
             </li>
             <li>
               Push the remaining case studies past the write-up stage, and win
