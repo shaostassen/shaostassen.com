@@ -5,12 +5,14 @@ import { Annotation } from "@/components/instrument/Annotation";
 import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { ProjectsExplorer } from "@/components/projects/ProjectsExplorer";
 import { allProjects } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Projects",
   description:
     "School and individual engineering projects — embedded systems, robotics, ML/CV, and systems/HPC.",
-};
+  path: "/projects",
+});
 
 export default async function ProjectsPage() {
   const projects = await allProjects();

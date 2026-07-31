@@ -10,6 +10,7 @@ import { Prose } from "@/components/ui/Prose";
 import { Tag } from "@/components/ui/Tag";
 import { projectSchema, type Project } from "@/content/schema";
 import { caseStudyProjects, projectSource } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
 
 export const dynamicParams = false;
 
@@ -41,10 +42,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { project } = await loadProject((await params).slug);
-  return {
+  return pageMetadata({
     title: project.title,
     description: project.oneLiner,
-  };
+    path: `/projects/${project.slug}`,
+    type: "article",
+    // this segment has its own opengraph-image.tsx
+    hasOwnOgImage: true,
+  });
 }
 
 export default async function ProjectPage({

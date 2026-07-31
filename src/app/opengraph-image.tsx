@@ -1,10 +1,10 @@
 import { ImageResponse } from "next/og";
-import { SITE_DESCRIPTION } from "@/lib/site";
+import { OG_IMAGE, SITE_DESCRIPTION } from "@/lib/site";
 
 export const dynamic = "force-static";
-export const size = { width: 1200, height: 630 };
+export const size = { width: OG_IMAGE.width, height: OG_IMAGE.height };
 export const contentType = "image/png";
-export const alt = "Shao Stassen — engineer";
+export const alt = OG_IMAGE.alt;
 
 export default function OpengraphImage() {
   return new ImageResponse(

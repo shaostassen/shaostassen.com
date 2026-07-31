@@ -5,11 +5,13 @@ import { Annotation } from "@/components/instrument/Annotation";
 import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { ContactEmail } from "@/components/contact/ContactEmail";
 import { profile } from "@/content/data/profile";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contact",
   description: "How to reach Shao Stassen.",
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

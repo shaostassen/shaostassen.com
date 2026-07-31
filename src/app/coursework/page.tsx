@@ -6,12 +6,14 @@ import { Annotation } from "@/components/instrument/Annotation";
 import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Coursework",
   description:
     "Course-based engineering work at Cornell: Fast Robots lab reports, Advanced Computer Architecture projects, and more.",
-};
+  path: "/coursework",
+});
 
 const FAST_ROBOTS_REPORTS =
   "https://shaostassen.github.io/ShaoFastRobots/Fast%20Robots%20Stuff/";

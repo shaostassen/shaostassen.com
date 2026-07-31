@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Annotation } from "@/components/instrument/Annotation";
@@ -8,6 +9,9 @@ import { Plate } from "@/components/photo/Plate";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
 import { allProjects } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({ path: "/" });
 
 export default async function Home() {
   const featured = (await allProjects()).filter((p) => p.featured);

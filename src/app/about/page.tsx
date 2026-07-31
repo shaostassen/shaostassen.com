@@ -13,12 +13,14 @@ import { Plate } from "@/components/photo/Plate";
 import { education } from "@/content/data/education";
 import { experience } from "@/content/data/experience";
 import { skillGroups } from "@/content/data/skills";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About",
   description:
     "Cornell ECE engineer working across embedded systems, controls, ML/CV, and systems/HPC.",
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

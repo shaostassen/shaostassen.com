@@ -1,5 +1,95 @@
 import { test, expect } from "@playwright/test";
 
+const SITE = "https://shaostassen.com";
+
+// Every indexable route, with the title its social card must advertise.
+const routes = [
+  { path: "/", title: "Shao Stassen" },
+  { path: "/about", title: "About — Shao Stassen" },
+  { path: "/projects", title: "Projects — Shao Stassen" },
+  { path: "/coursework", title: "Coursework — Shao Stassen" },
+  { path: "/contact", title: "Contact — Shao Stassen" },
+  { path: "/colophon", title: "Colophon — Shao Stassen" },
+  {
+    path: "/projects/fast-robots",
+    title:
+      "Fast Robots: Sensor Fusion and Autonomous Navigation — Shao Stassen",
+  },
+  {
+    path: "/projects/parallel-spgemm",
+    title: "Parallel Sparse Matrix–Matrix Multiplication — Shao Stassen",
+  },
+];
+
+const content = (page: import("@playwright/test").Page, selector: string) =>
+  page.locator(selector).getAttribute("content");
+
+for (const { path, title } of routes) {
+  // Regression guard for S7.3: every page used to advertise the site title
+  // and og:url = the homepage, so sharing a case study rendered a generic
+  // card pointing at "/". The identity has to be per-route.
+  test(`social card identifies ${path} as itself`, async ({ page }) => {
+    await page.goto(path);
+    const expected = `${SITE}${path === "/" ? "" : path}`;
+
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      expected,
+    );
+    expect(await content(page, 'meta[property="og:url"]')).toBe(expected);
+    expect(await content(page, 'meta[property="og:title"]')).toBe(title);
+    expect(await content(page, 'meta[name="twitter:title"]')).toBe(title);
+
+    // The page description, not the site's — except on the landing page,
+    // where they are legitimately the same string.
+    const ogDescription = await content(
+      page,
+      'meta[property="og:description"]',
+    );
+    const metaDescription = await content(page, 'meta[name="description"]');
+    expect(ogDescription).toBe(metaDescription);
+    expect(ogDescription?.length).toBeGreaterThan(0);
+
+    // Declaring a per-page openGraph object replaces the layout's outright,
+    // so these have to survive the merge on every route.
+    expect(await content(page, 'meta[property="og:site_name"]')).toBe(
+      "Shao Stassen",
+    );
+    expect(await content(page, 'meta[name="twitter:card"]')).toBe(
+      "summary_large_image",
+    );
+
+    // Likewise the image: an ancestor segment's file-convention image is
+    // dropped once a descendant declares openGraph.
+    const ogImage = await content(page, 'meta[property="og:image"]');
+    expect(ogImage).toBeTruthy();
+    const imageRes = await page.request.get(new URL(ogImage!).pathname);
+    expect(imageRes.status()).toBe(200);
+  });
+}
+
+test("case studies are articles and carry their own og image", async ({
+  page,
+}) => {
+  await page.goto("/projects/fast-robots");
+  expect(await content(page, 'meta[property="og:type"]')).toBe("article");
+  expect(await content(page, 'meta[property="og:image"]')).toContain(
+    "/projects/fast-robots/opengraph-image",
+  );
+
+  // Non-case-study routes stay websites on the site-wide image.
+  await page.goto("/about");
+  expect(await content(page, 'meta[property="og:type"]')).toBe("website");
+  expect(await content(page, 'meta[property="og:image"]')).toContain(
+    "/opengraph-image",
+  );
+});
+
+test("the 404 claims no canonical", async ({ page }) => {
+  await page.goto("/definitely-not-a-page");
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+});
+
 test("sitemap lists every route", async ({ page }) => {
   const res = await page.request.get("/sitemap.xml");
   expect(res.status()).toBe(200);

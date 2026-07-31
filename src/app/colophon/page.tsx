@@ -8,15 +8,19 @@ import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Card } from "@/components/ui/Card";
 import { Prose } from "@/components/ui/Prose";
 import { profile } from "@/content/data/profile";
+import { pageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Colophon",
   description:
     "How this site is built: stack, architecture decisions, and quality budgets.",
-};
+  path: "/colophon",
+});
 
+// Worst-to-best across every audited route, so the tile can never flatter
+// the site by quoting only its best page.
 const scores = [
-  { label: "performance", value: "93" },
+  { label: "performance", value: "94+" },
   { label: "accessibility", value: "100" },
   { label: "best practices", value: "100" },
   { label: "seo", value: "100" },
@@ -47,9 +51,11 @@ export default function ColophonPage() {
             ))}
           </dl>
           <p className="mt-5 font-mono text-xs text-muted">
-            Lighthouse, asserted on every build — not a one-off screenshot.
-            Performance held at 96 before the photography; the floor is now 90,
-            spent deliberately on images.
+            Lighthouse, asserted on every build across all seven public routes —
+            not a one-off screenshot of the fastest page. The lowest performance
+            score of the seven sets the number above. Performance held at 96
+            before the photography; the floor is now 90, spent deliberately on
+            images.
           </p>
         </Card>
 
@@ -93,6 +99,18 @@ export default function ColophonPage() {
             study&apos;s frontmatter is parsed with Zod during the build. A
             category typo or a slug that disagrees with its filename fails the
             build rather than rendering something broken.
+          </p>
+          <p>
+            <strong>One builder for every page&apos;s metadata.</strong> Titles
+            and descriptions were per-page from the start, but the Open Graph
+            and Twitter tags were not — so every case study shared as the
+            homepage, with <code>og:url</code> pointing at <code>/</code>. The
+            fix routes all metadata through a single function, because Next
+            merges metadata between layouts and pages shallowly: a page that
+            declares its own <code>openGraph</code> replaces the layout&apos;s
+            object outright, silently taking <code>og:site_name</code>,{" "}
+            <code>twitter:card</code> and the inherited image with it. One place
+            to get that right is one place to test it.
           </p>
           <p>
             <strong>Accessibility measured, not claimed.</strong> axe-core runs

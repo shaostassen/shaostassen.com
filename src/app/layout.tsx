@@ -23,6 +23,10 @@ const jetbrainsMono = JetBrains_Mono({
   preload: false,
 });
 
+// Site-wide defaults only. Per-page titles, descriptions, canonicals and
+// social cards come from `pageMetadata()` (src/lib/metadata.ts), which every
+// route calls — deliberately including `alternates`, so a page that forgot
+// would ship no canonical rather than inherit a wrong one.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
