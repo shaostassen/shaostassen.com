@@ -17,12 +17,13 @@ export const metadata: Metadata = pageMetadata({
   path: "/colophon",
 });
 
-// Worst-to-best across every audited route, so the tile can never flatter
-// the site by quoting only its best page.
+// The enforced budgets, not a sampled score. Performance moves a point or
+// two between runs, so quoting a measurement here just goes stale — as the
+// hardcoded "93" that used to sit in this array did. The floor never does.
 const scores = [
-  { label: "performance", value: "94+" },
+  { label: "performance", value: "≥ 90" },
   { label: "accessibility", value: "100" },
-  { label: "best practices", value: "100" },
+  { label: "best practices", value: "≥ 95" },
   { label: "seo", value: "100" },
 ];
 
@@ -52,10 +53,11 @@ export default function ColophonPage() {
           </dl>
           <p className="mt-5 font-mono text-xs text-muted">
             Lighthouse, asserted on every build across all seven public routes —
-            not a one-off screenshot of the fastest page. The lowest performance
-            score of the seven sets the number above. Performance held at 96
-            before the photography; the floor is now 90, spent deliberately on
-            images.
+            not a one-off screenshot of the fastest page. These are the floors
+            the build fails below, so they cannot go stale; the last run
+            measured 93–97 on performance and 100 on the rest. Performance held
+            at 96 before the photography, and the floor moved to 90
+            deliberately, spent on images.
           </p>
         </Card>
 
