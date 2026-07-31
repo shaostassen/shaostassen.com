@@ -48,6 +48,23 @@ sensing would allow. On top of that: high-speed stunts (a drift turn and a
 flip), an inverted-pendulum balance, and grid-based Bayes-filter
 localization from ToF scans feeding waypoint navigation.
 
+Tuning that PID is the part people picture as turning three knobs until it
+looks right. It is really a chain of trades. Raise Kp and the steady-state
+error shrinks but never closes — drop Ki to zero and push Kp to the top to
+see the gap that is left. Add Ki and it closes, at the price of overshoot.
+And because a real actuator runs out of authority, Ki also buys windup: the
+integral keeps accumulating error the motor cannot act on, so the loop
+sails past the target before it recovers. Turn anti-windup off, put Ki near
+20, and watch the overshoot go from a few percent to roughly a third.
+
+<PidLab />
+
+That plant is a generic first-order lag — the shape a motor loop takes —
+not this robot's measured dynamics. I am not going to publish numbers I did
+not fit. What carries over is the shape of the trade, which is the one I
+tuned against on hardware, where battery sag and motor deadband move it run
+to run.
+
 ## Why it's technically hard
 
 The interesting problems are all about acting faster than you can sense.
