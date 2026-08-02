@@ -451,7 +451,9 @@ test("the electrons case study links to the instrument", async ({ page }) => {
     .getByRole("link", { name: /open the instrument/i })
     .first()
     .click();
-  await expect(page).toHaveURL(/\/projects\/electrons\/lab\/?$/);
+  // Not anchored with $: the instrument writes ?level= on arrival, which is
+  // the deep-link feature working, not a stray redirect.
+  await expect(page).toHaveURL(/\/projects\/electrons\/lab(\?|$)/);
   await expect(
     page.getByRole("heading", { level: 1, name: /Electrons/ }),
   ).toBeVisible();
@@ -481,4 +483,46 @@ test("the instrument keeps the host page's landmarks intact", async ({
   // chrome={false} must not introduce a second <main> or a second <h1>.
   await expect(page.locator("main")).toHaveCount(1);
   await expect(page.locator("h1")).toHaveCount(1);
+});
+
+test("a level can be linked directly", async ({ page }) => {
+  // The whole point of ?level= is that someone lands on that rung, not on 01.
+  await page.goto("/projects/electrons/lab?level=07");
+  await expect(page.getByText("flip-flop capture window")).toBeVisible();
+
+  // The slug is accepted too, and the URL is normalised to the padded number
+  // so a shared link looks deliberate.
+  await page.goto("/projects/electrons/lab?level=memory");
+  await expect(page.getByText("6T SRAM cell", { exact: false })).toBeVisible();
+  await expect(page).toHaveURL(/level=11/);
+});
+
+test("moving through the ladder keeps the deep link in step", async ({
+  page,
+}) => {
+  await page.goto("/projects/electrons/lab");
+  await expect(page).toHaveURL(/level=01/);
+  await page
+    .getByRole("navigation", { name: "Ladder levels" })
+    .getByRole("button", { name: /DATAPATH/ })
+    .click();
+  await expect(page).toHaveURL(/level=09/);
+  // replaceState, not pushState: one level must not become one history entry.
+  await page.goBack();
+  await expect(page).not.toHaveURL(/\/projects\/electrons\/lab/);
+});
+
+test("the guided tour starts on request and stops on demand", async ({
+  page,
+}) => {
+  await page.goto("/projects/electrons/lab");
+  // Idle until asked — nothing autoplays.
+  await expect(page.getByRole("button", { name: /guided tour/ })).toBeVisible();
+  await expect(page.getByText(/step 1 of/)).toHaveCount(0);
+
+  await page.getByRole("button", { name: /guided tour/ }).click();
+  await expect(page.getByText(/step 1 of 11/)).toBeVisible();
+
+  await page.getByRole("button", { name: /stop tour/ }).click();
+  await expect(page.getByRole("button", { name: /guided tour/ })).toBeVisible();
 });
