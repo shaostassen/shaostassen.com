@@ -1,0 +1,81 @@
+---
+slug: electrons
+title: "Electrons → Instructions"
+oneLiner: "An interactive eleven-level descent from charge drifting in copper to a running program that puts a bit back on a pin — and every level can be broken on purpose."
+category: embedded
+track: individual
+tags:
+  [
+    Digital logic,
+    CMOS,
+    Computer architecture,
+    SVG,
+    React,
+    TypeScript,
+    Teaching tool,
+  ]
+timeframe: "2026"
+role: "Solo"
+repo: "https://github.com/shaostassen/visualize_how_electron_produce_real_work"
+featured: true
+metrics:
+  - label: levels
+    value: "11, each earned"
+  - label: runtime deps
+    value: "0"
+  - label: tests
+    value: "70"
+---
+
+**[Open the instrument →](/projects/electrons/lab)**
+
+## Problem
+
+Every explanation of "how a computer works" I could find either stops at logic
+gates or starts at assembly. The gap between them is where the interesting
+things live — propagation delay, metastability, why a floating pin warms a chip
+— and it gets waved through. I wanted a version where each layer visibly earns
+the one above it, and where the program at the top puts a bit back on the same
+wire the first level started with.
+
+## Constraints
+
+No runtime dependencies, so it drops into any React page and cannot rot when a
+chart library changes. Everything is hand-rolled SVG. Server-renderable, because
+a teaching tool that shows a blank box without JavaScript teaches nothing.
+
+## Approach
+
+Eleven levels: voltage thresholds, the CMOS inverter, NAND from four
+transistors, a full adder, a 4-bit ripple adder, the latch, setup/hold and
+metastability, the control FSM, the datapath, a working CPU, and memory. Level
+10 runs a real blink loop and drives the scope trace from level 01 — the ladder
+closes on itself. Level 11 is a coda, because an SRAM cell turns out to be the
+level-06 latch again.
+
+## Why it's technically hard
+
+Not the rendering — the honesty. Color carries meaning here: amber means _in
+flight, not yet trustworthy_, and that one convention is what makes propagation
+delay, hazards, metastability and carry ripple legible as the same phenomenon.
+Six meanings, each of which has to stay distinct from the other five.
+
+Keeping it true under refactoring is the real work. Level 11's read-disturb
+threshold is not a constant I typed in; it is the metastable root that level 06
+finds numerically, and a test asserts the two are equal. If they ever drift the
+build fails, instead of the prose quietly becoming a lie.
+
+## Result
+
+All eleven levels have a failure mode you can trigger: forbidden-zone glitches,
+shoot-through at mid-rail, the illegal SR state, an aperture violation, a runt
+clock pulse that steals a phase, bus contention, an overclock that corrupts a
+register, and a read that destroys the bit it just read. 70 tests cover the
+arithmetic, the CPU, and the parts where being wrong would be invisible.
+
+## What I'd do next
+
+Deep-link routing, so a single level can be sent to someone directly. Beyond
+that I would stop. The rungs above memory — coherence, virtual memory, an
+operating system — get hand-wavy fast, and the whole credibility of this thing
+is that every rung is shown mechanically.
