@@ -1,17 +1,85 @@
 ---
 slug: speechlens
 title: "SpeechLens"
-oneLiner: "A fully local speech-analysis stack — faster-whisper and Silero VAD behind a FastAPI service — running on an RTX 5090 and a Jetson Orin Nano."
+oneLiner: "A fully local language-ID and transcription pipeline — faster-whisper and Silero VAD behind an explicit anti-hallucination harness — that holds 4.9× realtime on a laptop CPU with no GPU at all."
 category: ml-cv
 track: individual
-tags: [ASR, FastAPI, Jetson, faster-whisper, Silero VAD]
+tags: [ASR, Language ID, faster-whisper, Silero VAD, FastAPI, Python]
 timeframe: "Summer 2026"
 role: "Solo"
-status: in-progress
-caseStudy: false
+repo: "https://github.com/shaostassen/voice_detection_using_machine_learning"
 featured: true
+status: in-progress
+metrics:
+  - { label: "GPU throughput", value: "12.2× realtime (T4, large-v3)" }
+  - { label: "CPU throughput", value: "4.9× realtime (M2, small int8)" }
 ---
 
-Listed without a write-up by choice: the project is still being built, and
-a "coming soon" page is worse than none. The case study lands when there is
-something measured to report.
+## Problem
+
+I wanted to understand how a pressure waveform becomes words, and then how
+those waveforms differ between languages — the accent patterns a learner
+would have to hear to sound more like a native speaker.
+
+Getting there meant first solving a less interesting problem. Whisper is
+easy to call and hard to trust. At library defaults it writes fluent text
+over silence and music, loops on itself, and reports none of it. A
+confident wrong transcript is indistinguishable from a right one, and any
+analysis layer built on top inherits that.
+
+## Constraints
+
+- Entirely local: no cloud calls, no API keys, no audio leaving the machine.
+- No torch. The ceiling is faster-whisper on CTranslate2 plus NumPy, which
+  keeps the thing installable on an edge device.
+- No NVIDIA desktop GPU to develop against, so CPU is the default path
+  rather than a degraded fallback.
+
+## Approach
+
+Voice activity detection runs first: Silero gates the audio before the
+decoder ever sees it, because the most reliable way to stop a model
+inventing words over noise is not to hand it the noise. Language ID then
+takes several chunks and votes, fusing the distributions as a log-space
+geometric mean so two clean windows can veto one corrupted window. Every
+decode knob — beam width, the temperature fallback ladder, the repetition
+and no-speech gates — lives in a single config object rather than scattered
+call sites, so the decode behavior is diffable and testable. Per-segment
+confidence is surfaced, not swallowed.
+
+## Why it's technically hard
+
+The failure mode is silence, not a crash. A hallucinating model returns
+well-formed output, so nothing throws and no test fails — you only find out
+by deliberately degrading the input and watching what the pipeline claims.
+
+That forced a split: the pipeline takes its transcriber and detector by
+injection, so 30 tests cover the orchestration with no weights and no
+network in about two seconds, while everything needing three gigabytes of
+parameters lives in a separate validation harness driven from a notebook.
+
+## Result
+
+On a free-tier T4, `large-v3` at float16 decodes at 12.2× realtime. Without
+any GPU, `small` at int8 holds 4.9× realtime on an M2 laptop, which is the
+number that matters for a tool premised on running locally. Chunk voting
+identified all five languages in the multilingual check, including
+Mandarin, and held the correct language across a noise sweep from clean
+down to −5 dB SNR, where word error reached 33% without collapsing into
+invented text.
+
+Two design assumptions did not survive that sweep. The confidence gate
+never fired — zero flagged segments at every noise level, including the one
+where a third of the words are wrong, because the model stays confident
+while being incorrect. And the optional spectral-gating denoise stage made
+word error worse at every level, by up to 15 points, with the gap widening
+exactly where it was supposed to help. It stays off by default.
+
+## What I'd do next
+
+Fix the confidence gate properly: sweep the threshold, and if the
+log-probability signal is too flat to threshold usefully, move to one that
+did track degradation — the language-ID probability. Then broaden the
+evidence past a single 23-second clip, which characterizes behavior but is
+not a corpus benchmark. Only after that does the accent analysis that
+motivated the project get built on a foundation worth trusting.
