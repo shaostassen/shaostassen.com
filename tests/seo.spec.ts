@@ -85,6 +85,34 @@ test("case studies are articles and carry their own og image", async ({
   );
 });
 
+test("site icons are declared and actually resolve", async ({ page }) => {
+  await page.goto("/");
+  const links = page.locator('link[rel="icon"], link[rel="apple-touch-icon"]');
+  // .ico for legacy, .svg for modern, apple-touch-icon for iOS home screens
+  await expect(links).toHaveCount(3);
+
+  const rels = new Set<string>();
+  for (const el of await links.all()) {
+    const href = await el.getAttribute("href");
+    rels.add((await el.getAttribute("rel")) ?? "");
+    expect(href).toBeTruthy();
+    const res = await page.request.get(new URL(href!, "http://x").pathname);
+    expect(res.status(), `${href} should resolve`).toBe(200);
+    expect((await res.body()).byteLength).toBeGreaterThan(500);
+  }
+  expect([...rels].sort()).toEqual(["apple-touch-icon", "icon"]);
+});
+
+test("the nav logo is decorative, so the home link reads as one thing", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const home = page.getByRole("banner").getByRole("link").first();
+  // The mark must not add a second accessible name to the link.
+  await expect(home).toHaveAccessibleName("shaostassen.com");
+  await expect(home.locator("svg[aria-hidden='true']")).toHaveCount(1);
+});
+
 test("the 404 claims no canonical", async ({ page }) => {
   await page.goto("/definitely-not-a-page");
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
