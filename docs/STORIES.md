@@ -23,6 +23,7 @@ here. Per-story working logs live in `log/`.
 | S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | done   | live at https://shaostassen.com w/ Let's Encrypt SSL; www → apex 308; all absolute URLs flipped; registrar NS typo since corrected (F8) |
 | S10.1 | E10  | README + "about this site" colophon            | done   | README rewritten as a work sample; /colophon with decisions + LH scores + what's next; footer link |
 | S7.3  | E7   | Share-correctness: per-page metadata, full-site budgets, real 404 | done  | per-page canonical/OG/Twitter via one builder (every page used to share as the homepage); LH budgets now assert 7 routes, perf 93–97; designed 404; tests 84 → 112 |
+| S3.3  | E3   | High-school work: Super Gold Hunters            | done   | Java raycaster case study w/ 45s demo video (preload=none, 2.6 MB); new `graphics` category; every technical claim verified in the Java source; teammates credited |
 | S8.1  | E8   | Interactive control-systems demo (optional)    | done   | PID step-response lab on the Fast Robots case study — deterministic, so the chart+metrics ship in the HTML and work without JS; 2.42 kB, no new deps; that page went 96 → 97 at 0 ms TBT |
 | S11.1 | E11  | Instrument/lab art direction + scope palette   | done   | scope-channel palette, graph paper, signal-trace dividers, corner brackets, annotations across all pages |
 | S11.2 | E11  | Photography as a field log                     | done   | committed image pipeline (99 derivatives), plates w/ FIG numbers, hero split, photo band, Fast Robots gallery; perf floor 95 → 90 by Shao's decision |
@@ -59,6 +60,12 @@ E6 (M3), E7 (M4), then launch (M5).
   longer delegated, so nothing queries it.
 - **F9 (Shao):** set the GitHub repo description + topics (the API token
   on this machine belongs to a different account).
+
+- **F11 (from S3.3, watch):** `/projects` now measures **91** against the 90
+  performance floor — the tightest margin on the site, since it renders every
+  project card. The next project added is as likely to breach it as not. When
+  it does, the fix is paginating or lazy-mounting the grid, not moving the
+  floor again.
 
 - **F10 (from S7.3, small):** inline accent links — the hero's GitHub/LinkedIn
   row, contact, coursework, colophon, and the new 404 — fall back to the
