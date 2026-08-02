@@ -244,10 +244,10 @@ export function LevelProgram() {
                 <rect width={HW} height={HH} fill="#070b09" />
                 <line x1="0" y1="34" x2={HW} y2="34" stroke="#1c2320" />
                 <line x1="0" y1="12" x2={HW} y2="12" stroke="#1c2320" />
-                <text x="4" y="10" fontSize="7" fill="#3f4a44">
+                <text x="4" y="10" fontSize="7" fill="#8b9198">
                   3.3 V
                 </text>
-                <text x="4" y="44" fontSize="7" fill="#3f4a44">
+                <text x="4" y="44" fontSize="7" fill="#8b9198">
                   0 V
                 </text>
                 <polyline

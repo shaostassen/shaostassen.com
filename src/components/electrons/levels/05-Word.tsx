@@ -70,7 +70,7 @@ export function LevelWord() {
               <svg viewBox="0 0 520 214" className="w-full h-auto block" style={{ fontFamily: MONO }}>
                 <rect width="520" height="214" fill="#070b09" />
                 <Wire pts={[[506, 116], [488, 116]]} v={0} settled />
-                <text x="508" y="120" fontSize="9" fill="#565b64">
+                <text x="508" y="120" fontSize="9" fill="#8b9198">
                   0
                 </text>
                 {[0, 1, 2, 3].map((i) => {
@@ -78,10 +78,10 @@ export function LevelWord() {
                   const boxOk = stage >= i + 1;
                   return (
                     <g key={i}>
-                      <text x={x + 26} y={58} fontSize="10" textAnchor="middle" fill={aB[i] ? HI : "#6b7280"}>
+                      <text x={x + 26} y={58} fontSize="10" textAnchor="middle" fill={aB[i] ? HI : "#8b9198"}>
                         A{i}={aB[i]}
                       </text>
-                      <text x={x + 58} y={58} fontSize="10" textAnchor="middle" fill={bB[i] ? HI : "#6b7280"}>
+                      <text x={x + 58} y={58} fontSize="10" textAnchor="middle" fill={bB[i] ? HI : "#8b9198"}>
                         B{i}={bB[i]}
                       </text>
                       <line x1={x + 26} y1={64} x2={x + 26} y2={BY} stroke={wcol(aB[i])} strokeWidth="2" />
@@ -100,7 +100,7 @@ export function LevelWord() {
                       <text x={x + BW / 2} y={BY + 26} fontSize="12" textAnchor="middle" fill="#a1a1aa" fontWeight="bold">
                         FA{i}
                       </text>
-                      <text x={x + BW / 2} y={BY + 42} fontSize="8" textAnchor="middle" fill="#565b64">
+                      <text x={x + BW / 2} y={BY + 42} fontSize="8" textAnchor="middle" fill="#8b9198">
                         level-4 block
                       </text>
                       <Wire
@@ -117,7 +117,7 @@ export function LevelWord() {
                         y={108}
                         fontSize="8"
                         textAnchor="middle"
-                        fill={stage >= i + 1 ? (c[i + 1] ? WARN : "#565b64") : "#3f3f46"}
+                        fill={stage >= i + 1 ? (c[i + 1] ? WARN : "#8b9198") : "#8b9198"}
                       >
                         c{i + 1}
                       </text>
@@ -138,7 +138,7 @@ export function LevelWord() {
                   y="120"
                   fontSize="10"
                   textAnchor="middle"
-                  fill={settled ? (C ? WARN : "#565b64") : "#3f3f46"}
+                  fill={settled ? (C ? WARN : "#8b9198") : "#8b9198"}
                   fontWeight="bold"
                 >
                   C={settled ? C : "?"}

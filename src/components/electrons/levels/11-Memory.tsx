@@ -85,10 +85,10 @@ export function LevelMemory() {
                         strokeWidth="2"
                         style={wordline ? glowS(CYA, 3) : undefined}
                       />
-                      <text x={x as number} y="30" fontSize="8" textAnchor="middle" fill={wordline ? CYA : "#565b64"}>
+                      <text x={x as number} y="30" fontSize="8" textAnchor="middle" fill={wordline ? CYA : "#8b9198"}>
                         {label as string}
                       </text>
-                      <text x={x as number} y="234" fontSize="7" textAnchor="middle" fill="#52525b">
+                      <text x={x as number} y="234" fontSize="7" textAnchor="middle" fill="#8b9198">
                         {wordline ? (isTrue === stored ? "held" : "pulled") : "precharged"}
                       </text>
                     </g>
@@ -166,7 +166,7 @@ export function LevelMemory() {
                     strokeWidth="2"
                     style={wordline ? glowS(VIO, 4) : undefined}
                   />
-                  <text x="230" y="80" fontSize="8" textAnchor="middle" fill={wordline ? VIO : "#565b64"}>
+                  <text x="230" y="80" fontSize="8" textAnchor="middle" fill={wordline ? VIO : "#8b9198"}>
                     WORDLINE {wordline ? "1 · doors open" : "0 · doors shut"}
                   </text>
 
@@ -191,7 +191,7 @@ export function LevelMemory() {
                     const on = ((addr >> b) & 1) === 1;
                     return (
                       <g key={b}>
-                        <text x="18" y={54 + i * 26} fontSize="9" fill={on ? HI : "#565b64"}>
+                        <text x="18" y={54 + i * 26} fontSize="9" fill={on ? HI : "#8b9198"}>
                           a{b}={on ? 1 : 0}
                         </text>
                         <Wire pts={[[44, 50 + i * 26], [92, 50 + i * 26]]} v={on} />
@@ -202,7 +202,7 @@ export function LevelMemory() {
                   <text x="129" y="118" fontSize="9" textAnchor="middle" fill="#a1a1aa">
                     DECODER
                   </text>
-                  <text x="129" y="132" fontSize="8" textAnchor="middle" fill="#565b64">
+                  <text x="129" y="132" fontSize="8" textAnchor="middle" fill="#8b9198">
                     NANDs · lvl 03
                   </text>
                   <text x="129" y="146" fontSize="7" textAnchor="middle" fill={VIO}>
@@ -223,7 +223,7 @@ export function LevelMemory() {
                           strokeWidth={on ? 2.5 : 1.5}
                           style={on ? glowS(VIO, 4) : undefined}
                         />
-                        <text x="366" y={y + 3} fontSize="8" fill={on ? VIO : "#3f4a44"}>
+                        <text x="366" y={y + 3} fontSize="8" fill={on ? VIO : "#8b9198"}>
                           row {i}
                         </text>
                         <rect
@@ -239,7 +239,7 @@ export function LevelMemory() {
                       </g>
                     );
                   })}
-                  <text x="420" y="128" fontSize="8" fill="#565b64" textAnchor="middle">
+                  <text x="420" y="128" fontSize="8" fill="#8b9198" textAnchor="middle">
                     8 × 1 bit
                   </text>
                   <text x="230" y="238" fontSize="8" textAnchor="middle" fill={CYA}>
@@ -279,13 +279,13 @@ export function LevelMemory() {
                         <text x={84 + Math.max(3, w) + 6} y={y + 12} fontSize="9" fill={far ? BAD : HI}>
                           ~{h.cycles} cyc
                         </text>
-                        <text x="84" y={y + 28} fontSize="7" fill="#52525b">
+                        <text x="84" y={y + 28} fontSize="7" fill="#8b9198">
                           {h.note}
                         </text>
                       </g>
                     );
                   })}
-                  <text x="230" y="196" fontSize="7" textAnchor="middle" fill="#565b64">
+                  <text x="230" y="196" fontSize="7" textAnchor="middle" fill="#8b9198">
                     log scale · order-of-magnitude figures, not measurements
                   </text>
                 </svg>

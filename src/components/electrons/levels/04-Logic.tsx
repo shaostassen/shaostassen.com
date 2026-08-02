@@ -73,13 +73,13 @@ export function LevelLogic() {
               <Wire pts={[[388, 170], [408, 170]]} v={cout} settled={st(3)} />
               <Led x={420} y={76} on={s} settled={st(2)} label="S" />
               <Led x={420} y={170} on={cout} settled={st(3)} label="Cout" />
-              <text x="112" y="26" fontSize="8" fill="#565b64">
+              <text x="112" y="26" fontSize="8" fill="#8b9198">
                 stage 1
               </text>
-              <text x="242" y="26" fontSize="8" fill="#565b64">
+              <text x="242" y="26" fontSize="8" fill="#8b9198">
                 stage 2
               </text>
-              <text x="338" y="26" fontSize="8" fill="#565b64">
+              <text x="338" y="26" fontSize="8" fill="#8b9198">
                 stage 3 · critical path ends here
               </text>
             </svg>

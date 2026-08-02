@@ -26,7 +26,7 @@ export function Mux({ x, y, h = 52, w = 20, sel, label = "MUX", active }: MuxPro
       <text x={x + w / 2} y={y + h / 2 + 3} fontSize="8" textAnchor="middle" fill={c}>
         {sel}
       </text>
-      <text x={x + w / 2} y={y - 5} fontSize="8" textAnchor="middle" fill="#565b64">
+      <text x={x + w / 2} y={y - 5} fontSize="8" textAnchor="middle" fill="#8b9198">
         {label}
       </text>
     </g>

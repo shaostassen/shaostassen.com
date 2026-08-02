@@ -26,7 +26,7 @@ export function Pin({ x, y, v, label, onClick }: PinProps) {
         y={y + 4}
         fontSize="10"
         textAnchor="middle"
-        fill={v ? HI : "#71717a"}
+        fill={v ? HI : "#8b9198"}
         fontWeight="bold"
       >
         {label}

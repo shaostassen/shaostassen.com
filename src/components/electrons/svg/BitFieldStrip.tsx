@@ -50,7 +50,7 @@ export function BitFieldStrip({ bits, fields, width = 300 }: BitFieldStripProps)
             >
               {slice}
             </text>
-            <text x={x + w / 2} y={8} fontSize="8" textAnchor="middle" fill="#565b64">
+            <text x={x + w / 2} y={8} fontSize="8" textAnchor="middle" fill="#8b9198">
               {f.name}
             </text>
             <text x={x + w / 2} y={46} fontSize="9" textAnchor="middle" fill="#8b9198">

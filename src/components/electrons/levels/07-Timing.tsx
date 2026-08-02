@@ -99,7 +99,7 @@ export function LevelTiming() {
                   const color = i === 0 ? "#8b9198" : i === 1 ? CYA : violation && i === 2 ? BAD : HI;
                   return (
                     <g key={i}>
-                      <text x={PL - 6} y={rowY(i) + 20} fontSize="9" textAnchor="end" fill="#71717a">
+                      <text x={PL - 6} y={rowY(i) + 20} fontSize="9" textAnchor="end" fill="#8b9198">
                         {rows[i]}
                       </text>
                       <line x1={PL} y1={rowY(i) + 30} x2={W - PR} y2={rowY(i) + 30} stroke="#1c2320" />
@@ -132,10 +132,10 @@ export function LevelTiming() {
                 <text x={xf(td)} y={H - 12} fontSize="8" textAnchor="middle" fill={CYA}>
                   D edge {td} ps
                 </text>
-                <text x={xf(0)} y={H - 12} fontSize="8" textAnchor="middle" fill="#565b64">
+                <text x={xf(0)} y={H - 12} fontSize="8" textAnchor="middle" fill="#8b9198">
                   edge 0
                 </text>
-                <text x={xf(500)} y={H - 12} fontSize="8" textAnchor="middle" fill="#565b64">
+                <text x={xf(500)} y={H - 12} fontSize="8" textAnchor="middle" fill="#8b9198">
                   edge 1
                 </text>
               </svg>
@@ -213,11 +213,11 @@ export function LevelTiming() {
                         {v}ps
                       </text>
                       {n === LOGIC_SEG ? (
-                        <text x={x + w / 2} y="48" fontSize="8" textAnchor="middle" fill="#565b64">
+                        <text x={x + w / 2} y="48" fontSize="8" textAnchor="middle" fill="#8b9198">
                           critical path
                         </text>
                       ) : (
-                        <text x={x + w / 2} y="10" fontSize="8" textAnchor="middle" fill="#565b64">
+                        <text x={x + w / 2} y="10" fontSize="8" textAnchor="middle" fill="#8b9198">
                           {n}
                         </text>
                       )}

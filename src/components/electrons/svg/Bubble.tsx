@@ -38,7 +38,7 @@ export function Bubble({ cx, cy, r = 26, label, sub, active }: BubbleProps) {
           y={cy + 13}
           fontSize="8"
           textAnchor="middle"
-          fill={active ? "#7ad6a8" : "#52525b"}
+          fill={active ? "#7ad6a8" : "#8b9198"}
         >
           {sub}
         </text>

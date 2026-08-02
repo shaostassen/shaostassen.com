@@ -105,7 +105,7 @@ export function LevelControl() {
                 <text x="116" y="78" fontSize="9" textAnchor="middle" fill="#a1a1aa">
                   LOGIC
                 </text>
-                <text x="116" y="92" fontSize="8" textAnchor="middle" fill="#565b64">
+                <text x="116" y="92" fontSize="8" textAnchor="middle" fill="#8b9198">
                   combinational · lvl 04
                 </text>
                 <Wire pts={[[172, 70], [212, 70]]} v={1} />
@@ -119,7 +119,7 @@ export function LevelControl() {
                   clocked
                   active={skipped === null}
                 />
-                <text x={251} y={112} fontSize="8" textAnchor="middle" fill="#565b64">
+                <text x={251} y={112} fontSize="8" textAnchor="middle" fill="#8b9198">
                   2 flip-flops · lvl 06/07
                 </text>
                 <Wire pts={[[290, 70], [330, 70]]} v={1} />
@@ -130,7 +130,7 @@ export function LevelControl() {
                 <text x="383" y="80" fontSize="8" textAnchor="middle" fill={VIO}>
                   {cur.lines.length} lines asserted
                 </text>
-                <text x="383" y="92" fontSize="8" textAnchor="middle" fill="#565b64">
+                <text x="383" y="92" fontSize="8" textAnchor="middle" fill="#8b9198">
                   Moore · depends on state only
                 </text>
                 {/* the feedback path is the machine */}
@@ -174,7 +174,7 @@ export function LevelControl() {
                     runt — two edges, one period
                   </text>
                 )}
-                <text x="8" y="12" fontSize="8" fill="#565b64">
+                <text x="8" y="12" fontSize="8" fill="#8b9198">
                   CLK
                 </text>
               </svg>
@@ -249,10 +249,10 @@ export function LevelControl() {
                     </text>
                   </g>
                 )}
-                <text x="168" y="116" fontSize="9" textAnchor="middle" fill="#565b64">
+                <text x="168" y="116" fontSize="9" textAnchor="middle" fill="#8b9198">
                   unconditional ring
                 </text>
-                <text x="168" y="128" fontSize="8" textAnchor="middle" fill="#3f4a44">
+                <text x="168" y="128" fontSize="8" textAnchor="middle" fill="#8b9198">
                   (branches add conditions to these arcs)
                 </text>
                 <text x="168" y="216" fontSize="9" textAnchor="middle" fill={WARN}>

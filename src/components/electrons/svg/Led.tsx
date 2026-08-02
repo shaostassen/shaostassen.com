@@ -28,7 +28,7 @@ export function Led({ x, y, on, settled = true, label, sub }: LedProps) {
         y={y + 4}
         fontSize="10"
         textAnchor="middle"
-        fill={lit ? "#04150c" : "#52525b"}
+        fill={lit ? "#04150c" : "#8b9198"}
         fontWeight="bold"
       >
         {settled ? (on ? "1" : "0") : "?"}
@@ -39,7 +39,7 @@ export function Led({ x, y, on, settled = true, label, sub }: LedProps) {
         </text>
       )}
       {sub && (
-        <text x={x} y={y + 35} fontSize="8" textAnchor="middle" fill="#565b64">
+        <text x={x} y={y + 35} fontSize="8" textAnchor="middle" fill="#8b9198">
           {sub}
         </text>
       )}

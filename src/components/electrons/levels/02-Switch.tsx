@@ -160,10 +160,10 @@ export function LevelSwitch() {
                 strokeWidth="2"
               />
               <circle cx={vx(vin)} cy={vy(vout)} r="4" fill={WARN} style={glowS(WARN, 4)} />
-              <text x={VW - VP} y={VH - 5} fontSize="8" fill="#565b64" textAnchor="end">
+              <text x={VW - VP} y={VH - 5} fontSize="8" fill="#8b9198" textAnchor="end">
                 Vin →
               </text>
-              <text x={VP + 3} y={VP - 5} fontSize="8" fill="#565b64">
+              <text x={VP + 3} y={VP - 5} fontSize="8" fill="#8b9198">
                 Vout
               </text>
             </svg>

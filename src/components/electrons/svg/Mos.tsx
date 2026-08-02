@@ -50,7 +50,9 @@ export function Mos({ x, y, type, state, label }: MosProps) {
       <text x={x + 7} y={y + 15} fontSize="9" fill={INKDIM}>
         {label}
       </text>
-      <text x={x + 7} y={y + 31} fontSize="8" fill={ch === "#3f3f46" ? "#565b64" : ch}>
+      {/* Keyed off state, not off the channel colour: an OFF device's channel
+          is drawn in a grey too dark to read text in. */}
+      <text x={x + 7} y={y + 31} fontSize="8" fill={state === "OFF" ? INKDIM : ch}>
         {state}
       </text>
     </g>

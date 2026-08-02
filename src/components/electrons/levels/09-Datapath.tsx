@@ -135,7 +135,7 @@ export function LevelDatapath() {
                       <text x="76" y={y + 22} fontSize="13" fill={hot ? HI : "#a1a1aa"} fontWeight="bold">
                         {wbLive && isRd ? res : v}
                       </text>
-                      <text x="106" y={y + 22} fontSize="8" textAnchor="end" fill="#52525b">
+                      <text x="106" y={y + 22} fontSize="8" textAnchor="end" fill="#8b9198">
                         {bin(wbLive && isRd ? res : v, 4)}
                       </text>
                       {isRn && (
@@ -166,7 +166,7 @@ export function LevelDatapath() {
                   ly={112}
                   color={contention ? BAD : CYA}
                 />
-                <text x="150" y="86" fontSize="8" fill={contention ? BAD : readLive ? CYA : "#3f4a44"}>
+                <text x="150" y="86" fontSize="8" fill={contention ? BAD : readLive ? CYA : "#8b9198"}>
                   bus A{contention ? " · CONTENDED" : ""}
                 </text>
                 {contention && (
@@ -194,10 +194,10 @@ export function LevelDatapath() {
 
                 {/* immediate + src2 mux */}
                 <rect x="140" y="196" width="52" height="26" rx="4" fill="#0e1310" stroke={useImm ? VIO : "#2f3a34"} strokeWidth="1.5" />
-                <text x="166" y="213" fontSize="10" textAnchor="middle" fill={useImm ? VIO : "#52525b"}>
+                <text x="166" y="213" fontSize="10" textAnchor="middle" fill={useImm ? VIO : "#8b9198"}>
                   #{imm}
                 </text>
-                <text x="166" y="192" fontSize="8" textAnchor="middle" fill="#565b64">
+                <text x="166" y="192" fontSize="8" textAnchor="middle" fill="#8b9198">
                   immediate
                 </text>
                 <Bus
@@ -213,7 +213,7 @@ export function LevelDatapath() {
 
                 {/* ALU */}
                 <ALUShape x={252} y={100} w={82} h={92} op={op.label} active={aluLive} />
-                <text x="293" y="212" fontSize="8" textAnchor="middle" fill={aluLive ? HI : "#565b64"}>
+                <text x="293" y="212" fontSize="8" textAnchor="middle" fill={aluLive ? HI : "#8b9198"}>
                   {op.sym}
                 </text>
                 {opId === "SUB" && (
@@ -224,13 +224,13 @@ export function LevelDatapath() {
 
                 {/* result bus */}
                 <Bus pts={[[334, 146], [386, 146]]} live={aluLive} label={aluLive ? res : "·"} lx={360} ly={140} />
-                <text x="360" y="166" fontSize="8" textAnchor="middle" fill={aluLive ? CYA : "#3f4a44"}>
+                <text x="360" y="166" fontSize="8" textAnchor="middle" fill={aluLive ? CYA : "#8b9198"}>
                   result
                 </text>
 
                 {/* write-back path — violet, because a control line strobes it */}
                 <Bus pts={[[386, 146], [452, 146], [452, 262], [70, 262], [70, 240]]} live={wbLive} color={VIO} />
-                <text x="250" y="276" fontSize="8" textAnchor="middle" fill={wbLive ? VIO : "#3f4a44"}>
+                <text x="250" y="276" fontSize="8" textAnchor="middle" fill={wbLive ? VIO : "#8b9198"}>
                   write-back · REG_WR strobes one row on the clock edge
                 </text>
 
@@ -246,13 +246,13 @@ export function LevelDatapath() {
                     y="100"
                     fontSize="11"
                     textAnchor="middle"
-                    fill={contention ? BAD : aluLive ? (v ? WARN : "#6b7280") : "#3f3f46"}
+                    fill={contention ? BAD : aluLive ? (v ? WARN : "#8b9198") : "#8b9198"}
                     fontWeight="bold"
                   >
                     {n}={contention ? "X" : aluLive ? v : "?"}
                   </text>
                 ))}
-                <text x="437" y="116" fontSize="7" textAnchor="middle" fill="#52525b">
+                <text x="437" y="116" fontSize="7" textAnchor="middle" fill="#8b9198">
                   same wires as level 05
                 </text>
               </svg>

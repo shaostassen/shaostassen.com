@@ -38,7 +38,7 @@ export function ALUShape({ x, y, w = 78, h = 92, op, active }: ALUShapeProps) {
         y={y + h * 0.62}
         fontSize="9"
         textAnchor="middle"
-        fill={active ? HI : "#71717a"}
+        fill={active ? HI : "#8b9198"}
       >
         {op}
       </text>

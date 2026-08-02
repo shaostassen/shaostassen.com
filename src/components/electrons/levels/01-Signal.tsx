@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { BAD, CYA, HI, MONO, VDD, V_IH, V_IL, glowS } from "../theme";
-import { Btn, Hl, Panel, Prose, Scanlines, SliderRow } from "../ui";
+import { Btn, Hl, Panel, Prose, Scanlines, SliderRow, useVisible } from "../ui";
 
 /** [name, target voltage, noise amplitude] */
 type Preset = [string, number, number];
@@ -23,7 +23,14 @@ export function LevelSignal() {
   const nRef = useRef(noise);
   nRef.current = noise;
 
+  // This is the one free-running trace in the whole ladder, so it is the one
+  // thing that would otherwise autoplay forever in a host page. Gate it on
+  // being on screen and on the viewer not having asked for reduced motion; the
+  // scope then holds its last frame instead of burning a timer out of view.
+  const { ref: scopeRef, visible } = useVisible<HTMLDivElement>();
+
   useEffect(() => {
+    if (!visible) return undefined;
     const id = setInterval(() => {
       setBuf((b) => {
         const nv = Math.min(
@@ -35,7 +42,7 @@ export function LevelSignal() {
       setTick((t) => t + 1);
     }, 50);
     return () => clearInterval(id);
-  }, []);
+  }, [visible]);
 
   const W = 460,
     H = 190,
@@ -56,7 +63,7 @@ export function LevelSignal() {
   const pts = buf.map((s, i) => `${(i / (N - 1)) * W},${yOf(s)}`).join(" ");
 
   return (
-    <div className="grid gap-4 lg:grid-cols-5">
+    <div ref={scopeRef} className="grid gap-4 lg:grid-cols-5">
       <div className="lg:col-span-3 space-y-4">
         <Panel
           title="receiver input · 3.3 V LVCMOS"
@@ -114,10 +121,10 @@ export function LevelSignal() {
               <text x={W - 6} y={yOf(1.4)} fontSize="9" fill={BAD} textAnchor="end" opacity="0.9">
                 undefined
               </text>
-              <text x="6" y={yOf(VDD) + 11} fontSize="9" fill="#3f4a44">
+              <text x="6" y={yOf(VDD) + 11} fontSize="9" fill="#8b9198">
                 3.3 V
               </text>
-              <text x="6" y={yOf(0) - 4} fontSize="9" fill="#3f4a44">
+              <text x="6" y={yOf(0) - 4} fontSize="9" fill="#8b9198">
                 0 V
               </text>
               <polyline points={pts} fill="none" stroke={HI} strokeWidth="2" style={glowS(HI, 3)} />
@@ -135,7 +142,7 @@ export function LevelSignal() {
                 const x = (460 + ((i * 31 + 7 - tick * (0.6 + (v / VDD) * 3.4)) % 460)) % 460;
                 return <circle key={i} cx={x} cy={16 + ((i * 13) % 15)} r="2.2" fill={CYA} opacity="0.85" />;
               })}
-              <text x="452" y="8" fontSize="8" fill="#565b64" textAnchor="end">
+              <text x="452" y="8" fontSize="8" fill="#8b9198" textAnchor="end">
                 e⁻ drift ∝ E-field
               </text>
             </svg>

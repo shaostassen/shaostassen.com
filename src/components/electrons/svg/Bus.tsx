@@ -39,7 +39,7 @@ export function Bus({ pts, live, label, lx, ly, color = CYA }: BusProps) {
             y={ly + 3}
             fontSize="9"
             textAnchor="middle"
-            fill={live ? color : "#52525b"}
+            fill={live ? color : "#8b9198"}
             fontWeight="bold"
           >
             {label}

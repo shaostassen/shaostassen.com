@@ -76,10 +76,10 @@ export function Butterfly({ q, metastable }: { q: boolean; metastable: boolean }
       <text x={xf(mid) + 8} y={yf(mid) - 6} fontSize="8" fill={BAD}>
         metastable
       </text>
-      <text x={W - P} y={H - 6} fontSize="8" fill="#565b64" textAnchor="end">
+      <text x={W - P} y={H - 6} fontSize="8" fill="#8b9198" textAnchor="end">
         V(Q) →
       </text>
-      <text x={P + 2} y={P - 6} fontSize="8" fill="#565b64">
+      <text x={P + 2} y={P - 6} fontSize="8" fill="#8b9198">
         V(Q̄)
       </text>
     </svg>
@@ -203,7 +203,7 @@ export function LevelLatch() {
                   <Gate kind="AND" x={120} y={44} out={en && d} settled label="&" inv />
                   <Gate kind="AND" x={120} y={104} out={en && !d} settled label="&" inv />
                   <rect x="212" y="34" width="112" height="122" rx="6" fill="none" stroke="#2a332e" strokeDasharray="4 4" />
-                  <text x="268" y="28" fontSize="8" fill="#565b64" textAnchor="middle">
+                  <text x="268" y="28" fontSize="8" fill="#8b9198" textAnchor="middle">
                     SR latch from tab 1
                   </text>
                   <Gate kind="AND" x={232} y={48} out={dq} settled label="&" inv />
@@ -255,10 +255,10 @@ export function LevelLatch() {
                   <text x="130" y="52" fontSize="9" textAnchor="middle" fill="#a1a1aa">
                     MASTER
                   </text>
-                  <text x="130" y="68" fontSize="8" textAnchor="middle" fill={!clk ? HI : "#565b64"}>
+                  <text x="130" y="68" fontSize="8" textAnchor="middle" fill={!clk ? HI : "#8b9198"}>
                     {!clk ? "open (CLK=0)" : "closed"}
                   </text>
-                  <text x="130" y="90" fontSize="14" textAnchor="middle" fill={mq ? HI : "#6b7280"} fontWeight="bold">
+                  <text x="130" y="90" fontSize="14" textAnchor="middle" fill={mq ? HI : "#8b9198"} fontWeight="bold">
                     Q={mq ? 1 : 0}
                   </text>
                   {/* slave — open while CLK is high */}
@@ -277,10 +277,10 @@ export function LevelLatch() {
                   <text x="284" y="52" fontSize="9" textAnchor="middle" fill="#a1a1aa">
                     SLAVE
                   </text>
-                  <text x="284" y="68" fontSize="8" textAnchor="middle" fill={clk ? HI : "#565b64"}>
+                  <text x="284" y="68" fontSize="8" textAnchor="middle" fill={clk ? HI : "#8b9198"}>
                     {clk ? "open (CLK=1)" : "closed"}
                   </text>
-                  <text x="284" y="90" fontSize="14" textAnchor="middle" fill={sq ? HI : "#6b7280"} fontWeight="bold">
+                  <text x="284" y="90" fontSize="14" textAnchor="middle" fill={sq ? HI : "#8b9198"} fontWeight="bold">
                     Q={sq ? 1 : 0}
                   </text>
                   <Wire pts={[[336, 70], [368, 70]]} v={sq} />
@@ -289,7 +289,7 @@ export function LevelLatch() {
                   <Wire pts={[[60, 150], [130, 150], [130, 106]]} v={!clk} />
                   <Wire pts={[[130, 150], [284, 150], [284, 106]]} v={clk} />
                   <Dot x={130} y={150} v={clk} />
-                  <text x="52" y="154" fontSize="9" textAnchor="end" fill={clk ? HI : "#71717a"}>
+                  <text x="52" y="154" fontSize="9" textAnchor="end" fill={clk ? HI : "#8b9198"}>
                     CLK
                   </text>
                   <text x="98" y="142" fontSize="8" fill={INKDIM}>
