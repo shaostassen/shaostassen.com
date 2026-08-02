@@ -8,3 +8,8 @@ test-results
 pnpm-lock.yaml
 docs/
 CLAUDE.local.md
+
+# Vendored: canonical source is the electrons-to-instructions repo, synced in by
+# its scripts/sync-to-site.sh. That sync rsyncs --delete, so reformatting here
+# would be undone on the next sync and would read as permanent drift.
+src/components/electrons/
