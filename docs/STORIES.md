@@ -27,11 +27,22 @@ here. Per-story working logs live in `log/`.
 | S8.1  | E8   | Interactive control-systems demo (optional)    | done   | PID step-response lab on the Fast Robots case study — deterministic, so the chart+metrics ship in the HTML and work without JS; 2.42 kB, no new deps; that page went 96 → 97 at 0 ms TBT |
 | S11.1 | E11  | Instrument/lab art direction + scope palette   | done   | scope-channel palette, graph paper, signal-trace dividers, corner brackets, annotations across all pages |
 | S11.2 | E11  | Photography as a field log                     | done   | committed image pipeline (99 derivatives), plates w/ FIG numbers, hero split, photo band, Fast Robots gallery; perf floor 95 → 90 by Shao's decision |
+| S12.1 | E12  | Electrons → Instructions: case study + instrument route | done   | case study at /projects/electrons + full-bleed instrument at /projects/electrons/lab (95/100/100/100); component vendored from its own repo via sync script; scoped palette exemption documented in design-system |
 
 Human checkpoints (do not cross without review): after E1 (M1), E3 (M2),
 E6 (M3), E7 (M4), then launch (M5).
 
 ## Plan amendments
+
+- **2026-08-02 (Shao): S12.1 — Electrons → Instructions, out of backlog
+  order.** Shao directed this ahead of S3.2 and S4.2, which both remain
+  `doing` and blocked on his content confirmations. Epic 12 opened for it.
+  Two decisions taken with him before building: the full interactive is
+  hosted here rather than linked out to GitHub Pages, and the design-system
+  conflict is resolved by a scoped, documented exemption rather than by
+  restyling the demo onto the three accent channels. See the Exemptions
+  section of the `design-system` skill; this also relaxes PLAN §5's "signature
+  interactivity is scoped to S8.1", which now covers S8.1 and S12.1.
 
 - **2026-07-31 (Shao): S7.3 from a review pass.** Shao asked for a
   codebase review rather than the next backlog story; the top three
