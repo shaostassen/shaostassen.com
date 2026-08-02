@@ -1,4 +1,22 @@
 import { test, expect } from "@playwright/test";
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+
+/** Projects marked `caseStudy: false` — listed, but with no write-up. */
+function listingOnly(): { slug: string; title: string }[] {
+  const dir = path.join(process.cwd(), "src/content/projects");
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".mdx"))
+    .map((f) => ({
+      slug: f.replace(/\.mdx$/, ""),
+      src: readFileSync(path.join(dir, f), "utf8"),
+    }))
+    .filter((p) => /^caseStudy:\s*false\s*$/m.test(p.src))
+    .map((p) => ({
+      slug: p.slug,
+      title: (p.src.match(/^title:\s*"?(.+?)"?\s*$/m)?.[1] ?? p.slug).trim(),
+    }));
+}
 
 test("home page renders without console errors", async ({ page }) => {
   const consoleErrors: string[] = [];
@@ -32,18 +50,25 @@ test("featured projects strip renders from typed content", async ({ page }) => {
 });
 
 test("listing-only projects are shown but not linked", async ({ page }) => {
+  // Data-driven rather than naming a project: SpeechLens used to be the
+  // example and stopped being one when its case study landed. Skips when
+  // nothing is caseStudy:false, and re-arms the moment something is.
+  const projects = listingOnly();
+  test.skip(projects.length === 0, "no caseStudy:false projects right now");
+
   await page.goto("/projects");
-  // SpeechLens has caseStudy:false — present, but no route and no link.
-  await expect(page.getByRole("heading", { name: "SpeechLens" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /SpeechLens/ })).toHaveCount(0);
-
-  const res = await page.request.get("/projects/speechlens", {
-    failOnStatusCode: false,
-  });
-  expect(res.status()).toBe(404);
-
   const sitemap = await (await page.request.get("/sitemap.xml")).text();
-  expect(sitemap).not.toContain("/projects/speechlens");
+
+  for (const { slug, title } of projects) {
+    await expect(page.getByRole("heading", { name: title })).toBeVisible();
+    await expect(page.getByRole("link", { name: title })).toHaveCount(0);
+
+    const res = await page.request.get(`/projects/${slug}`, {
+      failOnStatusCode: false,
+    });
+    expect(res.status()).toBe(404);
+    expect(sitemap).not.toContain(`/projects/${slug}`);
+  }
 });
 
 test("nav hides on scroll down and reveals on scroll up", async ({ page }) => {
@@ -243,8 +268,12 @@ test("individual work renders and prev/next navigation works", async ({
   await page.goto("/projects/parallel-spgemm");
   const moreNav = page.getByRole("navigation", { name: "More projects" });
   await expect(moreNav.getByRole("link")).toHaveCount(2);
-  await moreNav.getByRole("link", { name: /Edge Pipeline/ }).click();
-  await expect(page).toHaveURL(/ml-workstation-edge-pipeline/);
+  // Behavioural, not inventory: neighbours shift whenever a project is
+  // inserted into the ordering, so follow the forward link rather than
+  // naming whichever project currently sits there.
+  await moreNav.getByRole("link").last().click();
+  await expect(page).toHaveURL(/\/projects\/[a-z0-9-]+$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
 test("about page shows experience and education timelines", async ({
