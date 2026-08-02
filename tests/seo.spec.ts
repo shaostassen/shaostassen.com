@@ -19,6 +19,10 @@ const routes = [
     path: "/projects/parallel-spgemm",
     title: "Parallel Sparse Matrix–Matrix Multiplication — Shao Stassen",
   },
+  {
+    path: "/projects/super-gold-hunters",
+    title: "Super Gold Hunters — Shao Stassen",
+  },
 ];
 
 const content = (page: import("@playwright/test").Page, selector: string) =>

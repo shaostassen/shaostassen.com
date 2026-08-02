@@ -302,6 +302,53 @@ test("styleguide is not exposed in production builds", async ({ page }) => {
   await expect(page.getByText(/color tokens/i)).toHaveCount(0);
 });
 
+test("high-school project ships its demo video without preloading it", async ({
+  page,
+}) => {
+  await page.goto("/projects/super-gold-hunters");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Super Gold Hunters",
+  );
+
+  // 2.6 MB must not be on the critical path — it downloads only on play.
+  const video = page.locator("video");
+  await expect(video).toHaveAttribute("preload", "none");
+  await expect(video).toHaveAttribute("controls", "");
+  await expect(video).toHaveAttribute(
+    "poster",
+    "/projects/super-gold-hunters/screenshot.png",
+  );
+
+  // both media files actually exist at the paths the markup claims
+  for (const asset of ["gameplay.mp4", "screenshot.png"]) {
+    const res = await page.request.get(`/projects/super-gold-hunters/${asset}`);
+    expect(res.status(), asset).toBe(200);
+  }
+
+  // credit is part of the content, not decoration
+  await expect(page.getByRole("link", { name: "Jude Ramanan" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Rishwanth Vidhya" }),
+  ).toBeVisible();
+});
+
+test("the new graphics category filters on the projects index", async ({
+  page,
+}) => {
+  await page.goto("/projects?category=graphics");
+  await expect(page.getByRole("button", { name: "Graphics" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(
+    page.getByRole("heading", { level: 3, name: "Super Gold Hunters" }),
+  ).toBeVisible();
+  // it is school work, so it must land in that group
+  await expect(
+    page.getByRole("heading", { name: "School work" }),
+  ).toBeVisible();
+});
+
 // --- S8.1: the PID demo ---------------------------------------------------
 
 /** Overshoot percentage parsed out of the plot's accessible summary. */

@@ -9,7 +9,8 @@
         "http://localhost/coursework.html",
         "http://localhost/contact.html",
         "http://localhost/colophon.html",
-        "http://localhost/projects/fast-robots.html"
+        "http://localhost/projects/fast-robots.html",
+        "http://localhost/projects/super-gold-hunters.html"
       ],
       "numberOfRuns": 1
     },
