@@ -191,9 +191,23 @@
   border-color: var(--border);
 }
 
-.prose :where(img) {
+.prose :where(img, video) {
   border-radius: 0.5rem;
   border: 1px solid var(--border);
+}
+
+/* Media with a caption. Matches the Plate figcaption so an embedded demo
+   reads like the photo plates rather than like a stray element. */
+.prose :where(figure) {
+  margin-top: 1.5rem;
+}
+
+.prose :where(figcaption) {
+  margin-top: 0.75rem;
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--muted);
 }
 
 /*

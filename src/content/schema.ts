@@ -11,6 +11,9 @@ export const projectCategories = [
   "robotics",
   "ml-cv",
   "systems-hpc",
+  // Added in S3.3 for the high-school software renderer — it is a graphics
+  // project and shoehorning it into systems-hpc would have mislabelled it.
+  "graphics",
 ] as const;
 
 /** School work (high school + college) vs. individual work — the two
@@ -62,6 +65,7 @@ export const categoryLabels: Record<
   robotics: "Robotics",
   "ml-cv": "ML · CV",
   "systems-hpc": "Systems · HPC",
+  graphics: "Graphics",
 };
 
 export const trackLabels: Record<(typeof projectTracks)[number], string> = {

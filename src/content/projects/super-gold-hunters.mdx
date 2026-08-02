@@ -1,0 +1,116 @@
+---
+slug: super-gold-hunters
+title: "Super Gold Hunters"
+oneLiner: "A first-person maze game whose 3D renderer we wrote from scratch in Java — no engine and no libraries, just a ray cast down every one of 640 screen columns."
+category: graphics
+track: school
+tags: [Java, Raycasting, Computer graphics, DDA, Sprite rendering, AWT / Swing]
+timeframe: "Spring 2021"
+role: "Three-person team"
+org: "AP Computer Science A"
+repo: "https://github.com/shaostassen/APCSA-Final-Project"
+featured: false
+metrics:
+  - { label: "dependencies", value: "none" }
+  - { label: "renderer", value: "640 rays per frame" }
+---
+
+## Problem
+
+Our AP Computer Science A final was open-ended: build something in Java. We
+wanted a first-person game, and the interesting constraint was that the
+course had taught us arrays, classes, and 2D graphics — not 3D. So the
+question became whether we could get a convincing first-person view out of
+nothing but a pixel buffer.
+
+<figure>
+  <video
+    controls
+    preload="none"
+    width="640"
+    height="480"
+    poster="/projects/super-gold-hunters/screenshot.png"
+    src="/projects/super-gold-hunters/gameplay.mp4"
+    aria-describedby="gameplay-desc"
+  >
+    Your browser cannot play embedded video. The description below covers what
+    the clip shows.
+  </video>
+  <figcaption id="gameplay-desc">
+    Forty-five seconds of play, no sound. A first-person run through the
+    textured maze: walls shaded by which face they present, gold picked up as
+    the score climbs, the fogged minimap tracking position, and the monster
+    closing in until it catches the player.
+  </figcaption>
+</figure>
+
+## Constraints
+
+- Standard library only — `java.awt` and `javax.swing`. No engine, no
+  renderer, no asset pipeline.
+- Everything drawn into a single `int[]` of pixels, at 640×480.
+- Three of us, working in parallel on one codebase, over about five weeks.
+- We had never written a renderer before.
+
+## Approach
+
+The world is a flat 15×15 grid of integers drawn as though it had height —
+raycasting in the Wolfenstein 3D tradition, which is why it is 2.5D rather
+than real 3D. For each of the 640 screen columns, `Screen.update()` casts a
+ray and walks the grid with a DDA traversal until it hits a non-zero cell.
+The perpendicular distance to that hit sets how tall the wall slice is drawn,
+and the exact hit position picks which column of a 64×64 texture to sample.
+The algorithm came from [Lode Vandevenne's
+tutorial](https://lodev.org/cgtutor/raycasting.html); the implementation,
+the game, and every bug in it are ours.
+
+Gold and the monster are billboards. They are sorted far-to-near each frame,
+transformed into camera space with an inverse-determinant matrix, and tested
+against a per-column Z-buffer recorded during the wall pass so they
+disappear correctly behind corners.
+
+Built with [Jude Ramanan](https://github.com/ramananj34) and [Rishwanth
+Vidhya](https://github.com/rishvidh).
+
+## Why it's technically hard
+
+Every part of a renderer that a library normally hides had to be built and
+debugged by hand, and the failure mode of a renderer bug is a screen of
+garbage rather than a stack trace.
+
+Two things stand out looking back. The first is a one-line trick for
+distinguishing wall faces: rays hitting a north or south face get their color
+halved with `(color >> 1) & 8355711`, which shifts every channel down one bit
+and masks off the bits that would bleed between channels. It reads as
+lighting and costs one operation. Our comment on that line at the time was
+that we were not sure how it worked because the syntax was new — which is
+exactly what learning bit manipulation looks like.
+
+The second is that we aliased the pixel array directly onto the
+`BufferedImage` raster through `DataBufferInt`, so writing an `int` writes a
+pixel with no method call in between. That is the difference between a
+renderer that draws at speed and one that crawls, and finding it meant
+understanding what `BufferedImage` was actually doing underneath.
+
+## Result
+
+The game runs: textured maze, gold to collect, and a monster that hunts you
+greedily and speeds up every tick, so a long run is always eventually lost.
+The minimap fogs anything more than three tiles away, so it orients you
+without solving the maze for you.
+
+It still runs today. Opening it in 2026 took one fix, and not to the engine:
+the original sized the window with `setSize(640, 480)` and drew straight onto
+the `JFrame`, which sizes the whole window including the title bar — so on
+macOS the title bar covered the top 28 rows of everything drawn. Moving the
+drawing to a `Canvas` and calling `pack()` fixed it. The renderer itself
+compiled and ran unchanged on a JDK seven major versions newer than the one
+we wrote it against.
+
+## What I'd do next
+
+`Maze.java` is a complete recursive-backtracker maze generator that nothing
+ever calls — we built it and then shipped three hand-drawn maps instead,
+because wiring it in the week before the deadline was a risk we did not take.
+It is still sitting in the repository. Wiring it up is the obvious next move,
+and the one that would make the game replayable.
