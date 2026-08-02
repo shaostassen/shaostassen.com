@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Container } from "@/components/layout/Container";
+import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 // Page links join this list as their routes ship — the nav never points at
@@ -83,11 +84,14 @@ export function Nav() {
       )}
     >
       <Container className="flex h-16 items-center justify-between">
+        {/* Badge + wordmark, one link. The mark takes currentColor, so it
+            tracks the same hover/theme transition as the text beside it. */}
         <Link
           href="/"
-          className="rounded-md font-mono text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className="flex items-center gap-2.5 rounded-md font-mono text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         >
-          shaostassen.com
+          <Logo className="h-5" />
+          <span>shaostassen.com</span>
         </Link>
 
         <nav aria-label="Site" className="flex items-center gap-1">

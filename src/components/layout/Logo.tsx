@@ -1,0 +1,36 @@
+import { cn } from "@/lib/cn";
+
+/**
+ * The "SS" monogram — letterforms only.
+ *
+ * The source mark (ShaoFastRobots/static/favicon.svg) bakes in a dark
+ * rounded chip and a #0095FD blue. Both are dropped here so the mark takes
+ * `currentColor` and reads correctly in either theme; the chip and the blue
+ * survive in favicon.ico / icon.svg / apple-icon.png, where a fixed
+ * background is the whole point of the format.
+ *
+ * The viewBox is the glyphs' measured bounding box rather than the original
+ * 100x100 canvas — without the chip, that canvas is ~44% empty padding.
+ * Decorative: the link that wraps it carries the accessible name.
+ */
+
+// Both S glyphs are the same outline; the second is offset by one advance.
+const S_PATH =
+  "M343 -12Q283 -12 229.0 0.0Q175 12 133.5 38.5Q92 65 68.5 105.5Q45 146 45 204Q45 209 45.0 214.5Q45 220 46 223H194Q193 220 193.0 215.0Q193 210 193 206Q193 174 210.5 152.0Q228 130 262.0 119.0Q296 108 341 108Q370 108 392.5 111.5Q415 115 432.5 121.5Q450 128 461.5 137.0Q473 146 478.5 158.0Q484 170 484 185Q484 212 466.5 229.0Q449 246 418.5 258.0Q388 270 350.0 280.0Q312 290 272.0 300.5Q232 311 194.0 326.5Q156 342 126.0 364.0Q96 386 78.0 420.0Q60 454 60 502Q60 553 81.5 590.0Q103 627 142.0 651.0Q181 675 232.0 686.5Q283 698 343 698Q399 698 449.0 686.5Q499 675 537.0 650.0Q575 625 596.5 587.0Q618 549 618 497V485H473V493Q473 520 457.0 539.0Q441 558 412.0 569.0Q383 580 344 580Q302 580 272.5 572.0Q243 564 227.5 548.5Q212 533 212 512Q212 488 229.5 472.5Q247 457 277.5 445.5Q308 434 346.0 425.0Q384 416 424.0 405.0Q464 394 502.0 379.0Q540 364 570.0 341.5Q600 319 618.0 286.0Q636 253 636 207Q636 128 598.0 80.0Q560 32 494.0 10.0Q428 -12 343 -12Z";
+
+export function Logo({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="21.5 33.12 57.1 33.85"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+      className={cn("h-[1.15em] w-auto", className)}
+    >
+      <g transform="translate(19.985 65.778) scale(0.046000 -0.046000)">
+        <path d={S_PATH} />
+        <path d={S_PATH} transform="translate(624 0)" />
+      </g>
+    </svg>
+  );
+}
