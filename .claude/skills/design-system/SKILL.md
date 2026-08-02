@@ -69,6 +69,30 @@ Rules:
 - **Grid stays under 6% opacity** and fades out; content always dominates.
 - Corners are `rounded-sm` — drafted, not soft.
 
+## Exemptions
+
+One, granted by Shao's explicit decision (2026-08-02, S12.1) and scoped as
+tightly as it can be. Like the performance floor, it is a deliberate trade with
+a stated cost — not licence to relax the rules elsewhere.
+
+**`.electrons-scope`** (`src/styles/globals.css`) — the Electrons →
+Instructions demo at `/projects/electrons/lab`.
+
+- **What it exempts:** three extra colors beyond the accent channels — green
+  (settled logic 1), red (violation), grey (settled logic 0) — plus continuous
+  animation and a fixed dark face that ignores `light-dark()`.
+- **Why:** that piece teaches _with_ color. Amber-means-not-yet-settled is how it
+  shows propagation delay, hazards, metastability and ripple depth, and each of
+  its six meanings has to stay distinguishable from the other five. Three
+  channels cannot carry six mutually-exclusive meanings; collapsing them would
+  make the demo prettier and wrong.
+- **Boundary:** only inside `.electrons-scope`. The three meanings the site
+  palette _can_ express are bound to it (`--e-warn` → CH1, `--e-cya` → CH2,
+  `--e-vio` → CH3), so the exemption is three colors and not six. Nothing
+  outside that class may use `--e-*`, and no site page gains a fourth accent.
+- **Still non-negotiable inside it:** AA contrast on every text pair, 44px touch
+  targets, keyboard operability, and `prefers-reduced-motion` honoured.
+
 ## Don'ts
 
 - No proficiency bars, no skill percentages, no carousels.

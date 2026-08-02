@@ -294,6 +294,40 @@
   display: light-dark(none, inline);
 }
 
+/*
+ * Instrument scope — Electrons → Instructions (S12.1).
+ *
+ * A documented, bounded exemption from the three-channel accent rule; see the
+ * Exemptions section of .claude/skills/design-system. That demo teaches with
+ * color: six mutually-exclusive electrical meanings, each of which must stay
+ * distinguishable from the other five. Three of them already exist in the site
+ * palette and are bound to it here, so only three are genuinely new.
+ *
+ * Deliberately fixed rather than themed. This is an instrument face — a scope
+ * bezel is black in a bright lab too — so it does not follow light-dark(), and
+ * color-scheme keeps its native controls dark in the light theme.
+ *
+ * The variables are consumed by src/components/electrons/theme.ts, which emits
+ * var(--e-*, <fallback>); the fallbacks are that repo's canonical values and
+ * keep its standalone build working untouched.
+ */
+.electrons-scope {
+  color-scheme: dark;
+
+  /* bound to the site's dark scope channels */
+  --e-warn: #f5b544; /* CH1 amber — in flight, not yet trustworthy */
+  --e-cya: #3ad7ee; /* CH2 cyan — conducting path, data bus */
+  --e-vio: #f070c0; /* CH3 magenta — control lines, never data */
+
+  /* the exemption: three meanings the three-channel palette cannot carry */
+  --e-hi: #3ce88f; /* settled logic 1 / phosphor */
+  --e-lod: #6b7280; /* settled logic 0 */
+  --e-bad: #ef6b6b; /* forbidden zone, violation, shoot-through */
+
+  --e-bg: #07090c; /* matches the dark theme's background exactly */
+  background: var(--e-bg);
+}
+
 /* Motion is opt-out globally: reduced-motion users get no animation. */
 @media (prefers-reduced-motion: reduce) {
   *,
