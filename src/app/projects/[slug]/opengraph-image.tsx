@@ -1,9 +1,10 @@
 import { ImageResponse } from "next/og";
 import { categoryLabels } from "@/content/schema";
 import { caseStudyProjects } from "@/lib/content";
+import { OG, badgeDataUri } from "@/lib/og";
 
 export const dynamic = "force-static";
-export const size = { width: 1200, height: 630 };
+export const size = OG.size;
 export const contentType = "image/png";
 export const alt = "Project case study";
 
@@ -11,6 +12,13 @@ export async function generateStaticParams() {
   return (await caseStudyProjects()).map((p) => ({ slug: p.slug }));
 }
 
+/**
+ * Per-case-study share card. Same lockup as the site card — plate, rule,
+ * domain — so a shared case study reads as part of the same set.
+ *
+ * Satori needs an explicit `display: flex` on anything with more than one
+ * child (see the S7.2 log); every container below sets it.
+ */
 export default async function OpengraphImage({
   params,
 }: {
@@ -20,7 +28,10 @@ export default async function OpengraphImage({
   const project = (await caseStudyProjects()).find((p) => p.slug === slug);
   if (!project) throw new Error(`No project for og image: ${slug}`);
 
-  const titleSize = project.title.length > 40 ? 56 : 72;
+  const titleSize = project.title.length > 40 ? 56 : 70;
+  const kicker = [categoryLabels[project.category], project.timeframe]
+    .filter(Boolean)
+    .join(" · ");
 
   return new ImageResponse(
     <div
@@ -29,47 +40,56 @@ export default async function OpengraphImage({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
-        padding: "80px",
-        backgroundColor: "#0b0c0e",
-        color: "#e6e7e9",
+        justifyContent: "space-between",
+        padding: OG.pad,
+        backgroundColor: OG.bg,
+        color: OG.text,
       }}
     >
-      <div style={{ fontSize: 26, color: "#9ba1a6" }}>
-        {[categoryLabels[project.category], project.timeframe]
-          .filter(Boolean)
-          .join(" · ")}
-      </div>
-      <div
-        style={{
-          fontSize: titleSize,
-          fontWeight: 700,
-          marginTop: 16,
-          maxWidth: 1000,
-        }}
-      >
-        {project.title}
-      </div>
-      {project.metrics?.[0] && (
-        <div style={{ fontSize: 32, color: "#22d3ee", marginTop: 28 }}>
-          {`${project.metrics[0].label}: ${project.metrics[0].value}`}
+      <img src={badgeDataUri()} alt="" width={96} height={96} />
+
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <div
+          style={{
+            fontSize: 25,
+            color: OG.dim,
+            letterSpacing: "0.14em",
+          }}
+        >
+          {kicker.toUpperCase()}
         </div>
-      )}
+        <div
+          style={{
+            fontSize: titleSize,
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            marginTop: 18,
+            maxWidth: 1000,
+          }}
+        >
+          {project.title}
+        </div>
+        {project.metrics?.[0] && (
+          <div style={{ fontSize: 31, color: OG.plate, marginTop: 24 }}>
+            {`${project.metrics[0].label}: ${project.metrics[0].value}`}
+          </div>
+        )}
+      </div>
+
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          marginTop: 48,
-          fontSize: 26,
-          color: "#9ba1a6",
+          fontSize: 24,
+          color: OG.dim,
         }}
       >
         <div
           style={{
-            width: 48,
+            width: 56,
             height: 5,
-            backgroundColor: "#22d3ee",
-            marginRight: 20,
+            backgroundColor: OG.plate,
+            marginRight: 22,
           }}
         />
         shaostassen.com
