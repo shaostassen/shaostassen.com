@@ -54,10 +54,11 @@ export default function ColophonPage() {
           <p className="mt-5 font-mono text-xs text-muted">
             Lighthouse, asserted on every build across all seven public routes —
             not a one-off screenshot of the fastest page. These are the floors
-            the build fails below, so they cannot go stale; the last run
-            measured 93–97 on performance and 100 on the rest. Performance held
-            at 96 before the photography, and the floor moved to 90
-            deliberately, spent on images.
+            the build fails below, deliberately quoted instead of a measurement:
+            performance moves a couple of points between identical builds, so
+            any number pinned here would be wrong within a week. It held at 96
+            before the photography, and the floor moved to 90 on purpose, spent
+            on images.
           </p>
         </Card>
 
