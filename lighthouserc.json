@@ -10,7 +10,9 @@
         "http://localhost/contact.html",
         "http://localhost/colophon.html",
         "http://localhost/projects/fast-robots.html",
-        "http://localhost/projects/super-gold-hunters.html"
+        "http://localhost/projects/super-gold-hunters.html",
+        "http://localhost/projects/electrons.html",
+        "http://localhost/projects/electrons/lab.html"
       ],
       "numberOfRuns": 1
     },

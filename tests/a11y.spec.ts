@@ -9,6 +9,8 @@ const pages = [
   "/projects/parallel-spgemm",
   "/projects/ml-workstation-edge-pipeline",
   "/projects/super-gold-hunters", // the only route with a <video>
+  "/projects/electrons",
+  "/projects/electrons/lab", // the only route with the palette exemption
   "/coursework",
   "/contact",
   "/colophon",

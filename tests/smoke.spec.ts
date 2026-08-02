@@ -173,9 +173,13 @@ test("projects index groups by track and filters by category", async ({
     page.getByRole("heading", { level: 3, name: /Fast Robots/ }),
   ).toBeVisible();
 
-  // A category with nothing in it shows the edge state in both tracks.
+  // The edge state, now reachable per-track rather than page-wide: every
+  // category has at least one project since S12.1, but Embedded exists only
+  // under Individual work, so School work still renders the empty state.
   await page.getByRole("button", { name: "Embedded" }).click();
-  await expect(cards).toHaveCount(0);
+  const embedded = await cards.count();
+  expect(embedded).toBeGreaterThan(0);
+  expect(embedded).toBeLessThan(total);
   await expect(
     page.getByText("no projects in this category yet").first(),
   ).toBeVisible();
@@ -439,4 +443,42 @@ test("pid demo reset restores the default tune", async ({ page }) => {
   await page.getByRole("button", { name: "reset" }).click();
   await expect(page.locator("#pid-anti")).toBeChecked();
   expect(await overshootOf(page)).toBeLessThan(5);
+});
+
+test("the electrons case study links to the instrument", async ({ page }) => {
+  await page.goto("/projects/electrons");
+  await page
+    .getByRole("link", { name: /open the instrument/i })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/projects\/electrons\/lab\/?$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: /Electrons/ }),
+  ).toBeVisible();
+});
+
+test("the instrument walks the whole ladder", async ({ page }) => {
+  await page.goto("/projects/electrons/lab");
+  const levels = page.getByRole("navigation", { name: "Ladder levels" });
+
+  // Level 01 is where it opens, and the ladder ends on the memory coda.
+  await expect(levels.getByRole("button", { name: /SIGNAL/ })).toBeVisible();
+  await levels.getByRole("button", { name: /MEMORY/ }).click();
+  await expect(page.getByText("6T SRAM cell", { exact: false })).toBeVisible();
+
+  // Level 10 closes the loop back onto level 01 — the thesis of the piece,
+  // so it is pinned rather than trusted.
+  await levels.getByRole("button", { name: /PROGRAM/ }).click();
+  await expect(
+    page.getByText("this is level 01 again", { exact: false }),
+  ).toBeVisible();
+});
+
+test("the instrument keeps the host page's landmarks intact", async ({
+  page,
+}) => {
+  await page.goto("/projects/electrons/lab");
+  // chrome={false} must not introduce a second <main> or a second <h1>.
+  await expect(page.locator("main")).toHaveCount(1);
+  await expect(page.locator("h1")).toHaveCount(1);
 });
