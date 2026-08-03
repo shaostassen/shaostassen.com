@@ -60,10 +60,10 @@ export default function AboutPage() {
                 vision-language models and diffusion models for robot learning.
                 Today I write embedded software for medical devices at
                 Smith&nbsp;&amp;&nbsp;Nephew (IEC 62304, MicroBlaze soft-core
-                FPGAs) and run a personal training-to-edge ML setup — an RTX
-                5090 workstation feeding a Jetson Orin Nano — that carries
-                in-progress projects like SpeechLens, a fully local
-                speech-analysis pipeline.
+                FPGAs) and run a personal Ryzen 9 9950X Linux server and a
+                Jetson Orin Nano on a Tailscale mesh, where in-progress projects
+                like SpeechLens — a fully local speech-analysis pipeline — get
+                built and benchmarked.
               </p>
               <p>
                 This site is one of those projects: static, fast, and{" "}
