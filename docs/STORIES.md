@@ -34,6 +34,19 @@ E6 (M3), E7 (M4), then launch (M5).
 
 ## Plan amendments
 
+- **2026-08-02 (Shao): the RTX 5090 does not exist — factual correction
+  across the site.** Confirmed by Shao when the SpeechLens case study
+  surfaced the contradiction: he has the Ryzen 9 9950X Linux server (32
+  threads, reachable over Tailscale) and the Jetson Orin Nano, but no
+  desktop NVIDIA GPU. Three places claimed otherwise and were corrected the
+  same day: the About bio, and the `ml-workstation-edge-pipeline` one-liner
+  plus its body. That project is now `caseStudy: false` at Shao's direction
+  — it is listed but unpublished until its real scope is confirmed, since
+  its whole premise was "train on the 5090, export ONNX, build TensorRT on
+  the Jetson" and the ONNX→TensorRT path has never been verified either.
+  Open question for Shao: which parts of that pipeline actually exist
+  (Tailscale and NFS look real; the export path is unconfirmed).
+
 - **2026-08-02 (Shao): S12.1 — Electrons → Instructions, out of backlog
   order.** Shao directed this ahead of S3.2 and S4.2, which both remain
   `doing` and blocked on his content confirmations. Epic 12 opened for it.
