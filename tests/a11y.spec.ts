@@ -7,7 +7,6 @@ const pages = [
   "/projects",
   "/projects/fast-robots",
   "/projects/parallel-spgemm",
-  "/projects/ml-workstation-edge-pipeline",
   "/projects/speechlens",
   "/projects/super-gold-hunters", // the only route with a <video>
   "/projects/electrons",

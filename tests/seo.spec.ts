@@ -134,7 +134,7 @@ test("sitemap lists every route", async ({ page }) => {
     "/colophon",
     "/projects/fast-robots",
     "/projects/parallel-spgemm",
-    "/projects/ml-workstation-edge-pipeline",
+    "/projects/speechlens",
   ]) {
     expect(xml).toContain(path);
   }
