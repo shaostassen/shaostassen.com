@@ -1,7 +1,7 @@
 ---
 slug: speechlens
 title: "SpeechLens"
-oneLiner: "A fully local language-ID and transcription pipeline — faster-whisper and Silero VAD behind an explicit anti-hallucination harness — that holds 4.9× realtime on a laptop CPU with no GPU at all."
+oneLiner: "A fully local language-ID and transcription pipeline — faster-whisper and Silero VAD behind an explicit anti-hallucination harness — running large-v3 at 3.9× realtime on a CPU with no GPU at all."
 category: ml-cv
 track: individual
 tags: [ASR, Language ID, faster-whisper, Silero VAD, FastAPI, Python]
@@ -11,8 +11,8 @@ repo: "https://github.com/shaostassen/voice_detection_using_machine_learning"
 featured: true
 status: in-progress
 metrics:
+  - { label: "CPU throughput", value: "3.9× realtime (9950X, large-v3 int8)" }
   - { label: "GPU throughput", value: "12.2× realtime (T4, large-v3)" }
-  - { label: "CPU throughput", value: "4.9× realtime (M2, small int8)" }
 ---
 
 ## Problem
@@ -60,26 +60,38 @@ parameters lives in a separate validation harness driven from a notebook.
 
 ## Result
 
-On a free-tier T4, `large-v3` at float16 decodes at 12.2× realtime. Without
-any GPU, `small` at int8 holds 4.9× realtime on an M2 laptop, which is the
-number that matters for a tool premised on running locally. Chunk voting
+On a free-tier T4, `large-v3` at float16 decodes at 12.2× realtime. The
+number that matters more for a tool premised on running locally: with no
+GPU at all, `large-v3` at int8 still runs at 3.9× realtime on a Ryzen 9
+9950X, and on `base` the CPU actually beats the T4 — a 23-second clip never
+saturates the GPU, so most of its advantage is idle. Chunk voting
 identified all five languages in the multilingual check, including
 Mandarin, and held the correct language across a noise sweep from clean
 down to −5 dB SNR, where word error reached 33% without collapsing into
 invented text.
 
-Two design assumptions did not survive that sweep. The confidence gate
-never fired — zero flagged segments at every noise level, including the one
-where a third of the words are wrong, because the model stays confident
-while being incorrect. And the optional spectral-gating denoise stage made
-word error worse at every level, by up to 15 points, with the gap widening
-exactly where it was supposed to help. It stays off by default.
+Two design assumptions did not survive that sweep, and the more useful one
+was a bug in my own safety net. The confidence gate never fired — zero
+flagged segments at every noise level, including the one where a third of
+the words are wrong. The obvious reading is that log-probability is a
+useless signal for this. Measuring the distribution rather than the flag
+count showed the opposite: confidence falls monotonically with noise,
+0.957 to 0.669, tracking the error rate closely. The signal was fine. The
+threshold, 0.55, sat _below the lowest confidence the model ever produces_,
+so nothing could ever cross it. Raised to 0.85, the gate now stays silent
+while word error is 5% and flags every segment once it reaches 15%. An
+inert safety net is worse than none, because it implies a guarantee that
+isn't there.
+
+The other: the optional spectral-gating denoise stage made word error worse
+at every level, by up to 15 points, with the gap widening exactly where it
+was supposed to help. It stays off by default.
 
 ## What I'd do next
 
-Fix the confidence gate properly: sweep the threshold, and if the
-log-probability signal is too flat to threshold usefully, move to one that
-did track degradation — the language-ID probability. Then broaden the
-evidence past a single 23-second clip, which characterizes behavior but is
-not a corpus benchmark. Only after that does the accent analysis that
-motivated the project get built on a foundation worth trusting.
+Confirm that threshold past a single 23-second clip of read English —
+accents, spontaneous speech, and other languages will sit at different
+confidence levels, and 0.85 is only established here. The same goes for the
+error rates, which characterize behavior rather than benchmark it. Only
+after that does the accent analysis that motivated the project get built on
+a foundation worth trusting.
