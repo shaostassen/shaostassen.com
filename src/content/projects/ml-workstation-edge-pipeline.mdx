@@ -24,9 +24,9 @@ path from train-on-workstation to run-on-edge.
 
 ## Constraints
 
-- Heterogeneous by nature: x86 with a current-generation RTX 5090 on one
-  end, aarch64 with JetPack's pinned CUDA/TensorRT stack on the other. You
-  don't get to pick one toolchain.
+- Heterogeneous by nature: x86 with a 32-thread Ryzen 9 9950X on one end,
+  aarch64 with JetPack's pinned CUDA/TensorRT stack on the other. You don't
+  get to pick one toolchain.
 - Reachable from anywhere without exposing ports to the internet.
 - Boring to maintain — this is infrastructure that serves other projects,
   so it has to fail rarely and obviously.
@@ -36,10 +36,15 @@ path from train-on-workstation to run-on-edge.
 Three layers. **Network:** a Tailscale mesh makes every machine reachable
 by name from anywhere, with zero open ports. **Storage:** NFS exports from
 the workstation give datasets and checkpoints one home; the Jetson mounts
-instead of copying. **Model path:** train on the 5090, export to ONNX as
-the portable artifact, and build the TensorRT engine on the Jetson itself —
-engines are hardware-specific, so engine-building is a deploy step, not a
-build artifact.
+instead of copying.
+
+**Model path: not built, and described here as intent only.** The plan is
+to export to ONNX as the portable artifact and build the TensorRT engine on
+the Jetson itself, since engines are hardware-specific and engine-building
+is therefore a deploy step rather than a build artifact. That path has
+never been run end to end, and there is no desktop NVIDIA GPU on the
+workstation side to train on — which is why this project is listing-only
+until Shao confirms what actually exists.
 
 ## Why it's technically hard
 

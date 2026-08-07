@@ -215,8 +215,13 @@ For each: final title, one-liner hook, timeframe, your role, org, repo/demo link
 - **Cornell Combat Robotics — "Huey"** — autonomous 3lb combat robot; YOLO detection, orientation PID with anti-windup, closed-loop drivetrain; you led the autonomous subteam.
 - **Parallel SpGEMM (ECE 6750)** — Gustavson's algorithm, ~21× speedup on a 32-core Xeon cluster.
 - **EmPRISE Lab research** — vision-language-action (VLA) models.
-- **SpeechLens** — full-stack local speech-analysis: faster-whisper + Silero VAD + FastAPI + web UI; RTX 5090 + Jetson Orin Nano targets.
-- **ML workstation + edge pipeline** — Ryzen 9 9950X / RTX 5090 / Jetson Orin Nano; Tailscale + NFS + ONNX→TensorRT. *(Great "systems" story.)*
+- **SpeechLens** — full-stack local speech-analysis: faster-whisper + Silero VAD + FastAPI + web UI; Ryzen 9 9950X CPU and Jetson Orin Nano targets. *(Shipped 2026-08-02 from measured runs.)*
+- **ML workstation + edge pipeline** — Ryzen 9 9950X / Jetson Orin Nano; Tailscale + NFS. *(`caseStudy: false` — unpublished at Shao's direction until its real scope is confirmed. Its original premise was "train on the 5090, export ONNX, build TensorRT on the Jetson"; there is no 5090, and the ONNX→TensorRT path has never been verified.)*
+
+> **Standing correction (2026-08-02, confirmed by Shao): there is no RTX
+> 5090.** The hardware is the Ryzen 9 9950X Linux server (32 threads, over
+> Tailscale) and a Jetson Orin Nano — no desktop NVIDIA GPU. Do not
+> reintroduce it from any draft. Full record in `docs/STORIES.md`.
 - **Quant stock-prediction pipeline** — LSTM, 1.268% MAPE.
 - **Nomis auto-loan pricing** — gradient boosting, 0.903 AUC, modeled revenue lift.
 - *(Optional/personal — your call on public:* Finance Hub, water-reminder system.)
