@@ -31,10 +31,15 @@
   --text-title: 1.5rem;
   --text-title--line-height: 1.3;
   --text-title--letter-spacing: -0.015em;
+  /* h3 and other third-level headings. Before this existed, an h3 rendered
+     at 1rem in a component and 1.1875rem inside .prose — same element,
+     two sizes, depending on where it sat. */
+  --text-subtitle: 1.1875rem;
+  --text-subtitle--line-height: 1.4;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --animate-fade-up: fade-up 0.5s var(--ease-out) both;
+  --animate-fade-up: fade-up 0.25s var(--ease-out) both;
 }
 
 /*
@@ -114,8 +119,8 @@
 
 .prose :where(h3) {
   margin-top: 2rem;
-  font-size: 1.1875rem;
-  line-height: 1.4;
+  font-size: var(--text-subtitle);
+  line-height: var(--text-subtitle--line-height);
 }
 
 .prose :where(p, ul, ol, pre, blockquote, img, table) {
@@ -144,14 +149,14 @@
   font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
   font-size: 0.875em;
   padding: 0.125rem 0.375rem;
-  border-radius: 0.375rem;
+  border-radius: 0.25rem;
   border: 1px solid var(--border);
   background: var(--surface);
 }
 
 .prose :where(pre) {
   padding: 1rem 1.25rem;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   border: 1px solid var(--border);
   background: var(--surface);
   overflow-x: auto;
@@ -192,7 +197,7 @@
 }
 
 .prose :where(img, video) {
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   border: 1px solid var(--border);
 }
 

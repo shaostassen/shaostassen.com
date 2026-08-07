@@ -42,7 +42,7 @@ export function Plate({
           sizes={sizes}
           priority={priority}
           maxWidth={maxWidth}
-          className="transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          className="transition-transform duration-200 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
       </div>
       <figcaption className="mt-3 flex gap-3 font-mono text-xs leading-relaxed text-muted">

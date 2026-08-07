@@ -22,34 +22,52 @@ site, make it earn its place with craft, not decoration.
 - **Color:** semantic tokens switch themes via `light-dark()` — components
   NEVER use `dark:` variants. Utilities: `bg-background`, `bg-surface`,
   `border-border`, `text-foreground`, `text-muted`, `text-accent`.
-  Values (light / dark): background `#ffffff/#0b0c0e`, surface
-  `#f4f5f6/#15171a`, border `#e3e5e8/#26292e`, foreground `#17181a/#e6e7e9`,
-  muted `#55595f/#9ba1a6`, accent (restrained cyan) `#0e7490/#22d3ee`.
-  All text pairs pass WCAG AA in both themes (muted ≥7:1, accent ≥5.4:1).
-  The accent is for links, active states, and key numbers — nothing else.
+  Values (light / dark), as of the S11.1 repalette: background
+  `#fbfaf7/#07090c`, surface `#f2efe8/#0f1318`, border `#dcd6c8/#262c35`,
+  foreground `#14161a/#e8e9ec`, muted `#54585f/#99a0a8`, accent (CH1 amber)
+  `#8a5300/#f5b544`, accent-2 (CH2 cyan) `#0e6f88/#3ad7ee`, accent-3 (CH3
+  magenta) `#9b2c6f/#f070c0`.
+  All text pairs pass WCAG AA in both themes (muted ≥7:1, accent ≥5.4:1);
+  `/styleguide` prints the measured ratios. The accent is for links, active
+  states, and key numbers — nothing else.
 - **Type:** `font-display` = Space Grotesk (headings), `font-sans` = Inter
   (body), `font-mono` = JetBrains Mono (code, technical metadata) — all
   self-hosted via next/font. Sizes: Tailwind defaults plus `text-display`
-  (clamp 2.5–3.25rem, for h1) and `text-title` (1.5rem, for h2). No ad-hoc
-  font sizes.
+  (clamp 2.5–3.25rem, for h1), `text-title` (1.5rem, for h2) and
+  `text-subtitle` (1.1875rem, for **every** h3 — components and `.prose`
+  alike, which is why the token exists). No ad-hoc font sizes.
 - **Space:** 8pt scale — Tailwind spacing in multiples of 2 (`p-2/4/6/8`,
   `gap-4/6`, `py-16/24`). `Section` owns vertical rhythm (`py-16 sm:py-24`);
   `Container` owns gutters (`max-w-5xl px-6`). If spacing looks uneven, fix
   the scale usage, don't nudge pixels.
+- **Where each spacing decision lives** — don't re-decide these per page:
+
+  | Role               | Value                               | Owned by      |
+  | ------------------ | ----------------------------------- | ------------- |
+  | Lede under `h1`    | `mt-4 max-w-2xl text-lg text-muted` | `PageHeader`  |
+  | Eyebrow → `h1`     | `mb-5` annotation / `mb-3` meta     | `PageHeader`  |
+  | Section break      | `mt-16`                             | call site     |
+  | Content after `h2` | `mt-6`                              | call site     |
+  | Divider rhythm     | `my-16`                             | `WaveDivider` |
 
 ## Motion
 
 - Entrance fades/slides on scroll and subtle hover states only. Duration
   150–300 ms, ease-out. Nothing loops, nothing autoplays, nothing bounces.
+  In practice: `--animate-fade-up` is 250 ms, hover transitions are
+  `duration-200`, and the nav's hide-on-scroll `duration-300` is the
+  slowest thing on the site. `/styleguide` documents all three.
 - Every animation is gated by `prefers-reduced-motion: reduce` — reduced
   users get instant, opacity-only or no transitions. No exceptions.
 
 ## Layout primitives
 
-Built in S0.3 (see `/styleguide` in dev): `Container`, `Section` in
-`src/components/layout/`; `Card`, `Tag`, `Prose` in `src/components/ui/`;
-`Timeline` in S4.2; `Nav`/`Footer` in S1.1. Never write a one-off wrapper
-that duplicates a primitive's job — extend the primitive instead.
+Built in S0.3 (see `/styleguide` in dev): `Container`, `Section`,
+`PageHeader` in `src/components/layout/`; `Card`, `Tag`, `Prose`, `Dot` and
+the `styles.ts` class constants in `src/components/ui/`; `Timeline` in S4.2;
+`Nav`/`Footer` in S1.1. Never write a one-off wrapper that duplicates a
+primitive's job — extend the primitive instead. See the
+`component-conventions` skill for which primitive owns what.
 
 ## Art direction (S11.1) — instrument / lab
 
@@ -67,7 +85,9 @@ Rules:
   `accent-2` cyan (CH2), `accent-3` magenta (CH3, rare). Do not introduce
   a fourth.
 - **Grid stays under 6% opacity** and fades out; content always dominates.
-- Corners are `rounded-sm` — drafted, not soft.
+- Corners are `rounded-sm` (0.25rem) — drafted, not soft. One tier, no
+  exceptions: this holds inside `.prose` too (code, pre, img, video), and
+  `rounded-md` / `rounded-lg` appear nowhere in `src/`.
 
 ## Exemptions
 
