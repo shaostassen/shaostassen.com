@@ -15,12 +15,15 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
+// Preloaded, despite only styling small accents. It was excluded on the
+// theory that it competed with the fonts gating LCP; measured, that was
+// backwards. Arriving late, it reflowed the mono runs inside every project
+// card — labels, metrics, tags — and pushed whole sections down: 0.126 CLS
+// on /projects, which cost five performance points. Preloading it takes CLS
+// to 0 on all thirteen routes and leaves every LCP unchanged.
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-  // Mono only styles small accents — keep it off the critical path so the
-  // display/body fonts (which gate LCP) load first.
-  preload: false,
 });
 
 // Site-wide defaults only. Per-page titles, descriptions, canonicals and
@@ -65,7 +68,7 @@ export default function RootLayout({
       >
         <a
           href="#content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:border focus:border-border focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:outline-2 focus:outline-offset-2 focus:outline-accent"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-sm focus:border focus:border-border focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:outline-2 focus:outline-offset-2 focus:outline-accent"
         >
           Skip to content
         </a>
