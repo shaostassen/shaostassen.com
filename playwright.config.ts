@@ -17,7 +17,13 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 7"] } },
   ],
   webServer: {
-    command: "pnpm build && pnpm exec serve out -l 4173",
+    // `pnpm test` on its own builds first, so what it serves is never stale.
+    // `pnpm validate` and CI have already built by the time they get here,
+    // and rebuilding cost a second full Next build every run — set
+    // PLAYWRIGHT_NO_BUILD=1 to serve the existing out/ instead.
+    command: process.env.PLAYWRIGHT_NO_BUILD
+      ? "pnpm exec serve out -l 4173"
+      : "pnpm build && pnpm exec serve out -l 4173",
     url: "http://localhost:4173",
     reuseExistingServer: false,
     timeout: 180_000,

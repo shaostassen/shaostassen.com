@@ -10,16 +10,33 @@ an explicit follow-up logged in `docs/STORIES.md`.
 
 ## Phase 1 — Validate (objective, all must pass)
 
-Run in this order (test and lighthouse audit the fresh static export):
+One command runs all of it, in the right order, with a single build:
 
 ```
-pnpm typecheck      # tsc --noEmit, TS strict
-pnpm lint           # eslint, zero warnings
-pnpm format:check   # prettier
-pnpm build          # must succeed under output:'export' → out/
-pnpm test           # Playwright smoke tests against the export
-pnpm lighthouse     # LHCI against out/ — budgets below are hard gates
+pnpm validate
 ```
+
+That is:
+
+```
+pnpm typecheck          # tsc --noEmit, TS strict
+pnpm lint               # eslint, zero warnings
+pnpm format:check       # prettier
+pnpm check:photos       # manifest dimensions == the committed derivatives
+pnpm build              # must succeed under output:'export' → out/
+pnpm check:links        # every internal href/src in out/ resolves
+pnpm check:retractions  # no retracted claim reached the build
+pnpm test               # Playwright smoke tests against the export
+pnpm lighthouse         # LHCI against out/ — budgets below are hard gates
+```
+
+`validate` sets `PLAYWRIGHT_NO_BUILD=1` so the test step serves the `out/`
+that was just built instead of building a second time. Running `pnpm test`
+on its own still builds first, so it is never serving something stale.
+
+If a step fails on this machine before any code runs, suspect the
+cloud-sync clones (`about 2.html`) first — `rm -rf .next out` and retry.
+`check:links` warns when it sees them.
 
 Budgets: **Performance ≥ 90 · Accessibility = 100 · Best Practices ≥ 95 ·
 SEO = 100.** Plus: no console errors or warnings in the browser.

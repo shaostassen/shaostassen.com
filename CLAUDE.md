@@ -17,10 +17,10 @@
 3. **Architect** — decide component/data structure and design-system fit.
    Keep everything static-export-safe.
 4. **Build** — commit at logical checkpoints (see `git-workflow` skill).
-5. **Validate** — ALL must pass:
-   `pnpm typecheck` · `pnpm lint` · `pnpm format:check` · `pnpm build` ·
-   `pnpm test` · `pnpm lighthouse` (Performance ≥ 90, Accessibility = 100,
-   Best Practices ≥ 95, SEO = 100) · no console errors or warnings.
+5. **Validate** — `pnpm validate` must pass. It runs typecheck, lint,
+   format:check, check:photos, build, check:links, check:retractions, test,
+   and lighthouse (Performance ≥ 90, Accessibility = 100, Best Practices
+   ≥ 95, SEO = 100). Plus: no console errors or warnings.
 
    The performance floor was 95 until the S11.2 photography landed. Lowered
    to 90 by Shao's explicit decision, as a deliberate trade: a photo-rich

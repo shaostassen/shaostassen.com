@@ -1,0 +1,66 @@
+name: CI
+
+# Vercel deploys on push to main regardless of this workflow, so CI is a
+# signal, not a gate — its job is to tell Shao a push broke something
+# without him having to run the full gate locally on a laptop where the
+# cloud-synced working directory makes every file walk slow.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          # Match the local toolchain that wrote pnpm-lock.yaml.
+          version: 11
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Static checks first: they are seconds, and failing here saves the
+      # browser download and the build below.
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+
+      # Needs only the committed derivatives, so it runs before the build.
+      - run: pnpm check:photos
+
+      - run: pnpm build
+
+      - run: pnpm check:links
+      - run: pnpm check:retractions
+
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test
+        env:
+          PLAYWRIGHT_NO_BUILD: "1"
+
+      - run: pnpm lighthouse
+
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-artifacts
+          path: |
+            playwright-report/
+            test-results/
+            .lighthouseci/
+          retention-days: 7
+          if-no-files-found: ignore

@@ -11,7 +11,11 @@
     "test": "playwright test",
     "lighthouse": "lhci autorun",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "check:photos": "node scripts/check-photos.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "check:retractions": "node scripts/check-retractions.mjs",
+    "validate": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm check:photos && pnpm build && pnpm check:links && pnpm check:retractions && PLAYWRIGHT_NO_BUILD=1 pnpm test && pnpm lighthouse"
   },
   "dependencies": {
     "next": "15.5.20",
