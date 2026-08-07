@@ -15,12 +15,19 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
+import { FORMATS, WIDTHS } from "../src/content/data/photo-derivatives.mjs";
 
 const SOURCE_DIR = path.join(os.homedir(), "Downloads");
 const OUT_DIR = path.join(process.cwd(), "public", "photos");
 const TMP_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "photos-"));
-const WIDTHS = [640, 1280, 1920];
 const force = process.argv.includes("--force");
+
+/** Encoder settings, keyed by the shared format list's extension. */
+const ENCODE = {
+  avif: { quality: 55 },
+  webp: { quality: 72 },
+  jpg: { quality: 78, mozjpeg: true },
+};
 
 /** slug -> source filename. Slugs are the stable public identifiers. */
 const SOURCES = {
@@ -60,25 +67,28 @@ for (const [slug, filename] of Object.entries(SOURCES)) {
   const meta = await sharp(decoded).metadata();
   const aspect = +(meta.width / meta.height).toFixed(4);
 
+  let largest = null;
   for (const width of WIDTHS) {
     if (width > meta.width) continue;
-    for (const [ext, opts] of [
-      ["avif", { quality: 55 }],
-      ["webp", { quality: 72 }],
-      ["jpg", { quality: 78, mozjpeg: true }],
-    ]) {
+    for (const { ext } of FORMATS) {
       const out = path.join(OUT_DIR, `${slug}-${width}.${ext}`);
       if (fs.existsSync(out) && !force) continue;
-      await sharp(decoded)
+      const info = await sharp(decoded)
         .rotate() // honor EXIF orientation
         .resize({ width, withoutEnlargement: true })
-        .toFormat(ext === "jpg" ? "jpeg" : ext, opts)
+        .toFormat(ext === "jpg" ? "jpeg" : ext, ENCODE[ext])
         .toFile(out);
+      largest = { width: info.width, height: info.height };
     }
   }
 
-  manifest.push({ slug, aspect, width: meta.width, height: meta.height });
-  console.log(`${slug}: ${meta.width}x${meta.height} (aspect ${aspect})`);
+  // Report the largest *derivative*, not the source: that is what the
+  // manifest records, and resizing rounds the height to whole pixels. A
+  // source-derived number is off by one often enough that it drifted once
+  // already. `scripts/check-photos.mjs` enforces the agreement.
+  const dims = largest ?? { width: meta.width, height: meta.height };
+  manifest.push({ slug, aspect, ...dims });
+  console.log(`${slug}: ${dims.width}x${dims.height} (aspect ${aspect})`);
 }
 
 fs.rmSync(TMP_DIR, { recursive: true, force: true });

@@ -1,5 +1,10 @@
 import { cn } from "@/lib/cn";
 import { photos, type PhotoSlug } from "@/content/data/photos";
+import {
+  FALLBACK_FORMAT,
+  FORMATS,
+  WIDTHS,
+} from "@/content/data/photo-derivatives.mjs";
 
 export type PhotoProps = {
   slug: PhotoSlug;
@@ -14,8 +19,6 @@ export type PhotoProps = {
    */
   maxWidth?: number;
 };
-
-const WIDTHS = [640, 1280, 1920];
 
 /**
  * Responsive picture element over the build-time derivatives produced by
@@ -42,11 +45,18 @@ export function Photo({
 
   return (
     <picture>
-      <source type="image/avif" srcSet={srcset("avif")} sizes={sizes} />
-      <source type="image/webp" srcSet={srcset("webp")} sizes={sizes} />
+      {/* Every format but the last; the fallback rides on the <img>. */}
+      {FORMATS.slice(0, -1).map((f) => (
+        <source
+          key={f.ext}
+          type={f.type}
+          srcSet={srcset(f.ext)}
+          sizes={sizes}
+        />
+      ))}
       <img
-        src={`/photos/${slug}-${fallbackWidth}.jpg`}
-        srcSet={srcset("jpg")}
+        src={`/photos/${slug}-${fallbackWidth}.${FALLBACK_FORMAT.ext}`}
+        srcSet={srcset(FALLBACK_FORMAT.ext)}
         sizes={sizes}
         alt={photo.alt}
         width={photo.width}

@@ -1,8 +1,12 @@
 /**
  * Photo manifest. Derivatives are produced by scripts/process-photos.mjs
- * (640/1280/1920 in AVIF, WebP, JPEG); dimensions here are the largest
- * derivative and exist so the browser reserves layout space — they only
- * need to carry the correct aspect ratio.
+ * over the widths and formats in photo-derivatives.mjs; dimensions here are
+ * the largest derivative and exist so the browser reserves layout space.
+ *
+ * They must match the files exactly — `scripts/check-photos.mjs` (part of
+ * `pnpm validate`) fails if they don't. A height that is off by even one
+ * pixel reserves the wrong box and shifts the page on load, which is the
+ * one thing these numbers are here to prevent.
  *
  * Alt text describes what is in the frame, factually. Captions are written
  * to the content-voice rules: specific, no filler.
@@ -13,7 +17,7 @@ export const photos = {
   "portrait-crc": {
     alt: "Shao Stassen in a Cornell Combat Robotics quarter-zip.",
     width: 1920,
-    height: 1950,
+    height: 1949,
   },
   "portrait-formal": {
     alt: "Formal portrait of Shao Stassen.",
