@@ -70,28 +70,51 @@ Mandarin, and held the correct language across a noise sweep from clean
 down to −5 dB SNR, where word error reached 33% without collapsing into
 invented text.
 
-Two design assumptions did not survive that sweep, and the more useful one
-was a bug in my own safety net. The confidence gate never fired — zero
-flagged segments at every noise level, including the one where a third of
-the words are wrong. The obvious reading is that log-probability is a
-useless signal for this. Measuring the distribution rather than the flag
-count showed the opposite: confidence falls monotonically with noise,
-0.957 to 0.669, tracking the error rate closely. The signal was fine. The
-threshold, 0.55, sat _below the lowest confidence the model ever produces_,
-so nothing could ever cross it. Raised to 0.85, the gate now stays silent
-while word error is 5% and flags every segment once it reaches 15%. An
-inert safety net is worse than none, because it implies a guarantee that
-isn't there.
+## Where it got interesting: the safety net didn't work
 
-The other: the optional spectral-gating denoise stage made word error worse
-at every level, by up to 15 points, with the gap widening exactly where it
-was supposed to help. It stays off by default.
+The confidence gate never fired. Zero flagged segments at every noise level,
+including the one where a third of the words are wrong. The obvious reading
+is that log-probability is a useless signal here. It isn't: confidence falls
+monotonically with noise, 0.957 to 0.669, tracking the error rate closely.
+The threshold — 0.55 — simply sat _below the lowest confidence the model ever
+produces_, so nothing could cross it. An inert safety net is worse than none,
+because it implies a guarantee that isn't there.
+
+Raising it to 0.85 made the flag fire. It was still wrong, and the reason only
+showed up in faster-whisper's source: `avg_logprob` is computed **once per
+30-second decode window** and copied onto every segment from that window. A
+130-second clip produces 22 segments and exactly 5 distinct confidence values.
+The number the gate flags on is a per-window judgement wearing a per-segment
+label — inside a window it is constant, so it cannot rank anything.
+
+That reframed the question from "what threshold?" to "can this score tell me
+_which word_ is wrong?" Answering it needs per-word correctness labels, so I
+aligned each hypothesis against its reference with a Levenshtein backtrace and
+measured how well each score ranks errors _within_ a single noise condition —
+a between-condition trend proves nothing, since a score can track noise
+perfectly and still be useless for flagging.
+
+Over 73 utterances, roughly 1,160 words per condition: per-word probability
+reaches **AUROC 0.89** on clean audio, against **0.58** for the segment signal
+the gate uses — near chance, precisely where errors are rarest and a flag is
+most valuable. The signal that works was already in the output, computed by
+the decoder and serialized into the JSON, read by nothing.
+
+Two more assumptions didn't survive. The spectral-gating denoise stage made
+word error worse at every level, by up to 15 points, widening exactly where it
+was supposed to help. And entropy-based confidence — reported in the
+literature to detect errors 1.5–4× better than probability, for CTC and
+transducer models — showed no advantage at all on Whisper: five estimators
+within 0.008 AUROC of each other. What helped was the aggregation instead of
+the estimator, taking the minimum over a word's tokens rather than the mean,
+since a word is wrong if any one of its tokens is.
 
 ## What I'd do next
 
-Confirm that threshold past a single 23-second clip of read English —
-accents, spontaneous speech, and other languages will sit at different
-confidence levels, and 0.85 is only established here. The same goes for the
-error rates, which characterize behavior rather than benchmark it. Only
-after that does the accent analysis that motivated the project get built on
-a foundation worth trusting.
+Ship the reliability layer on the per-word signal, calibrated per noise level
+rather than globally — at −5 dB the ranking still works (AUROC 0.76) while the
+numbers attached to it stop meaning anything, so one global calibration would
+be wrong at both ends. Then a second corpus: this is all read English with
+additive white noise, and both the positive result and the negative one need
+different data before I'd call either general. Only then does the accent
+analysis that motivated the project get built on a foundation worth trusting.
