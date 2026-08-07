@@ -78,7 +78,10 @@ test("nav hides on scroll down and reveals on scroll up", async ({ page }) => {
   );
   test.skip(room < 300, "page not scrollable enough at this viewport");
 
-  const header = page.locator("header");
+  // By role, not by tag: PageHeader also renders a <header>, but nested
+  // inside a <section>/<main> it is generic — only the sticky site nav is
+  // the banner landmark.
+  const header = page.getByRole("banner");
   await page.mouse.move(300, 300);
   await page.mouse.wheel(0, 700);
   await expect(header).toHaveClass(/-translate-y-full/);

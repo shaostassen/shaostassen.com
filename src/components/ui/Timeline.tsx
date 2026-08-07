@@ -28,7 +28,9 @@ export function Timeline({
             className="absolute -left-[1.85rem] top-1.5 h-2.5 w-2.5 rounded-full border border-accent bg-background"
           />
           {e.dates && <p className="font-mono text-xs text-muted">{e.dates}</p>}
-          <h3 className="mt-1 font-display font-semibold">{e.heading}</h3>
+          <h3 className="mt-1 font-display text-subtitle font-semibold">
+            {e.heading}
+          </h3>
           {e.subheading && (
             <p className="mt-0.5 text-sm text-muted">{e.subheading}</p>
           )}

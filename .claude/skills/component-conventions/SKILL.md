@@ -7,13 +7,41 @@ description: File structure, naming, Tailwind usage, and the accessibility check
 
 ## Structure & naming
 
-- `src/components/layout/` — Container, Section, Nav, Footer, ThemeToggle
-- `src/components/ui/` — Card, Tag, Button, Prose, Timeline
-- `src/components/projects/` — ProjectCard, ProjectFilter, ProjectMeta
-- `src/components/motion/` — reusable Framer Motion wrappers
+- `src/components/layout/` — Container, Section, PageHeader, Nav, Footer,
+  ThemeToggle
+- `src/components/ui/` — Card, Tag, Prose, Timeline, Dot, and `styles.ts`
+- `src/components/projects/` — ProjectCard, ProjectsExplorer
+- `src/components/instrument/` — Annotation, GridBackdrop, WaveDivider
 - One component per file, PascalCase filename matching the export
   (`Card.tsx` exports `Card`). Props type exported alongside
   (`export type CardProps`).
+
+There is no `Button` component and there should not be: the three call
+sites have two different shapes and bespoke behavior each. Use the
+`controlButton` / `iconButton` class strings instead (below).
+
+## Compose, don't re-type
+
+Before writing classes on a page, check whether one of these already owns
+the decision. Every one of them exists because the same thing had been
+hand-written in five to eight places and drifted.
+
+- **`<PageHeader>`** — the top of every route: eyebrow, `h1`, lede. Pass
+  `annotation` (tick-rule label) _or_ `meta` (plain mono line, used by case
+  studies); `children` goes below the lede. Never hand-roll an `h1` + lede.
+- **`<Section backdrop>`** — the graph-paper texture plus the stacking
+  context it needs. Both, or neither.
+- **`<WaveDivider>`** — owns its own `my-16`. Only pass a `my-*` override
+  when a section genuinely needs different breathing room.
+- **`<Dot />`** — the `·` between inline links.
+- **`@/components/ui/styles`** — `focusRing`, `accentLink`, `mutedLink`,
+  `iconButton`, `controlButton`. Class strings, not components, because
+  call sites mix `<a>` and `next/link` and several add their own classes:
+  `className={cn(controlButton, "text-muted")}`.
+
+`cn()` is tailwind-merge, so a class you pass at the call site beats the
+primitive's default rather than fighting it in the stylesheet. Put the
+sensible default in the component.
 
 ## React rules
 

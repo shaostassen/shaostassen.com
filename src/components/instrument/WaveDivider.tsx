@@ -23,7 +23,14 @@ export function WaveDivider({ variant = "step", className }: WaveDividerProps) {
   return (
     <div
       aria-hidden="true"
-      className={cn("pointer-events-none w-full select-none", className)}
+      className={cn(
+        // The vertical rhythm belongs to the divider, not to whoever
+        // happens to place one: the four call sites had four different
+        // margins. Override with a `my-*` class if a section genuinely
+        // needs different breathing room.
+        "pointer-events-none my-16 w-full select-none",
+        className,
+      )}
     >
       <svg
         viewBox="0 0 1200 48"

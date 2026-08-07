@@ -6,6 +6,8 @@ import { cn } from "@/lib/cn";
 import { Container } from "@/components/layout/Container";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { focusRing, iconButton } from "@/components/ui/styles";
+import { profile } from "@/content/data/profile";
 
 // Page links join this list as their routes ship — the nav never points at
 // a route that doesn't exist yet.
@@ -16,18 +18,17 @@ const links: Array<{ href: string; label: string }> = [
   { href: "/contact", label: "Contact" },
 ];
 
-const linkClasses =
-  "rounded-md px-3 py-2 text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
-
-const iconButtonClasses =
-  "inline-flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+const linkClasses = cn(
+  "rounded-sm px-3 py-2 text-sm text-muted transition-colors hover:text-foreground",
+  focusRing,
+);
 
 function GitHubLink({ className }: { className?: string }) {
   return (
     <a
-      href="https://github.com/shaostassen"
+      href={profile.github}
       aria-label="GitHub"
-      className={cn(iconButtonClasses, className)}
+      className={cn(iconButton, className)}
     >
       <svg
         aria-hidden="true"
@@ -88,7 +89,11 @@ export function Nav() {
             tracks the same hover/theme transition as the text beside it. */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 rounded-md font-mono text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className={cn(
+            "flex items-center gap-2.5 rounded-sm font-mono text-sm text-muted transition-colors hover:text-foreground",
+            focusRing,
+            "focus-visible:outline-offset-4",
+          )}
         >
           <Logo className="h-5" />
           <span>shaostassen.com</span>
@@ -111,7 +116,7 @@ export function Nav() {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMenuOpen((o) => !o)}
-            className={cn(iconButtonClasses, "sm:hidden")}
+            className={cn(iconButton, "sm:hidden")}
           >
             <svg
               aria-hidden="true"
@@ -147,7 +152,7 @@ export function Nav() {
               </Link>
             ))}
             <a
-              href="https://github.com/shaostassen"
+              href={profile.github}
               onClick={() => setMenuOpen(false)}
               className={cn(linkClasses, "py-3")}
             >

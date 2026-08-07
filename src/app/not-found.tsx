@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Section } from "@/components/layout/Section";
-import { Annotation } from "@/components/instrument/Annotation";
-import { GridBackdrop } from "@/components/instrument/GridBackdrop";
+import { accentLink } from "@/components/ui/styles";
 
 export const metadata: Metadata = {
   title: "Not found",
@@ -24,25 +24,17 @@ const routes = [
  */
 export default function NotFound() {
   return (
-    <Section className="relative isolate">
-      <GridBackdrop />
+    <Section backdrop>
       <Container>
-        <Annotation>error 404</Annotation>
-        <h1 className="mt-5 font-display text-display">
-          Nothing at this address
-        </h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted">
-          This page does not exist. The link may be out of date, or the address
-          mistyped.
-        </p>
+        <PageHeader
+          annotation="error 404"
+          title="Nothing at this address"
+          lede="This page does not exist. The link may be out of date, or the address mistyped."
+        />
 
         <p className="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-sm">
           {routes.map((r) => (
-            <Link
-              key={r.href}
-              href={r.href}
-              className="text-accent underline underline-offset-4 hover:decoration-2"
-            >
+            <Link key={r.href} href={r.href} className={accentLink}>
               {r.label} →
             </Link>
           ))}

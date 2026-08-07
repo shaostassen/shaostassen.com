@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Section } from "@/components/layout/Section";
-import { Annotation } from "@/components/instrument/Annotation";
-import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Card } from "@/components/ui/Card";
 import { Prose } from "@/components/ui/Prose";
+import { accentLink } from "@/components/ui/styles";
 import { profile } from "@/content/data/profile";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -29,15 +29,13 @@ const scores = [
 
 export default function ColophonPage() {
   return (
-    <Section className="relative isolate">
-      <GridBackdrop />
+    <Section backdrop>
       <Container>
-        <Annotation>colophon</Annotation>
-        <h1 className="mt-5 font-display text-display">Colophon</h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted">
-          This site is one of the projects. Here is how it is built and what I
-          decided along the way.
-        </p>
+        <PageHeader
+          annotation="colophon"
+          title="Colophon"
+          lede="This site is one of the projects. Here is how it is built and what I decided along the way."
+        />
 
         {/* Scope-style readout of the enforced budgets. */}
         <Card framed className="mt-10 max-w-2xl">
@@ -47,14 +45,14 @@ export default function ColophonPage() {
                 <dt className="text-xs uppercase tracking-wider text-muted">
                   {s.label}
                 </dt>
-                <dd className="mt-1 text-2xl text-accent">{s.value}</dd>
+                <dd className="mt-1 text-subtitle text-accent">{s.value}</dd>
               </div>
             ))}
           </dl>
           <p className="mt-5 font-mono text-xs text-muted">
-            Lighthouse, asserted on every build across all seven public routes —
-            not a one-off screenshot of the fastest page. These are the floors
-            the build fails below, deliberately quoted instead of a measurement:
+            Lighthouse, asserted on every build across every public route — not
+            a one-off screenshot of the fastest page. These are the floors the
+            build fails below, deliberately quoted instead of a measurement:
             performance moves a couple of points between identical builds, so
             any number pinned here would be wrong within a week. It held at 96
             before the photography, and the floor moved to 90 on purpose, spent
@@ -62,7 +60,7 @@ export default function ColophonPage() {
           </p>
         </Card>
 
-        <WaveDivider variant="square" className="mt-14" />
+        <WaveDivider variant="square" />
 
         <Prose className="mt-10">
           <h2>Stack</h2>
@@ -161,10 +159,7 @@ export default function ColophonPage() {
         </Prose>
 
         <p className="mt-12 font-mono text-sm">
-          <Link
-            href="/projects"
-            className="text-accent underline underline-offset-4 hover:decoration-2"
-          >
+          <Link href="/projects" className={accentLink}>
             see the projects →
           </Link>
         </p>

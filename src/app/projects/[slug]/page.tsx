@@ -2,15 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { compileMDX } from "next-mdx-remote/rsc";
 import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Section } from "@/components/layout/Section";
-import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Plate } from "@/components/photo/Plate";
 import { PidLab } from "@/components/demo/PidLab";
+import { Dot } from "@/components/ui/Dot";
 import { Prose } from "@/components/ui/Prose";
 import { Tag } from "@/components/ui/Tag";
+import { accentLink, mutedLink } from "@/components/ui/styles";
 import { projectSchema, type Project } from "@/content/schema";
 import { caseStudyProjects, projectSource } from "@/lib/content";
+import { cn } from "@/lib/cn";
 import { pageMetadata } from "@/lib/metadata";
 
 export const dynamicParams = false;
@@ -75,28 +78,27 @@ export default async function ProjectPage({
     .join(" · ");
 
   return (
-    <Section className="relative isolate">
-      <GridBackdrop />
+    <Section backdrop>
       <Container>
         <p className="mb-8 font-mono text-sm">
-          <Link
-            href="/"
-            className="text-muted underline underline-offset-4 transition-colors hover:text-foreground"
-          >
+          <Link href="/" className={mutedLink}>
             ← home
           </Link>
         </p>
 
-        <header className="max-w-2xl">
-          <p className="mb-3 font-mono text-sm text-muted">
-            {meta}
-            {project.status === "in-progress" && (
-              <span className="text-accent"> · in progress</span>
-            )}
-          </p>
-          <h1 className="font-display text-display">{project.title}</h1>
-          <p className="mt-4 text-lg text-muted">{project.oneLiner}</p>
-
+        <PageHeader
+          className="max-w-2xl"
+          meta={
+            <>
+              {meta}
+              {project.status === "in-progress" && (
+                <span className="text-accent"> · in progress</span>
+              )}
+            </>
+          }
+          title={project.title}
+          lede={project.oneLiner}
+        >
           {project.metrics && project.metrics.length > 0 && (
             <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-2 font-mono text-sm">
               {project.metrics.map((m) => (
@@ -117,33 +119,23 @@ export default async function ProjectPage({
           {(project.repo || project.demo) && (
             <p className="mt-6 font-mono text-sm">
               {project.repo && (
-                <a
-                  href={project.repo}
-                  className="text-accent underline underline-offset-4 hover:decoration-2"
-                >
+                <a href={project.repo} className={accentLink}>
                   repo ↗
                 </a>
               )}
-              {project.repo && project.demo && (
-                <span className="mx-3 text-muted" aria-hidden="true">
-                  ·
-                </span>
-              )}
+              {project.repo && project.demo && <Dot />}
               {project.demo && (
-                <a
-                  href={project.demo}
-                  className="text-accent underline underline-offset-4 hover:decoration-2"
-                >
+                <a href={project.demo} className={accentLink}>
                   full reports ↗
                 </a>
               )}
             </p>
           )}
-        </header>
+        </PageHeader>
 
-        <WaveDivider variant="step" className="mt-10" />
+        <WaveDivider variant="step" />
 
-        <Prose className="mt-10">{content}</Prose>
+        <Prose>{content}</Prose>
 
         {project.gallery && project.gallery.length > 0 && (
           <section aria-labelledby="plates" className="mt-16">
@@ -171,7 +163,7 @@ export default async function ProjectPage({
           {prev ? (
             <Link
               href={`/projects/${prev.slug}`}
-              className="max-w-[45%] truncate text-muted underline underline-offset-4 transition-colors hover:text-foreground"
+              className={cn("max-w-[45%] truncate", mutedLink)}
             >
               ← {prev.title}
             </Link>
@@ -181,7 +173,7 @@ export default async function ProjectPage({
           {next ? (
             <Link
               href={`/projects/${next.slug}`}
-              className="max-w-[45%] truncate text-muted underline underline-offset-4 transition-colors hover:text-foreground"
+              className={cn("max-w-[45%] truncate", mutedLink)}
             >
               {next.title} →
             </Link>

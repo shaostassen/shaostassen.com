@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { controlButton } from "@/components/ui/styles";
+import { cn } from "@/lib/cn";
 
 /**
  * An interactive PID step response — the one piece of the site that shows
@@ -406,7 +408,10 @@ export function PidLab() {
         <button
           type="button"
           onClick={() => setGains(DEFAULTS)}
-          className="inline-flex h-11 items-center rounded-md border border-border px-4 font-mono text-sm text-muted transition-colors hover:border-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className={cn(
+            controlButton,
+            "text-muted hover:border-muted hover:text-foreground",
+          )}
         >
           reset
         </button>

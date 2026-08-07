@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Section } from "@/components/layout/Section";
-import { Annotation } from "@/components/instrument/Annotation";
-import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { ContactEmail } from "@/components/contact/ContactEmail";
+import { Dot } from "@/components/ui/Dot";
+import { accentLink } from "@/components/ui/styles";
 import { profile } from "@/content/data/profile";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -15,33 +16,24 @@ export const metadata: Metadata = pageMetadata({
 
 export default function ContactPage() {
   return (
-    <Section className="relative isolate">
-      <GridBackdrop />
+    <Section backdrop>
       <Container>
-        <Annotation>contact</Annotation>
-        <h1 className="mt-5 font-display text-display">Contact</h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted">
-          Email is the fastest way to reach me.
-        </p>
+        <PageHeader
+          annotation="contact"
+          title="Contact"
+          lede="Email is the fastest way to reach me."
+        />
 
         <div className="mt-8">
           <ContactEmail />
         </div>
 
         <p className="mt-8 font-mono text-sm">
-          <a
-            href={profile.github}
-            className="text-accent underline underline-offset-4 hover:decoration-2"
-          >
+          <a href={profile.github} className={accentLink}>
             GitHub ↗
           </a>
-          <span className="mx-3 text-muted" aria-hidden="true">
-            ·
-          </span>
-          <a
-            href={profile.linkedin}
-            className="text-accent underline underline-offset-4 hover:decoration-2"
-          >
+          <Dot />
+          <a href={profile.linkedin} className={accentLink}>
             LinkedIn ↗
           </a>
         </p>

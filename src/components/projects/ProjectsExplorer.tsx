@@ -10,6 +10,7 @@ import {
   type Project,
 } from "@/content/schema";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { controlButton } from "@/components/ui/styles";
 
 const ALL = "all";
 type Filter = (typeof projectCategories)[number] | typeof ALL;
@@ -55,7 +56,7 @@ export function ProjectsExplorer({ projects }: { projects: Project[] }) {
             aria-pressed={active === c}
             onClick={() => select(c)}
             className={cn(
-              "inline-flex h-11 items-center rounded-md border px-4 font-mono text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+              controlButton,
               active === c
                 ? "border-accent text-accent"
                 : "border-border text-muted hover:border-muted hover:text-foreground",

@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
+import { Dot } from "@/components/ui/Dot";
+import { mutedLink } from "@/components/ui/styles";
 import { profile } from "@/content/data/profile";
-
-const linkClasses =
-  "underline underline-offset-4 transition-colors hover:text-foreground";
 
 /** Site footer: socials, built-with, source, and the colophon. */
 export function Footer() {
@@ -12,19 +11,19 @@ export function Footer() {
       <Container className="flex flex-col gap-2 font-mono text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>© {new Date().getFullYear()} Shao Stassen</p>
         <p>
-          <a href={profile.github} className={linkClasses}>
+          <a href={profile.github} className={mutedLink}>
             GitHub
           </a>
-          {" · "}
-          <a href={profile.linkedin} className={linkClasses}>
+          <Dot />
+          <a href={profile.linkedin} className={mutedLink}>
             LinkedIn
           </a>
-          {" · "}
-          <a href={profile.siteRepo} className={linkClasses}>
+          <Dot />
+          <a href={profile.siteRepo} className={mutedLink}>
             source
           </a>
-          {" · "}
-          <Link href="/colophon" className={linkClasses}>
+          <Dot />
+          <Link href="/colophon" className={mutedLink}>
             colophon
           </Link>
         </p>

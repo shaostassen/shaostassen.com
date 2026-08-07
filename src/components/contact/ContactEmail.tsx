@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { accentLink, controlButton } from "@/components/ui/styles";
 import { profile } from "@/content/data/profile";
+import { cn } from "@/lib/cn";
 
 /**
  * Renders the email only after hydration, assembled from parts — the full
@@ -28,10 +30,7 @@ export function ContactEmail() {
 
   return (
     <p className="flex flex-wrap items-center gap-4 font-mono text-sm">
-      <a
-        href={`mailto:${address}`}
-        className="text-accent underline underline-offset-4 hover:decoration-2"
-      >
+      <a href={`mailto:${address}`} className={accentLink}>
         {address}
       </a>
       <button
@@ -44,7 +43,10 @@ export function ContactEmail() {
             // clipboard unavailable — the address is selectable text anyway
           }
         }}
-        className="inline-flex h-11 items-center rounded-md border border-border px-4 text-muted transition-colors hover:border-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className={cn(
+          controlButton,
+          "text-muted hover:border-muted hover:text-foreground",
+        )}
       >
         {copied ? "copied ✓" : "copy"}
       </button>

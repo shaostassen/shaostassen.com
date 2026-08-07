@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import { focusRing } from "@/components/ui/styles";
 import { Tag } from "@/components/ui/Tag";
 import { categoryLabels, type Project } from "@/content/schema";
+import { cn } from "@/lib/cn";
 
 /** Where a project's card should link, or undefined if it has no page. */
 export function projectHref(project: Project): string | undefined {
@@ -13,7 +15,9 @@ function CardBody({ project }: { project: Project }) {
   return (
     <>
       <div className="flex items-baseline justify-between gap-4">
-        <h3 className="font-display font-semibold">{project.title}</h3>
+        <h3 className="font-display text-subtitle font-semibold">
+          {project.title}
+        </h3>
         <span className="shrink-0 font-mono text-xs text-muted">
           {categoryLabels[project.category]}
         </span>
@@ -49,10 +53,7 @@ export function ProjectCard({ project }: { project: Project }) {
 
   if (href) {
     return (
-      <Link
-        href={href}
-        className="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      >
+      <Link href={href} className={cn("rounded-sm", focusRing)}>
         <Card
           interactive
           framed

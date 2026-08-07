@@ -1,5 +1,7 @@
 "use client";
 
+import { iconButton } from "@/components/ui/styles";
+
 type Theme = "light" | "dark";
 
 function resolvedTheme(): Theme {
@@ -32,7 +34,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label="Toggle theme"
-      className="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className={iconButton}
     >
       {/* sun — shown in dark mode (the action: switch to light) */}
       <svg

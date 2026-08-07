@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { Annotation } from "@/components/instrument/Annotation";
-import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
 import { Card } from "@/components/ui/Card";
 import { Prose } from "@/components/ui/Prose";
+import { accentLink } from "@/components/ui/styles";
 import { Timeline } from "@/components/ui/Timeline";
 import { Plate } from "@/components/photo/Plate";
 import { education } from "@/content/data/education";
@@ -24,12 +25,14 @@ export const metadata: Metadata = pageMetadata({
 
 export default function AboutPage() {
   return (
-    <Section className="relative isolate">
+    <Section backdrop>
       <PersonJsonLd />
-      <GridBackdrop />
       <Container>
-        <Annotation>about</Annotation>
-        <h1 className="mt-5 font-display text-display">About</h1>
+        <PageHeader
+          annotation="about"
+          title="About"
+          lede="The short version, then the evidence — what I work in, where I have worked, and what I studied."
+        />
 
         <div className="mt-10 grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4 lg:order-2">
@@ -38,7 +41,7 @@ export default function AboutPage() {
               fig="00"
               caption="Cornell ECE, Class of 2026."
               sizes="(min-width: 1024px) 32vw, 100vw"
-              aspect="1 / 1"
+              aspect="4 / 5"
               priority
             />
           </div>
@@ -76,9 +79,9 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <WaveDivider variant="sine" className="mt-16" />
+        <WaveDivider variant="sine" />
 
-        <Annotation className="mt-12">skills</Annotation>
+        <Annotation>skills</Annotation>
         <h2 className="mt-4 font-display text-title">What I work in</h2>
         <p className="mt-2 font-mono text-sm text-muted">
           each item is backed by a project or role — links go to the evidence
@@ -86,7 +89,9 @@ export default function AboutPage() {
         <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
           {skillGroups.map((g) => (
             <Card key={g.group} framed>
-              <h3 className="font-display font-semibold">{g.group}</h3>
+              <h3 className="font-display text-subtitle font-semibold">
+                {g.group}
+              </h3>
               <ul className="mt-3 space-y-2 font-mono text-sm">
                 {g.items.map((item) => (
                   <li key={item.name} className="text-muted">
@@ -132,10 +137,7 @@ export default function AboutPage() {
         />
 
         <p className="mt-12 font-mono text-sm text-muted">
-          <Link
-            href="/projects"
-            className="text-accent underline underline-offset-4 hover:decoration-2"
-          >
+          <Link href="/projects" className={accentLink}>
             see the projects →
           </Link>
         </p>

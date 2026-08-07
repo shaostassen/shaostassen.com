@@ -7,6 +7,8 @@ import Link from "next/link";
 // boundary exactly where it belongs.
 import { ElectronsToInstructions } from "@/components/electrons/ElectronsToInstructions";
 import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { accentLink, mutedLink } from "@/components/ui/styles";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -34,24 +36,18 @@ export default function ElectronsLabPage() {
       <Container>
         <div className="py-10">
           <p className="mb-6 font-mono text-sm">
-            <Link
-              href="/projects/electrons"
-              className="text-muted underline underline-offset-4 transition-colors hover:text-foreground"
-            >
+            <Link href="/projects/electrons" className={mutedLink}>
               ← back to the write-up
             </Link>
           </p>
-          <h1 className="font-display text-display">
-            Electrons → Instructions
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted">
-            Eleven levels, from charge drifting in copper to a running program
-            that puts a bit back on a pin. Every level can be broken on purpose
-            — that is the part worth your time.
-          </p>
-          <p className="mt-4 max-w-2xl font-mono text-sm text-muted">
-            Use ← and → to move between levels.
-          </p>
+          <PageHeader
+            title="Electrons → Instructions"
+            lede="Eleven levels, from charge drifting in copper to a running program that puts a bit back on a pin. Every level can be broken on purpose — that is the part worth your time."
+          >
+            <p className="mt-4 max-w-2xl font-mono text-sm text-muted">
+              Use ← and → to move between levels.
+            </p>
+          </PageHeader>
         </div>
       </Container>
 
@@ -66,7 +62,7 @@ export default function ElectronsLabPage() {
           Built as a standalone React component with no runtime dependencies.{" "}
           <a
             href="https://github.com/shaostassen/visualize_how_electron_produce_real_work"
-            className="text-accent underline underline-offset-4 hover:decoration-2"
+            className={accentLink}
           >
             source ↗
           </a>

@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Container } from "@/components/layout/Container";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { Annotation } from "@/components/instrument/Annotation";
-import { GridBackdrop } from "@/components/instrument/GridBackdrop";
 import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Photo } from "@/components/photo/Photo";
 import { Plate } from "@/components/photo/Plate";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
+import { Dot } from "@/components/ui/Dot";
+import { accentLink, mutedLink } from "@/components/ui/styles";
+import { profile } from "@/content/data/profile";
 import { allProjects } from "@/lib/content";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -20,44 +24,27 @@ export default async function Home() {
     <div>
       <PersonJsonLd />
 
-      <section className="relative isolate overflow-hidden pb-16 pt-16 sm:pb-24 sm:pt-24">
-        <GridBackdrop className="-z-10" />
-
+      <Section backdrop className="overflow-hidden">
         <Container>
           <div className="grid items-center gap-12 lg:grid-cols-12">
             <div className="lg:col-span-7">
-              <Annotation>shaostassen.com</Annotation>
-              <h1 className="mt-5 font-display text-display">Shao Stassen</h1>
-              <p className="animate-fade-up mt-5 max-w-xl text-lg text-muted [animation-delay:80ms]">
-                I work where software meets hardware — control loops on
-                microcontrollers, autonomous robots, and the ML systems that let
-                them see.
-              </p>
+              <PageHeader
+                annotation="shaostassen.com"
+                title="Shao Stassen"
+                lede="I work where software meets hardware — control loops on microcontrollers, autonomous robots, and the ML systems that let them see."
+              />
               <p className="animate-fade-up mt-8 font-mono text-sm text-muted [animation-delay:160ms]">
-                <a
-                  href="https://github.com/shaostassen"
-                  className="text-accent underline underline-offset-4 hover:decoration-2"
-                >
+                <a href={profile.github} className={accentLink}>
                   GitHub ↗
                 </a>
-                <span className="mx-3" aria-hidden="true">
-                  ·
-                </span>
-                <a
-                  href="https://www.linkedin.com/in/shaostassen"
-                  className="text-accent underline underline-offset-4 hover:decoration-2"
-                >
+                <Dot />
+                <a href={profile.linkedin} className={accentLink}>
                   LinkedIn ↗
                 </a>
-                <span className="mx-3" aria-hidden="true">
-                  ·
-                </span>
-                <a
-                  href="/contact"
-                  className="underline underline-offset-4 transition-colors hover:text-foreground"
-                >
+                <Dot />
+                <Link href="/contact" className={mutedLink}>
                   contact →
-                </a>
+                </Link>
               </p>
             </div>
 
@@ -72,10 +59,10 @@ export default async function Home() {
             </div>
           </div>
         </Container>
-      </section>
+      </Section>
 
       <Container>
-        <WaveDivider variant="step" />
+        <WaveDivider variant="step" className="my-0" />
       </Container>
 
       <Section className="pt-10 sm:pt-12">
@@ -122,8 +109,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <Section className="relative isolate pt-8">
-        <GridBackdrop />
+      <Section backdrop className="pt-8">
         <Container>
           <p className="max-w-2xl text-muted">
             Evidence, mostly. Some of it is lab work; some of it is just where I
