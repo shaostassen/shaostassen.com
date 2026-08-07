@@ -12,7 +12,7 @@ featured: true
 status: in-progress
 metrics:
   - { label: "CPU throughput", value: "3.9× realtime (9950X, large-v3 int8)" }
-  - { label: "GPU throughput", value: "12.2× realtime (T4, large-v3)" }
+  - { label: "auto-accepted", value: "90% of words at 2% error" }
 ---
 
 ## Problem
@@ -44,8 +44,9 @@ takes several chunks and votes, fusing the distributions as a log-space
 geometric mean so two clean windows can veto one corrupted window. Every
 decode knob — beam width, the temperature fallback ladder, the repetition
 and no-speech gates — lives in a single config object rather than scattered
-call sites, so the decode behavior is diffable and testable. Per-segment
-confidence is surfaced, not swallowed.
+call sites, so the decode behavior is diffable and testable. Confidence is
+surfaced rather than swallowed — which turned out to be where the interesting
+problem was.
 
 ## Why it's technically hard
 
@@ -109,12 +110,42 @@ within 0.008 AUROC of each other. What helped was the aggregation instead of
 the estimator, taking the minimum over a word's tokens rather than the mean,
 since a word is wrong if any one of its tokens is.
 
+## What shipped
+
+A reliability layer that answers the question a deployment actually asks —
+_at a tolerated error rate, how much of this transcript can I auto-accept?_ —
+rather than "what confidence value feels safe?".
+
+Per-word probability is calibrated against measured correctness with isotonic
+regression, and the accept threshold is derived from a target error rate. On
+clean audio, **90% of words auto-accept at 2% error**; at 10 dB SNR, 78%; at
+0 dB, **nothing does**, and the fitted policy encodes that refusal instead of
+quietly lowering the bar. Calibration is near-neutral where the raw score was
+already sound and decisive where it wasn't: at −5 dB it takes expected
+calibration error from 0.222 to 0.033 and flips the normalized cross-entropy
+from −0.164 to +0.149 — from worse-than-useless to informative — without
+touching the model.
+
+The policy is chosen automatically. The voice-activity detector already splits
+the signal into speech and non-speech, and non-speech is a clean sample of the
+noise that speech competes with, so an energy ratio gives the SNR for free. It
+recovers the true value within 0.6 dB and picks the right policy at all six
+noise levels. When it can't estimate — no speech, or no silence to measure
+noise from — it applies no policy and says so, because a missing annotation is
+recoverable and a fabricated one is not.
+
+In practice, on a clip where `base` misheard "similes drawn from eating" as
+"similarly he's drawn": both wrong words land in the review list, and
+`similarly` scores lowest of all sixty. The old segment gate flagged all four
+segments at an identical 0.83 — the per-window constant — calling a
+95%-correct transcript entirely suspect.
+
 ## What I'd do next
 
-Ship the reliability layer on the per-word signal, calibrated per noise level
-rather than globally — at −5 dB the ranking still works (AUROC 0.76) while the
-numbers attached to it stop meaning anything, so one global calibration would
-be wrong at both ends. Then a second corpus: this is all read English with
-additive white noise, and both the positive result and the negative one need
-different data before I'd call either general. Only then does the accent
-analysis that motivated the project get built on a foundation worth trusting.
+A second corpus. All of this is read English with additive white noise, so the
+positive result, the negative one, and the SNR estimator all need different
+data — spontaneous speech, real recorded noise, other accents — before I'd
+describe any of them as general rather than as findings about one setup. The
+per-word signal is also structurally blind to deleted words: a dropped word
+leaves no token to score. Only after that does the accent analysis that
+motivated the project get built on a foundation worth trusting.
