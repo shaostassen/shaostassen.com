@@ -1,0 +1,71 @@
+# shaostassen.com — Caddy
+#
+# Implements the same ruleset as scripts/serve-static.mjs, which the
+# Playwright suite (tests/hosting.spec.ts) runs against. If you change one,
+# change both.
+#
+# Caddy is the recommended server here because it obtains and renews
+# Let's Encrypt certificates on its own — that is the single biggest thing
+# Vercel was doing for free that self-hosting has to replace.
+#
+# Install:  https://caddyserver.com/docs/install
+# Validate: caddy validate --config /etc/caddy/Caddyfile
+# Reload:   sudo systemctl reload caddy
+
+shaostassen.com, www.shaostassen.com {
+	root * /srv/shaostassen.com
+
+	encode zstd gzip
+
+	# Canonical host: www -> apex, matching the 308 Vercel serves today.
+	@www host www.shaostassen.com
+	redir @www https://shaostassen.com{uri} permanent
+
+	header {
+		# See the CSP note in scripts/serve-static.mjs: 'unsafe-inline' stays
+		# because Next's export emits inline scripts whose contents change
+		# every build; every *origin* is still pinned to self.
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	# Content-hashed by the build — safe to cache forever.
+	@immutable path /_next/static/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	# Stable filenames whose bytes could change on a redeploy.
+	@media path /photos/* /projects/*/*.png /projects/*/*.webp /projects/*/*.mp4
+	header @media Cache-Control "public, max-age=86400"
+
+	# Documents must revalidate or a deploy never reaches a warm cache.
+	@documents path *.html /
+	header @documents Cache-Control "public, max-age=0, must-revalidate"
+
+	# Next writes the seven generated OG cards with no file extension, so
+	# Caddy would serve them application/octet-stream — which is the bug
+	# production has today. Name the type explicitly.
+	@ogimage path /opengraph-image /projects/*/opengraph-image
+	header @ogimage {
+		Content-Type "image/png"
+		Cache-Control "public, max-age=86400"
+	}
+
+	# Clean URLs: the site links to /about, the export holds about.html.
+	try_files {path} {path}.html {path}/index.html
+
+	file_server
+
+	# 404.html must come back with a 404 status, not 200.
+	handle_errors {
+		@notfound expression {err.status_code} == 404
+		handle @notfound {
+			rewrite * /404.html
+			header Cache-Control "no-store"
+			file_server
+		}
+	}
+}

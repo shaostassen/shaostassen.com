@@ -15,7 +15,9 @@
     "check:photos": "node scripts/check-photos.mjs",
     "check:links": "node scripts/check-links.mjs",
     "check:retractions": "node scripts/check-retractions.mjs",
-    "validate": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm check:photos && pnpm build && pnpm check:links && pnpm check:retractions && PLAYWRIGHT_NO_BUILD=1 pnpm test && pnpm lighthouse"
+    "validate": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm check:photos && pnpm build && pnpm check:links && pnpm check:retractions && PLAYWRIGHT_NO_BUILD=1 pnpm test && pnpm lighthouse",
+    "preview": "node scripts/serve-static.mjs",
+    "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
     "next": "15.5.20",
@@ -37,7 +39,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.20",
     "prettier": "^3.9.4",
-    "serve": "^14.2.6",
     "sharp": "^0.35.3",
     "tailwindcss": "^4",
     "typescript": "^5"

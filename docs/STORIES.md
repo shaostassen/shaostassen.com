@@ -21,6 +21,7 @@ here. Per-story working logs live in `log/`.
 | S7.1  | E7   | Accessibility & responsive hardening           | done   | axe suite 9 routes × 2 themes (40 checks green), menu Escape+focus return, reduced-motion delay bug fixed; A11y=100 |
 | S7.2  | E7   | Performance, SEO, and metadata                 | done   | title template + OG/Twitter, generated OG images (root + per project), sitemap/robots, JSON-LD Person; analytics: none; LH 96/100/100/100 |
 | S9.1  | E9   | Domain cutover: shaostassen.com live on Vercel | done   | live at https://shaostassen.com w/ Let's Encrypt SSL; www → apex 308; all absolute URLs flipped; registrar NS typo since corrected (F8) |
+| S9.2  | E9   | Self-hosting kit (server configs, deploy, runbook) | done   | ruleset defined once in `scripts/serve-static.mjs` and now the Playwright host (replaced `serve`), Caddy + nginx configs, `pnpm deploy` w/ live verification, `docs/SELF-HOSTING.md`; fixes the OG `octet-stream` bug Vercel can't. DNS untouched — production still Vercel |
 | S10.1 | E10  | README + "about this site" colophon            | done   | README rewritten as a work sample; /colophon with decisions + LH scores + what's next; footer link |
 | S7.3  | E7   | Share-correctness: per-page metadata, full-site budgets, real 404 | done  | per-page canonical/OG/Twitter via one builder (every page used to share as the homepage); LH budgets now assert 7 routes, perf 93–97; designed 404; tests 84 → 112 |
 | S3.3  | E3   | High-school work: Super Gold Hunters            | done   | Java raycaster case study w/ 45s demo video (preload=none, 2.6 MB); new `graphics` category; every technical claim verified in the Java source; teammates credited |
@@ -85,7 +86,11 @@ E6 (M3), E7 (M4), then launch (M5).
 - **F9 (Shao):** set the GitHub repo description + topics (the API token
   on this machine belongs to a different account).
 
-- **F11 (from S3.3, watch):** `/projects` now measures **91** against the 90
+- ~~F11~~ **resolved** (verified 2026-08-07 in S9.2): `/projects` measures
+  **95**, not the 91 that prompted the flag. The JetBrains Mono preload from
+  the CLS work bought the margin back; no pagination needed.
+
+- **F11 (superseded, kept for history):** `/projects` measured **91** against the 90
   performance floor — the tightest margin on the site, since it renders every
   project card. The next project added is as likely to breach it as not. When
   it does, the fix is paginating or lazy-mounting the grid, not moving the

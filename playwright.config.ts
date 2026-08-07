@@ -21,9 +21,12 @@ export default defineConfig({
     // `pnpm validate` and CI have already built by the time they get here,
     // and rebuilding cost a second full Next build every run — set
     // PLAYWRIGHT_NO_BUILD=1 to serve the existing out/ instead.
+    // Served by scripts/serve-static.mjs — the same ruleset deploy/Caddyfile
+    // and deploy/nginx.conf implement, so the suite proves the self-hosting
+    // config rather than a generic dev server's conveniences.
     command: process.env.PLAYWRIGHT_NO_BUILD
-      ? "pnpm exec serve out -l 4173"
-      : "pnpm build && pnpm exec serve out -l 4173",
+      ? "node scripts/serve-static.mjs --port 4173"
+      : "pnpm build && node scripts/serve-static.mjs --port 4173",
     url: "http://localhost:4173",
     reuseExistingServer: false,
     timeout: 180_000,

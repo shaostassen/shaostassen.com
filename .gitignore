@@ -38,6 +38,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the deploy template carries no secrets and is the documentation for
+# what .env.deploy needs.
+!.env.deploy.example
 
 # vercel
 .vercel
