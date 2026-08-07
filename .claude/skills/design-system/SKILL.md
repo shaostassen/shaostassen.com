@@ -85,9 +85,12 @@ Rules:
   `accent-2` cyan (CH2), `accent-3` magenta (CH3, rare). Do not introduce
   a fourth.
 - **Grid stays under 6% opacity** and fades out; content always dominates.
-- Corners are `rounded-sm` (0.25rem) — drafted, not soft. One tier, no
-  exceptions: this holds inside `.prose` too (code, pre, img, video), and
-  `rounded-md` / `rounded-lg` appear nowhere in `src/`.
+- Corners are `rounded-sm` (0.25rem) — drafted, not soft. One tier, and it
+  holds inside `.prose` too (code, pre, img, video). `rounded-md` appears
+  nowhere; the only `rounded-lg` left is inside the vendored
+  `src/components/electrons/`, which is rsynced from another repo and not
+  ours to restyle. `rounded-full` is fine for actual circles (the Timeline
+  node), which is not a corner radius.
 
 ## Exemptions
 
