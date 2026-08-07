@@ -26,6 +26,13 @@ const eslintConfig = [
       "src/components/electrons/**",
     ],
   },
+  {
+    // Tool configs that are loaded as CommonJS — lhci resolves
+    // lighthouserc.cjs with require(), so `require()` is the correct
+    // module syntax here, not a lapse.
+    files: ["**/*.cjs"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
 ];
 
 export default eslintConfig;

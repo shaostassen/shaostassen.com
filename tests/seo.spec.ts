@@ -1,34 +1,13 @@
 import { test, expect } from "@playwright/test";
+import { siteRoutes, unlistedRoutes } from "@/lib/routes";
 
 const SITE = "https://shaostassen.com";
-
-// Every indexable route, with the title its social card must advertise.
-const routes = [
-  { path: "/", title: "Shao Stassen" },
-  { path: "/about", title: "About — Shao Stassen" },
-  { path: "/projects", title: "Projects — Shao Stassen" },
-  { path: "/coursework", title: "Coursework — Shao Stassen" },
-  { path: "/contact", title: "Contact — Shao Stassen" },
-  { path: "/colophon", title: "Colophon — Shao Stassen" },
-  {
-    path: "/projects/fast-robots",
-    title:
-      "Fast Robots: Sensor Fusion and Autonomous Navigation — Shao Stassen",
-  },
-  {
-    path: "/projects/parallel-spgemm",
-    title: "Parallel Sparse Matrix–Matrix Multiplication — Shao Stassen",
-  },
-  {
-    path: "/projects/super-gold-hunters",
-    title: "Super Gold Hunters — Shao Stassen",
-  },
-];
+const SITE_NAME = "Shao Stassen";
 
 const content = (page: import("@playwright/test").Page, selector: string) =>
   page.locator(selector).getAttribute("content");
 
-for (const { path, title } of routes) {
+for (const path of siteRoutes()) {
   // Regression guard for S7.3: every page used to advertise the site title
   // and og:url = the homepage, so sharing a case study rendered a generic
   // card pointing at "/". The identity has to be per-route.
@@ -41,6 +20,17 @@ for (const { path, title } of routes) {
       expected,
     );
     expect(await content(page, 'meta[property="og:url"]')).toBe(expected);
+
+    // Assert the title *shape* rather than the string: pinning exact titles
+    // meant every project rename edited this file. The invariant that
+    // matters is that each route has its own title and the cards echo it.
+    const title = await page.title();
+    if (path === "/") {
+      expect(title).toBe(SITE_NAME);
+    } else {
+      expect(title.endsWith(` — ${SITE_NAME}`)).toBe(true);
+      expect(title.length).toBeGreaterThan(` — ${SITE_NAME}`.length);
+    }
     expect(await content(page, 'meta[property="og:title"]')).toBe(title);
     expect(await content(page, 'meta[name="twitter:title"]')).toBe(title);
 
@@ -122,23 +112,20 @@ test("the 404 claims no canonical", async ({ page }) => {
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
 });
 
-test("sitemap lists every route", async ({ page }) => {
+test("sitemap lists every route and nothing else", async ({ page }) => {
   const res = await page.request.get("/sitemap.xml");
   expect(res.status()).toBe(200);
   const xml = await res.text();
-  for (const path of [
-    "/about",
-    "/projects",
-    "/coursework",
-    "/contact",
-    "/colophon",
-    "/projects/fast-robots",
-    "/projects/parallel-spgemm",
-    "/projects/speechlens",
-  ]) {
-    expect(xml).toContain(path);
-  }
-  expect(xml).not.toContain("/styleguide");
+
+  // Exact set equality, not "contains". A contains-check passes while a
+  // route is silently missing, which is exactly how huey shipped with no
+  // audit coverage and /projects/electrons/lab fell out of the sitemap.
+  const listed = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((m) => m[1].replace(SITE, "") || "/")
+    .sort();
+  expect(listed).toEqual([...siteRoutes()].sort());
+
+  for (const route of unlistedRoutes) expect(xml).not.toContain(route);
 });
 
 test("robots.txt allows crawling and points at the sitemap", async ({
