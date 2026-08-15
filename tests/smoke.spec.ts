@@ -221,8 +221,12 @@ test("projects filter deep-links via URL", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 3, name: /Sparse Matrix/ }),
   ).toBeVisible();
+  // The other systems project. Matched on a stable word rather than its full
+  // title: it was renamed once already, when the page was rewritten to describe
+  // the infrastructure that exists instead of the edge pipeline that was only
+  // ever intended.
   await expect(
-    page.getByRole("heading", { level: 3, name: /Edge Pipeline/ }),
+    page.getByRole("heading", { level: 3, name: /Tailscale/ }),
   ).toBeVisible();
 });
 
@@ -263,7 +267,7 @@ test("individual work renders and prev/next navigation works", async ({
 }) => {
   await page.goto("/projects");
   await expect(
-    page.getByRole("heading", { name: "ML Workstation → Edge Pipeline" }),
+    page.getByRole("heading", { name: "Remote ML Compute over Tailscale" }),
   ).toBeVisible();
   // the individual track no longer shows the empty state
   await expect(page.getByText("write-ups in progress")).toHaveCount(0);

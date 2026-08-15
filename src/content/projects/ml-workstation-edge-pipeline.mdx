@@ -1,61 +1,118 @@
 ---
 slug: ml-workstation-edge-pipeline
-title: "ML Workstation → Edge Pipeline"
-oneLiner: "Personal ML infrastructure: a Ryzen 9 9950X Linux server and a Jetson Orin Nano edge target, joined over a Tailscale mesh."
+title: "Remote ML Compute over Tailscale"
+oneLiner: "A headless Ryzen 9 9950X reachable by name from anywhere over a private mesh — the CPU-only box that ran every experiment behind SpeechLens and SpeechForge."
 category: systems-hpc
 track: individual
-tags: [Jetson, Tailscale, NFS, Linux]
+tags: [Tailscale, Linux, Ubuntu, Python, Infrastructure]
 timeframe: "Ongoing"
 role: "Solo"
 featured: false
-# Listing-only pending a rewrite: the published version described training on
-# an RTX 5090 that does not exist, and an ONNX→TensorRT path that has not been
-# verified. Unpublished 2026-08-02 rather than left live while it is corrected.
-caseStudy: false
+status: in-progress
+caseStudy: true
+metrics:
+  - { label: "unattended compute", value: "~15 h of studies in one session" }
+  - { label: "public ports", value: "none — mesh only" }
 ---
 
 ## Problem
 
-Training on a desktop GPU and deploying to an edge device is conceptually
-simple and practically an afternoon of yak-shaving, every time: mismatched
-CUDA versions, files copied around by hand, models exported ad hoc, and a
-Jetson that's only reachable from the home network. The goal is a paved
-path from train-on-workstation to run-on-edge.
+Machine-learning work needs a machine that stays on. A laptop closes, sleeps,
+and gets carried out of the house halfway through a ninety-minute study. I
+wanted somewhere to start a job, walk away, and collect the result — without
+opening a port to the internet or paying for a GPU I could not keep busy.
+
+The narrower problem is that ML environments actively fight each other.
+Chatterbox pins `torch==2.6.0`; CosyVoice 2 wants `torch==2.3.1`, Python 3.10,
+and a `requirements.txt` written for CUDA. Installing the second one
+carelessly breaks every number the first one produced.
 
 ## Constraints
 
-- Heterogeneous by nature: x86 with a 32-thread Ryzen 9 9950X on one end,
-  aarch64 with JetPack's pinned CUDA/TensorRT stack on the other. You don't
-  get to pick one toolchain.
-- Reachable from anywhere without exposing ports to the internet.
-- Boring to maintain — this is infrastructure that serves other projects,
-  so it has to fail rarely and obviously.
+- **No inbound exposure.** Nothing port-forwarded, no public hostname.
+- **No GPU.** There is no NVIDIA card in this machine, so everything is CPU
+  inference and the throughput budget is real.
+- **Reproducible across environments.** A result is only comparable with the
+  runs before it if the environment that produced it did not quietly change.
+- **Boring to maintain.** It is substrate for other projects; it should fail
+  rarely and obviously.
 
 ## Approach
 
-Three layers. **Network:** a Tailscale mesh makes every machine reachable
-by name from anywhere, with zero open ports. **Storage:** NFS exports from
-the workstation give datasets and checkpoints one home; the Jetson mounts
-instead of copying.
+**Network.** A Tailscale mesh makes the box reachable by name from anywhere.
+Services bind to the tailnet interface rather than `0.0.0.0`, and Tailscale
+Serve terminates HTTPS with real certificates *inside* the tailnet — so
+browser-facing tools get a valid cert without any of it being on the public
+internet. Only SSH listens broadly, and it is not forwarded at the router.
 
-**Model path: not built, and described here as intent only.** The plan is
-to export to ONNX as the portable artifact and build the TensorRT engine on
-the Jetson itself, since engines are hardware-specific and engine-building
-is therefore a deploy step rather than a build artifact. That path has
-never been run end to end, and there is no desktop NVIDIA GPU on the
-workstation side to train on — which is why this project is listing-only
-until Shao confirms what actually exists.
+**Environments.** One virtualenv per conflicting stack, not one per project.
+Chatterbox and its evaluation harness share an environment; CosyVoice 2 gets
+its own Python 3.10 with a CPU-only torch. That isolation is what made it safe
+to add a second backend without invalidating a corpus of already-recorded
+measurements.
+
+**Jobs.** Studies run detached under `setsid nohup` and survive the SSH
+session that started them. Logs and per-utterance JSON come back over `scp`
+into the repo that will cite them, so every published number keeps the raw
+output that produced it.
 
 ## Why it's technically hard
 
-None of the pieces is exotic; the engineering is in the seams. ONNX export
-is where models actually break — unsupported ops, dynamic shapes — and
-version alignment across CUDA, ONNX opsets, and JetPack's pinned TensorRT
-is the kind of dependency problem that only stays solved if it's scripted
-and written down.
+Not the pieces — the seams, and the failure modes you only find by running it.
+
+Upstream `requirements.txt` files assume a GPU. CosyVoice 2's pulls a CUDA
+wheel index, TensorRT, and `onnxruntime-gpu`; installed verbatim on this box
+that is gigabytes of libraries that cannot execute. The inference subset is far
+smaller — `deepspeed` is training-only, `vllm` is imported lazily, `pyarrow`
+belongs to the data pipeline — but finding that out means reading the import
+graph rather than the docs.
+
+The scheduling is subtler. Two studies sharing sixteen threads do not fail;
+they just take longer and stop being comparable to earlier timings. Runs are
+queued sequentially by a shell script that waits on the previous process, which
+is unglamorous and correct.
 
 ## Result
 
-The pipeline is the substrate for in-progress projects like SpeechLens —
-which is the point: solve deployment once so individual projects don't
-have to.
+The infrastructure is in use, which is the only endorsement that counts. In a
+single working session it ran roughly fifteen hours of unattended evaluation
+for [SpeechLens](/projects/speechlens) and SpeechForge: corpus sweeps at n=60,
+a paired study across three synthesis backends, and repeated ninety-minute
+golden-speaker runs. Measured throughput on that hardware is 3.9× realtime for
+`large-v3` int8 — a CPU-only box doing work that is usually assumed to need a
+GPU.
+
+## Where it got interesting: `/tmp` is not storage
+
+A study was writing its log and results to `/tmp`. The machine rebooted
+mid-run, `/tmp` was cleared, and ninety minutes of compute vanished with it —
+along with the evidence of what had already completed.
+
+The earlier results survived only because they had already been copied into the
+repository that cited them. That is the whole lesson: **the artifact is not safe
+until it is somewhere a reboot cannot reach.** Run logs now write to a durable
+directory, and results are pulled into version control as soon as they exist
+rather than at the end of a batch.
+
+Two smaller ones from the same session. A watcher script that polled with
+`pgrep -f "eval_golden"` matched *its own command line* and reported the job as
+running long after it had finished — a check that confirms itself is worse than
+no check. And a long-lived SSH connection is not a reliable way to wait for a
+remote job: the tunnels dropped repeatedly, so waiting now means reconnecting on
+each poll rather than holding one session open for an hour.
+
+## What I'd do next
+
+**Shared storage.** There is no NFS export on this machine today; datasets and
+model caches live wherever the job that fetched them put them. One export with
+one mount point is an afternoon of work and would stop the duplication.
+
+**A real job queue.** Sequential shell scripts waiting on `pgrep` work and do
+not compose. Anything that survives a reboot and holds a queue would be an
+improvement.
+
+**Accelerated inference is unresolved.** An edge deployment path — export to
+ONNX, build a TensorRT engine on the target — was the original plan for this
+project and has never been built. There is no NVIDIA GPU here to export from
+and no edge device on the mesh, so it is intent rather than architecture, and
+is described that way rather than diagrammed as though it exists.
