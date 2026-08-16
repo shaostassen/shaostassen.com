@@ -30,6 +30,7 @@ here. Per-story working logs live in `log/`.
 | S11.2 | E11  | Photography as a field log                     | done   | committed image pipeline (99 derivatives), plates w/ FIG numbers, hero split, photo band, Fast Robots gallery; perf floor 95 → 90 by Shao's decision |
 | S12.1 | E12  | Electrons → Instructions: case study + instrument route | done   | case study at /projects/electrons + full-bleed instrument at /projects/electrons/lab (95/100/100/100); component vendored from its own repo via sync script; scoped palette exemption documented in design-system |
 | S3.4  | E3   | faultlab: emulation fault-injection case study  | done   | /projects/faultlab live 2026-08-16; measured metrics only (95.9M fault pairs searched, 100% cross-backend agreement outside CRASH, Cortex-M3 + RV32I); prettier fix to the workstation page unblocked a red `validate`; MDX pitfall worth remembering — unescaped `{base, hardened}` parsed as a JSX expression and silently vanished from the render, caught by screenshot not by the build |
+| S3.5  | E3   | demostack: local-first imitation-learning platform | done   | /projects/demostack live 2026-08-16 (96/100/100/100); requested directly by Shao, so it jumped the queue; sourced from the project repo's own measured results (14 s CPU training, 30 fps at 4.0 ms p95, 27.1 vs 1.09 random) rather than a draft — no `docs/drafts/` entry exists; leads on the seed-leakage bug and states the 0% success rate plainly; `/projects` held at 95 with the 9th card, so F11's margin survives |
 
 Human checkpoints (do not cross without review): after E1 (M1), E3 (M2),
 E6 (M3), E7 (M4), then launch (M5).
@@ -78,6 +79,13 @@ E6 (M3), E7 (M4), then launch (M5).
 
 ## Follow-ups
 
+- **F12 (from S3.5, high value):** the demostack case study describes a live
+  browser cockpit — teleop, scrubber, a policy taking the controls — and shows
+  none of it. A short screen capture would carry more than any paragraph there,
+  following the S3.3 video pattern (`preload="none"`, poster image, pinned by a
+  test). Also: the numbers on that page come from a *scripted* demonstrator; when
+  Shao records real human demos, the scaling curve moves and the page needs a
+  refresh.
 - ~~F8~~ **resolved** — verified 2026-07-31 against the `.com` registry, not
   just a resolver cache. The delegation now reads `ns-241.awsdns-30.com`,
   `ns-531.awsdns-02.net`, `ns-1480.awsdns-57.org`, and

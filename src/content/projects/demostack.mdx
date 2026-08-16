@@ -1,0 +1,97 @@
+---
+slug: demostack
+title: "Local-First Imitation-Learning Platform"
+oneLiner: "The whole imitation-learning loop on one laptop — teleoperate a manipulation task in the browser, record demonstrations, train a policy, then watch that policy take the controls — with no GPU anywhere in it."
+category: robotics
+track: individual
+tags:
+  [
+    Imitation learning,
+    Behavior cloning,
+    Robot teleoperation,
+    LeRobot,
+    PyTorch,
+    FastAPI,
+    WebSockets,
+    Next.js,
+  ]
+timeframe: "2026"
+role: "Solo"
+repo: https://github.com/shaostassen/human-in-the-loop-demonstration-machine-learning
+featured: true
+status: in-progress
+metrics:
+  - { label: "CPU training", value: "14 s on one core" }
+  - { label: "frame stream", value: "30 fps at 4.0 ms p95" }
+  - { label: "mean reward, 40 demos", value: "27.1 vs 1.09 random" }
+---
+
+## Problem
+
+Imitation learning has a well-understood recipe and very little honest tooling
+between its steps. Recording demonstrations, inspecting them, exporting a
+dataset, training a policy, scoring it, and watching it act each exist in
+isolation, and the seams are where the time goes. I wanted the entire loop on
+one machine, so that the binding constraint would be demonstration quality
+rather than infrastructure.
+
+## Constraints
+
+- CPU only, zero spend. No local GPU, no rented cluster.
+- Server-authoritative simulation: the browser draws and never decides, so what
+  gets recorded is what the policy will see at inference.
+- Nothing may fail quietly. A dropped control tick or a stale frame corrupts a
+  recording in a way that surfaces weeks later as a bad policy, not as an error.
+
+## Approach
+
+FastAPI owns a `gym-pusht` sim on a fixed clock and streams JPEG frames over a
+single WebSocket; Next.js is the cockpit — teleop canvas, episode browser with a
+frame-accurate scrubber, live loss curves. Episodes land in a crash-safe local
+store (one compressed npz plus one SQLite row, flushed atomically on episode
+end) and export to a LeRobot dataset on demand. The run launcher streams a
+training subprocess's stdout into structured metrics, and a behavior-cloning
+baseline dispatches through that same launcher.
+
+## Why it's technically hard
+
+The first scaling curve was inverted: 45.8 mean reward at 10 demos, decaying to
+3.9 at 40. That looked like a finding. Demos were recorded from seed 10001 and
+the study evaluated from seed 10000 — the eval seeds overlapped the training
+seeds, so small-N models were being scored on episodes they had memorized.
+Held-out seeds reversed the curve. A learning curve that improves as the data
+_shrinks_ is almost always leakage.
+
+The second: the plan said "flush to a LeRobot dataset on episode end," and
+against lerobot 0.6.0 that is impossible. The v3.0 layout packs many episodes
+into shared files and wants exactly one `finalize()`. Finalizing per episode
+corrupts the dataset; finalizing only at shutdown risks every demo to a single
+crash. The local store exists because both failure modes were verified by hand,
+and it pays off twice — the API process never imports torch, and a scaling study
+becomes four exports of one store rather than four recording sessions.
+
+## Result
+
+The loop closes. A checkpoint attached over HTTP drives the sim live while
+frames stream to the browser, and teleop takes back control on pointer input.
+Behavior cloning trains in 14 seconds on one CPU core. The stream sustains
+30 fps at 512 px with a 4.0 ms p95 server stage against an 80 ms glass-to-glass
+budget, timed at the animation frame that commits pixels rather than at receipt.
+On held-out seeds, mean reward is 8.99 / 30.42 / 27.06 at 10 / 20 / 40 demos,
+against 1.09 for random and 15.84 for the scripted demonstrator it learned from.
+Success rate is 0% everywhere, including for that demonstrator: PushT scores a
+success at 95% goal coverage and the scripted expert peaks near 0.66. That is a
+property of the demonstrator, not of the pipeline.
+
+## What I'd do next
+
+Human demonstrations. Every number above argues that the machinery works and
+that demonstration quality is now the limit — the scripted expert is a test
+fixture, not a result. The evaluation is also thin at 8–15 rollouts per point,
+which puts the 20-demo and 40-demo difference inside the noise; a curve worth
+publishing wants 50-plus rollouts and several seeds per point. ACT and Diffusion
+Policy need a GPU, so the launcher emits the exact training command for a
+borrowed T4 and the harness scores whatever checkpoint comes back. Diffusion is
+where I expect the real gain: MSE regression learns the conditional mean of the
+demonstrated actions, which is precisely wrong wherever two equally good ways
+around the block exist.
