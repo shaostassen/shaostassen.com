@@ -81,10 +81,15 @@ Unicorn does not model Cortex-M exception entry, so the firmware's
 countermeasures measure roughly 3× weaker, and break entirely at three
 faults where Cortex-M holds.
 
+<FaultMap />
+
 ## What I'd do next
 
-Run the supervisor through the QEMU backend. The finding that an independent
-watchdog closes 51.3% of safety violations is an upper bound, because CRASH
-is precisely the class the two emulators disagree on. Then hardware
-validation: simulation establishes necessary conditions for exploitability,
-never sufficient ones.
+Hardware validation. Simulation establishes necessary conditions for
+exploitability, never sufficient ones — and the cross-check already found one
+place where a CPU emulator and a full machine model disagree, so a real part
+will find more. The open engineering thread is the safety oracle: an
+independent watchdog closes 42.2% of violations, and the other 57.8% is
+firmware that never stops responding. That half needs a mitigation which does
+not depend on liveness at all — a hardware trip watching gate-driver current,
+not a software state variable.

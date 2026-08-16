@@ -7,6 +7,7 @@ import { Section } from "@/components/layout/Section";
 import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Plate } from "@/components/photo/Plate";
 import { PidLab } from "@/components/demo/PidLab";
+import { FaultMap } from "@/components/faultlab/FaultMap";
 import { Dot } from "@/components/ui/Dot";
 import { Prose } from "@/components/ui/Prose";
 import { Tag } from "@/components/ui/Tag";
@@ -27,7 +28,7 @@ export async function generateStaticParams() {
 // Interactive pieces a case study may place in its own body. Kept to an
 // explicit allow-list rather than a generic escape hatch: content should
 // only be able to reach components that were built for it.
-const mdxComponents = { PidLab };
+const mdxComponents = { PidLab, FaultMap };
 
 // Compile + validate. Zod throwing here fails the build — invalid
 // frontmatter must never ship.
