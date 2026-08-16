@@ -30,6 +30,7 @@ here. Per-story working logs live in `log/`.
 | S11.2 | E11  | Photography as a field log                     | done   | committed image pipeline (99 derivatives), plates w/ FIG numbers, hero split, photo band, Fast Robots gallery; perf floor 95 → 90 by Shao's decision |
 | S12.1 | E12  | Electrons → Instructions: case study + instrument route | done   | case study at /projects/electrons + full-bleed instrument at /projects/electrons/lab (95/100/100/100); component vendored from its own repo via sync script; scoped palette exemption documented in design-system |
 | S3.4  | E3   | faultlab: emulation fault-injection case study  | done   | /projects/faultlab live 2026-08-16; measured metrics only (95.9M fault pairs searched, 100% cross-backend agreement outside CRASH, Cortex-M3 + RV32I); prettier fix to the workstation page unblocked a red `validate`; MDX pitfall worth remembering — unescaped `{base, hardened}` parsed as a JSX expression and silently vanished from the render, caught by screenshot not by the build |
+| S3.6  | E3   | Blaze and Heat: physics-true combat-robotics game | done   | /projects/blaze-and-heat live 2026-08-16; requested directly by Shao, so it jumped the queue like S3.5; sourced from the project's own headless benches re-run against Godot 4.7.1 (4302 J blade at 1910 RPM, 794 mm launch, 3.34 m throw) rather than a draft, with `IDEAS.md` second and the bench winning any disagreement; 26 s gameplay clip recorded via Godot Movie Maker from a **throwaway copy** of the game repo (AI driver on the wedge so the fight runs unattended, tightened chase camera, kill cam cut out where its orbit passed through a wall) — Shao's repo untouched; the playable WASM option was priced and declined (Forward+ → Compatibility port loses SDFGI + volumetric fog, COOP/COEP headers break PLAN §3 host portability); one sourcing discrepancy found and **flagged rather than published** — `DriveBench` now banks 0 N·s across 8 full-speed rams against a documented ~4.5 N·s each, so no ram-count claim shipped (see F13) |
 | S3.5  | E3   | demostack: local-first imitation-learning platform | done   | /projects/demostack live 2026-08-16 (96/100/100/100); requested directly by Shao, so it jumped the queue; sourced from the project repo's own measured results (14 s CPU training, 30 fps at 4.0 ms p95, 27.1 vs 1.09 random) rather than a draft — no `docs/drafts/` entry exists; leads on the seed-leakage bug and states the 0% success rate plainly; `/projects` held at 95 with the 9th card, so F11's margin survives; follow-on fix — a stale untracked root `PLAN.md` still carrying the retracted RTX 5090 claim was deleted, and `check-retractions.mjs` now scans source as well as `out/` (it had been green the whole time that file sat there), with `docs/`/`.claude/`/`scripts/` exempt as the correction record |
 
 Human checkpoints (do not cross without review): after E1 (M1), E3 (M2),
@@ -78,6 +79,18 @@ E6 (M3), E7 (M4), then launch (M5).
   S3.1's index should group by it. High-school content TBD.
 
 ## Follow-ups
+
+- **F13 (from S3.6, for the _game_ repo, not this site):** in
+  `~/Documents/combat-robots-game`, `DriveBench` reports zero banked damage
+  across eight consecutive full-speed wedge rams ("integrity is out of
+  reach"), and `MatchBench` finishes a full spinner-vs-wedge match with
+  `panels shorn 0`. `ArmorPanel.gd`'s own docstring says a ram banks "roughly
+  4.5 N·s, so 14 means three or four solid hits", and cites a ~700 N ram
+  against the 441 N the bench now measures. The spinner path is fine —
+  `SpinnerBench` still shears a panel in one strike at 57.3 N·s. So either the
+  plow-vs-armour path regressed, or the docstring's numbers are stale and the
+  intent ("a plow is a ramp... it should struggle to shear armour") is being
+  met. Shao's call. The case study makes no claim that depends on it.
 
 - **F12 (from S3.5, high value):** the demostack case study describes a live
   browser cockpit — teleop, scrubber, a policy taking the controls — and shows
