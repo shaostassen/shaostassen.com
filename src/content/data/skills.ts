@@ -24,8 +24,16 @@ export const skillGroups: SkillGroup[] = z.array(skillGroupSchema).parse([
   {
     group: "ML · CV",
     items: [
-      { name: "PyTorch" },
+      { name: "PyTorch", href: "/projects/demostack" },
+      {
+        name: "Imitation learning, behavior cloning",
+        href: "/projects/demostack",
+      },
       { name: "YOLO object detection" },
+      // Deliberately unlinked: demostack does *not* back this one. Its
+      // diffusion content is future work — the page states ACT and Diffusion
+      // Policy need a GPU and were not trained, so pointing here would claim
+      // the opposite of what the case study says.
       { name: "VLMs & diffusion models (robot learning)" },
       { name: "ONNX → TensorRT edge deployment" },
     ],
