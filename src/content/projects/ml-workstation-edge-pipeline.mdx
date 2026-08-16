@@ -41,7 +41,7 @@ carelessly breaks every number the first one produced.
 
 **Network.** A Tailscale mesh makes the box reachable by name from anywhere.
 Services bind to the tailnet interface rather than `0.0.0.0`, and Tailscale
-Serve terminates HTTPS with real certificates *inside* the tailnet — so
+Serve terminates HTTPS with real certificates _inside_ the tailnet — so
 browser-facing tools get a valid cert without any of it being on the public
 internet. Only SSH listens broadly, and it is not forwarded at the router.
 
@@ -95,7 +95,7 @@ directory, and results are pulled into version control as soon as they exist
 rather than at the end of a batch.
 
 Two smaller ones from the same session. A watcher script that polled with
-`pgrep -f "eval_golden"` matched *its own command line* and reported the job as
+`pgrep -f "eval_golden"` matched _its own command line_ and reported the job as
 running long after it had finished — a check that confirms itself is worse than
 no check. And a long-lived SSH connection is not a reliable way to wait for a
 remote job: the tunnels dropped repeatedly, so waiting now means reconnecting on
