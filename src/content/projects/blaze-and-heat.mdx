@@ -1,0 +1,142 @@
+---
+slug: blaze-and-heat
+title: "Blaze and Heat"
+oneLiner: "A combat-robotics game with no hit points: the spinner stores real rotational energy, and the collision that dumps it is what decides whether armour shears off."
+category: robotics
+track: individual
+tags:
+  [
+    Godot 4,
+    GDScript,
+    Jolt Physics,
+    Rigid-body dynamics,
+    Game AI,
+    Headless benchmarks,
+  ]
+timeframe: "Summer 2026"
+role: "Solo"
+repo: "https://github.com/shaostassen/combat_robots_simulation"
+featured: true
+status: in-progress
+metrics:
+  - { label: "stored blade energy", value: "4302 J at 1910 RPM" }
+  - { label: "one full-RPM strike", value: "opponent thrown 3.34 m" }
+  - { label: "physics", value: "120 Hz, Jolt" }
+---
+
+## Problem
+
+Combat-robotics games model damage as hit points and canned animations. I
+led the autonomy subteam at Cornell Combat Robotics, and the reason the
+sport is worth watching is that none of it is scripted — a spinner is a
+flywheel, and what happens when it connects is decided by how much energy it
+was carrying. I wanted to find out whether a game could work where that is
+literally true: nothing tagged as a weapon, no damage table anywhere in the
+chain.
+
+<figure>
+  <video
+    controls
+    preload="none"
+    width="1280"
+    height="720"
+    poster="/projects/blaze-and-heat/screenshot.webp"
+    src="/projects/blaze-and-heat/gameplay.mp4"
+    aria-describedby="bout-desc"
+  >
+    Your browser cannot play embedded video. The description below covers what
+    the clip shows.
+  </video>
+  <figcaption id="bout-desc">
+    Twenty-six seconds from one bout, no sound, cut into three excerpts. Both
+    machines are under the game's own AI here, so the fight drives itself. The
+    spinner — pink chassis, white blade — arcs at range while its blade spins
+    back up, then commits once it is charged; the pale rectangle cut into the
+    floor is the pit. The overlay is live telemetry: speed, yaw rate, wheel
+    slip, drive torque, and the peak contact force in newtons that the damage
+    model reads. The wedge is then counted out where it stops, and the result
+    banner follows.
+  </figcaption>
+</figure>
+
+## Constraints
+
+- Godot 4 on the Jolt backend, GDScript throughout — no C#, no GDExtension.
+- Solo, and under four weeks end to end.
+- Primitive geometry only. There is no modelled art in the project; every
+  machine is boxes and cylinders with a shader on top.
+- Every physical system has to be measurable without a human driving.
+
+## Approach
+
+It is rigid bodies and joints the whole way down. The chassis is one
+`RigidBody3D`, armour panels are separate bodies welded on with locked 6DOF
+joints, and the spinner's blade is its own body on a motorised hinge. Godot
+has no breakable joint, so breaking is mine: a panel watches its own contact
+impulses, banks whatever exceeds a 250 N tolerance, and frees the joint at
+14 N·s. It is already a rigid body at that point, so it keeps the velocity it
+had and tumbles away as debris — nothing spawns, nothing swaps.
+
+Damage is denominated in force rather than hit points, which means recoil,
+the blade bogging down after a bite, and gyroscopic resistance when turning at
+full RPM all fall out of the solver instead of being animated.
+
+The AI decides when to commit, not how to move. It steers through the same
+`drive()` call the keyboard does, so it is bound by the same traction and
+inertia the player is. It cheats at knowing rather than at physics: it reads
+the enemy's exact position, but only every 180 ms, and that stale aim is what
+makes it miss a moving target.
+
+## Why it's technically hard
+
+Three of the worst bugs were the same bug — reading state during construction
+that was not set yet. The expensive one wired each tournament driver's enemy
+after `add_child`, which had already run `_ready` and cached a null. Every
+bout became two idle machines running out the clock, and it looked exactly
+like a balance problem. I had already written it up as "fights stalemate, bots
+lock up rather than finishing each other" before I found the cause. The ladder
+bench now asserts that bouts end decisively, so an idle driver cannot
+masquerade as a design problem again.
+
+The damage model took two rewrites for reasons that only appear inside a
+solver. A per-contact-point threshold registered zero damage across eight
+consecutive full-speed rams, because a collision spreads its impulse over many
+points and many ticks and no single point ever looks dramatic. A raw impulse
+threshold silently means something different at 60 Hz than at 120 Hz. Summing
+force across every contact point is the only version that survives a change of
+tick rate.
+
+And `HingeJoint3D`'s `PARAM_MOTOR_MAX_IMPULSE` is an impulse despite sitting
+where a torque limit belongs. Feeding it 18 N·m at 120 Hz handed the motor
+2160 N·m, and the blade snapped to full RPM in three ticks with no spin-up
+left to watch.
+
+## Result
+
+Four archetypes — wedge, spinner, flipper, hammer — and a single-elimination
+ladder that decides every bout on a knockout or the pit rather than on the
+clock. The knockout rule is the sport's own and stays physical: a bot is
+counted out when it is being commanded to move and is not moving, which covers
+being pinned, flipped, or down a wheel without anything tracking health.
+
+The spinner is the system everything else was built to be hit by. Its blade is
+10 kg at 0.215 kg·m², reaches 200 rad/s — 1910 RPM, 50 m/s at the tip — in
+3.3 s, and holds 4302 J there. At full RPM it throws a 54 kg wedge 794 mm into
+the air and 3.34 m across the arena, leaves it inverted, and kills 3.30 m/s of
+its own speed doing it. Cut the motor and half that energy is still there
+8.4 s later. Those numbers come from a headless bench that drives the real
+scenes rather than a copy of them, so they cannot drift away from the game.
+
+## What I'd do next
+
+The hammer under-delivers, and the bench says why: a stroke lifts its own nose
+204 mm and launches its victim 44 mm. The recoil is going into the chassis
+instead of the target, and adding torque only makes it backflip harder. It
+needs more arm inertia relative to the chassis, or a longer stroke.
+
+Armour also costs more agility than I expected — the wedge's pivot rate
+roughly halved once panels went on, because they sit far from the yaw axis.
+That trade is real and arguably correct, but 2 kg panels are a compromise
+rather than a settled answer. Tuning against it needs the bench to be
+repeatable first: pivot rate has read anywhere from 96 to 213 deg/s on
+identical code, depending on how the machine happened to settle.

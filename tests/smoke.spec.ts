@@ -372,6 +372,36 @@ test("high-school project ships its demo video without preloading it", async ({
   ).toBeVisible();
 });
 
+test("the combat-robotics bout ships its clip without preloading it", async ({
+  page,
+}) => {
+  await page.goto("/projects/blaze-and-heat");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Blaze and Heat",
+  );
+
+  // 1.8 MB stays off the critical path — it downloads only on play.
+  const video = page.locator("video");
+  await expect(video).toHaveAttribute("preload", "none");
+  await expect(video).toHaveAttribute("controls", "");
+  // WebP, not PNG like super-gold-hunters: this poster is a 3D render, and
+  // PNG costs 147 kB against WebP's 16 kB for the same frame.
+  await expect(video).toHaveAttribute(
+    "poster",
+    "/projects/blaze-and-heat/screenshot.webp",
+  );
+
+  // the clip is silent, so the caption is the only description of it — and
+  // aria-describedby is what ties the two together for a screen reader
+  await expect(video).toHaveAttribute("aria-describedby", "bout-desc");
+  await expect(page.locator("#bout-desc")).toBeVisible();
+
+  for (const asset of ["gameplay.mp4", "screenshot.webp"]) {
+    const res = await page.request.get(`/projects/blaze-and-heat/${asset}`);
+    expect(res.status(), asset).toBe(200);
+  }
+});
+
 test("the new graphics category filters on the projects index", async ({
   page,
 }) => {
