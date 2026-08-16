@@ -1,0 +1,90 @@
+---
+slug: faultlab
+title: "Emulation-Based Fault Injection Harness"
+oneLiner: "A campaign harness that glitches bare-metal firmware in emulation to measure which countermeasures actually stop a secure-boot bypass — across two instruction sets, with every result cross-checked against a second emulator."
+category: embedded
+track: individual
+tags:
+  [
+    Fault injection,
+    Embedded security,
+    Firmware,
+    Cortex-M,
+    RISC-V,
+    Emulation,
+    Python,
+  ]
+timeframe: "2026"
+role: "Solo"
+repo: https://github.com/shaostassen/fault-lab
+featured: true
+status: in-progress
+metrics:
+  - { label: "exhaustive search", value: "95.9M fault pairs" }
+  - { label: "cross-backend agreement", value: "100% outside CRASH" }
+  - { label: "architectures", value: "Cortex-M3 + RV32I" }
+---
+
+## Problem
+
+A voltage or clock glitch can make a CPU skip an instruction. One skipped
+branch turns a rejected firmware image into an accepted one. The
+countermeasures against this — duplicated checks, control-flow integrity,
+redundant computation — are usually defended by argument. I wanted them
+defended by measurement.
+
+## Constraints
+
+- Emulation, no glitch rig: instruction skip stands in for the physical
+  effect, and that abstraction gets stated, not hidden.
+- Campaigns must be exhaustive and reproducible. A harness that returns
+  different answers on different runs is worse than no harness, because its
+  output still looks authoritative.
+- The double-fault space is ~96M runs, so throughput is a design constraint,
+  not an optimization.
+
+## Approach
+
+Two targets — a secure-boot verifier and a motor safety supervisor — built
+across a `{base, hardened} × {-O0, -O2, -Os}` matrix and run under Unicorn.
+Faults trigger on instruction count rather than PC: counts are totally
+ordered, PCs are ambiguous inside a loop. A 16-rung snapshot ladder turns an
+O(T) replay per fault into O(T/16). The firmware never judges itself — it
+reports only what it did, and the harness, which knows what input it
+supplied, owns the verdict.
+
+## Why it's technically hard
+
+Running the campaigns is the easy part. The hard part is that the harness
+lies to you silently, and usually in the direction of a more exciting
+result. Six such bugs surfaced: writable flash leaking state between runs,
+`fork()` inheriting emulator state, and twice a telemetry field that a fault
+could corrupt into looking like a genuine bypass. That last one had produced
+a tidy, plausible conclusion — unoptimized hardened builds are the weakest —
+which was entirely an artifact. The real answer is the opposite: they are
+the strongest, fully closed. Retracting it meant re-running every number in
+the writeup. Every "exploitable" result is now checked against the
+firmware's own verdict field before it counts.
+
+## Result
+
+Hardening closes the rollback and bad-magic vectors completely on both
+instruction sets. The two surviving `-O2` bypasses trace to one specific
+weakness: redundant checks that only verify agreement with _each other_,
+which a forged image satisfies for free. An exhaustive 95.9M-pair
+double-fault search found 1,635 bypasses whose apparent variety collapsed
+into a single instruction-count drift effect. Cross-validating against QEMU
+on the identical binary gave 100% agreement on every outcome class carrying
+a security conclusion; the one divergence localized a real fidelity gap —
+Unicorn does not model Cortex-M exception entry, so the firmware's
+`HardFault` handler is dead code under it. Ported to RV32I, the same
+countermeasures measure roughly 3× weaker, and break entirely at three
+faults where Cortex-M holds.
+
+## What I'd do next
+
+Run the supervisor through the QEMU backend. The finding that an independent
+watchdog closes 51.3% of safety violations is an upper bound, because CRASH
+is precisely the class the two emulators disagree on. Then hardware
+validation: simulation establishes necessary conditions for exploitability,
+never sufficient ones.
