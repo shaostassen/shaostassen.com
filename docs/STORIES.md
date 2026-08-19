@@ -98,6 +98,22 @@ E6 (M3), E7 (M4), then launch (M5).
   it shows genuine teleop, an episode recording, a **trained BC checkpoint
   driving the sim under `autopilot on`**, teleop taking the controls back, and
   the browser scrubbing the demonstration.
+- **F15 (from F12 follow-on, for the _demostack_ repo, not this site):** two
+  defects found while re-driving the cockpit, distinct from the two in the
+  S3.5 log. (a) **The watch panel's empty state tells you to do something that
+  cannot work** — it reads "Train one — `make bc-train` — then it appears here
+  to watch", but only `training/manager.py` writes the `checkpoints` table, by
+  parsing a launched subprocess's stdout. `make bc-train` runs `train_bc.py`
+  straight from the CLI, so its checkpoint is never registered and never
+  appears. The path that works is the in-app launcher (`POST /runs` with
+  `policy: "bc"`, whose `dataset_path` is the episode-store root). (b) **The
+  run detail page records no loss metrics** — a clean launcher run
+  (`r_964aa2a09e`, `status=done`, 4000 steps, `final_loss=0.0301`) renders
+  `TRAINING LOSS · no metrics recorded` over an empty chart. This one matters
+  here too: the case study claims the launcher "streams a training
+  subprocess's stdout into structured metrics" and that the cockpit has "live
+  loss curves", and right now the curve is blank.
+
 - **F14 (from F12, still open):** the numbers on that page come from a
   *scripted* demonstrator, and so does the policy in the clip. When Shao records
   real human demos the scaling curve moves and both the page and the clip want a
@@ -108,8 +124,16 @@ E6 (M3), E7 (M4), then launch (M5).
   `ns-1697.awsdns-20.co.uk`; all four answer for the apex in 53–120 ms.
   The typo'd `ns-1657.awsdns-20.co.uk` still does not respond, but it is no
   longer delegated, so nothing queries it.
-- **F9 (Shao):** set the GitHub repo description + topics (the API token
-  on this machine belongs to a different account).
+- ~~F9~~ **resolved 2026-08-19:** the blocker was stale — `gh auth status` now
+  reports the `shaostassen` account with `repo` scope, so the token objection
+  no longer holds. Description + topics set on all six repos the case studies
+  link to (`combat_robots_simulation`, the demostack repo, `fault-lab`,
+  `voice_detection_using_machine_learning`,
+  `visualize_how_electron_produce_real_work`, `APCSA-Final-Project`) plus
+  topics on `shaostassen.com`. Each description is condensed from that
+  project's own `oneLiner` and ends with a link back to its case study, so the
+  repo and the page point at each other. `combat_robots_simulation` had been
+  completely bare since S3.6 linked to it.
 
 - ~~F11~~ **resolved** (verified 2026-08-07 in S9.2): `/projects` measures
   **95**, not the 91 that prompted the flag. The JetBrains Mono preload from
