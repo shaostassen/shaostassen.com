@@ -92,12 +92,15 @@ E6 (M3), E7 (M4), then launch (M5).
   intent ("a plow is a ramp... it should struggle to shear armour") is being
   met. Shao's call. The case study makes no claim that depends on it.
 
-- **F12 (from S3.5, high value):** the demostack case study describes a live
-  browser cockpit — teleop, scrubber, a policy taking the controls — and shows
-  none of it. A short screen capture would carry more than any paragraph there,
-  following the S3.3 video pattern (`preload="none"`, poster image, pinned by a
-  test). Also: the numbers on that page come from a *scripted* demonstrator; when
-  Shao records real human demos, the scaling curve moves and the page needs a
+- ~~F12~~ **resolved** (2026-08-18): the demostack cockpit clip is live — 30 s,
+  353 kB, `preload="none"` + poster, pinned by a test, following S3.3. Captured
+  headlessly by driving the real app with Playwright (no human at a screen), so
+  it shows genuine teleop, an episode recording, a **trained BC checkpoint
+  driving the sim under `autopilot on`**, teleop taking the controls back, and
+  the browser scrubbing the demonstration.
+- **F14 (from F12, still open):** the numbers on that page come from a
+  *scripted* demonstrator, and so does the policy in the clip. When Shao records
+  real human demos the scaling curve moves and both the page and the clip want a
   refresh.
 - ~~F8~~ **resolved** — verified 2026-07-31 against the `.com` registry, not
   just a resolver cache. The delegation now reads `ns-241.awsdns-30.com`,

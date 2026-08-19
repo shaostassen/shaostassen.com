@@ -53,6 +53,30 @@ end) and export to a LeRobot dataset on demand. The run launcher streams a
 training subprocess's stdout into structured metrics, and a behavior-cloning
 baseline dispatches through that same launcher.
 
+<figure>
+  <video
+    controls
+    preload="none"
+    width="1280"
+    height="1000"
+    poster="/projects/demostack/poster.jpg"
+    src="/projects/demostack/loop.mp4"
+    aria-describedby="loop-desc"
+  >
+    Your browser cannot play embedded video. The caption below covers what the
+    clip shows.
+  </video>
+  <figcaption id="loop-desc">
+    Thirty seconds of the cockpit, no sound. The pointer drives the agent over a
+    live 10 fps frame stream; <kbd>R</kbd> opens an episode and the panel turns
+    red with a running step count, <kbd>S</kbd> keeps it as a success. Then a
+    trained checkpoint is attached and the panel reads <em>autopilot on</em> —
+    the policy drives the block on the server's own tick loop until the pointer
+    moves back over the canvas and teleop takes the controls again. It closes in
+    the episode browser, scrubbing the recorded demonstration frame by frame.
+  </figcaption>
+</figure>
+
 ## Why it's technically hard
 
 The first scaling curve was inverted: 45.8 mean reward at 10 demos, decaying to

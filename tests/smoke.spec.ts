@@ -592,3 +592,33 @@ test("the guided tour starts on request and stops on demand", async ({
   await page.getByRole("button", { name: /stop tour/ }).click();
   await expect(page.getByRole("button", { name: /guided tour/ })).toBeVisible();
 });
+
+test("the demostack cockpit clip ships without preloading it", async ({
+  page,
+}) => {
+  await page.goto("/projects/demostack");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Local-First Imitation-Learning Platform",
+  );
+
+  // 353 kB stays off the critical path — it downloads only on play.
+  const video = page.locator("video");
+  await expect(video).toHaveAttribute("preload", "none");
+  await expect(video).toHaveAttribute("controls", "");
+  // JPEG, not PNG/WebP: the poster is a screenshot of a dark UI with a
+  // photographic sim render in it, and JPEG costs 44 kB for that frame.
+  await expect(video).toHaveAttribute(
+    "poster",
+    "/projects/demostack/poster.jpg",
+  );
+
+  // both media files exist at the paths the markup claims
+  for (const asset of ["loop.mp4", "poster.jpg"]) {
+    const res = await page.request.get(`/projects/demostack/${asset}`);
+    expect(res.status(), asset).toBe(200);
+  }
+
+  // the caption is the accessible description, so it must be wired up
+  await expect(video).toHaveAttribute("aria-describedby", "loop-desc");
+  await expect(page.locator("#loop-desc")).toContainText("autopilot on");
+});
