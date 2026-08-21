@@ -1,0 +1,83 @@
+---
+slug: bits-to-messages
+title: "Bits → Messages"
+oneLiner: "A serial-communication simulator whose engine also drives a real device node — the same UART runs the diagram in the browser and the /dev/ttys* you open with screen."
+category: embedded
+track: individual
+tags:
+  [Serial, UART, Protocols, PTY, Node.js, TypeScript, React, SVG, Teaching tool]
+timeframe: "2026"
+role: "Solo"
+repo: "https://github.com/shaostassen/bits-to-messages"
+featured: true
+status: in-progress
+metrics:
+  - label: tests
+    value: "113"
+  - label: transports
+    value: "4, one interface"
+  - label: core runtime deps
+    value: "0"
+---
+
+## Problem
+
+Serial is the first protocol most embedded engineers meet and the last one they
+understand. Tutorials stop at "set both ends to 115200 8N1", which is exactly
+where the interesting failures start: a link that delivers plausible wrong
+bytes, a checksum that passes on corrupted data, a message delivered twice with
+nothing anywhere reporting an error. I wanted those failures reproducible on
+demand, on a port you can actually open.
+
+## Constraints
+
+The engine has zero runtime dependencies, does no I/O, and creates no timers —
+every state machine takes a tick count from the caller. No native modules, so
+the pseudo-terminal comes from the Python standard library. And it has to be a
+real device node: a simulation that only talks to its own UI proves nothing.
+
+## Approach
+
+One UART engine, imported unchanged by the browser instrument and by the server
+that drives a real port. Bit-level transmitter, a 16× oversampling receiver that
+votes three mid-bit samples two-of-three, FIFO and overrun, RTS/CTS and
+XON/XOFF, COBS framing, CRC-16, stop-and-wait ARQ. Four transports sit behind
+one interface — in-process, TCP, PTY, and physical hardware — so nothing above
+them can tell which one it got.
+
+## Why it's technically hard
+
+Being correct where it would be invisible if I weren't. A UART aligns once on
+the start-bit falling edge and free-runs; my first receiver timed each sample
+from the end of the previous bit instead, giving every bit after the first 15
+ticks rather than 16 and running the receiver about 6% fast. That is code which
+works until the frame gets long.
+
+Fixing it made the tolerance budget fall out, and the budget is asymmetric:
++3.90% / −4.64% for 8N1 at 16×, because majority voting binds on the latest
+sample when the transmitter is fast, and edge detection is always late by up to
+a tick. Strip the quantisation term and it reproduces the AVR datasheet's
+`Rslow` and `Rfast` term for term. The test asserts both derivations agree, then
+discards them and finds the receiver's real breaking point by bisection.
+
+That sweep turned up something I had not predicted: back-to-back frames cost the
+fast side half a percentage point, because the next start bit is already under
+way when the stop bit resolves. One idle bit buys it back — a concrete reason to
+reach for 8N2 on a marginal link, though the second stop bit is never sampled.
+
+## Result
+
+Starting the server prints a device path, and `screen` connects to it like
+hardware. The fault injector does not scramble bytes: for a baud mismatch it
+decodes the payload with a receiver tuned to the wrong rate and puts those bytes
+on the wire, so the corruption is what a mistuned UART would really produce —
+deterministic, and reproducible from the spec string alone. 113 tests cover it,
+and the integration test opens the character device for real, on macOS and on
+the Linux CI runner.
+
+## What I'd do next
+
+Levels 01–04 are drawn; 05–11 are implemented and tested in the engine but have
+no UI yet. Finishing the engine before the drawings was deliberate, and the
+order stands. After that, a WebSocket bridge so the browser can scope a live
+link — the same trace, fed by real bytes off a real port.
