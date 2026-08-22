@@ -32,7 +32,7 @@ here. Per-story working logs live in `log/`.
 | S3.4  | E3   | faultlab: emulation fault-injection case study  | done   | /projects/faultlab live 2026-08-16; measured metrics only (95.9M fault pairs searched, 100% cross-backend agreement outside CRASH, Cortex-M3 + RV32I); prettier fix to the workstation page unblocked a red `validate`; MDX pitfall worth remembering — unescaped `{base, hardened}` parsed as a JSX expression and silently vanished from the render, caught by screenshot not by the build |
 | S3.6  | E3   | Blaze and Heat: physics-true combat-robotics game | done   | /projects/blaze-and-heat live 2026-08-16; requested directly by Shao, so it jumped the queue like S3.5; sourced from the project's own headless benches re-run against Godot 4.7.1 (4302 J blade at 1910 RPM, 794 mm launch, 3.34 m throw) rather than a draft, with `IDEAS.md` second and the bench winning any disagreement; 26 s gameplay clip recorded via Godot Movie Maker from a **throwaway copy** of the game repo (AI driver on the wedge so the fight runs unattended, tightened chase camera, kill cam cut out where its orbit passed through a wall) — Shao's repo untouched; the playable WASM option was priced and declined (Forward+ → Compatibility port loses SDFGI + volumetric fog, COOP/COEP headers break PLAN §3 host portability); one sourcing discrepancy found and **flagged rather than published** — `DriveBench` now banks 0 N·s across 8 full-speed rams against a documented ~4.5 N·s each, so no ram-count claim shipped (see F13) |
 | S3.5  | E3   | demostack: local-first imitation-learning platform | done   | /projects/demostack live 2026-08-16 (96/100/100/100); requested directly by Shao, so it jumped the queue; sourced from the project repo's own measured results (14 s CPU training, 30 fps at 4.0 ms p95, 27.1 vs 1.09 random) rather than a draft — no `docs/drafts/` entry exists; leads on the seed-leakage bug and states the 0% success rate plainly; `/projects` held at 95 with the 9th card, so F11's margin survives; follow-on fix — a stale untracked root `PLAN.md` still carrying the retracted RTX 5090 claim was deleted, and `check-retractions.mjs` now scans source as well as `out/` (it had been green the whole time that file sat there), with `docs/`/`.claude/`/`scripts/` exempt as the correction record |
-| S3.7  | E3   | bits-to-messages: serial communication simulator case study | done   | /projects/bits-to-messages live 2026-08-21 (96/100/100/100); requested directly by Shao, so it jumped the queue like S3.5 and S3.6; sourced from the project repo built the same day rather than a draft — every figure traces to an executed test, not to prose (113 tests, 4 transports, +3.90%/−4.64% budget asserted against the AVR datasheet's Rslow/Rfast and re-found by bisection at test time); leads the hard section with my own receiver bug (samples timed from the previous bit, 15 ticks instead of 16, ~6% fast) and states the 4-of-11 ladder plainly in both the badge and What I'd do next; `/projects` held at **95** with the 11th card, so F11's margin survives again; no `/lab` route this story — logged as F16 rather than spending that margin on a quarter-built instrument |
+| S3.7  | E3   | bits-to-messages: serial communication simulator case study | done   | /projects/bits-to-messages live 2026-08-21 (96/100/100/100); requested directly by Shao, so it jumped the queue like S3.5 and S3.6; sourced from the project repo built the same day rather than a draft — every figure traces to an executed test, not to prose (113 tests, 4 transports, +3.90%/−4.64% budget asserted against the AVR datasheet's Rslow/Rfast and re-found by bisection at test time); leads the hard section with my own receiver bug (samples timed from the previous bit, 15 ticks instead of 16, ~6% fast) and states the 4-of-11 ladder plainly in both the badge and What I'd do next; `/projects` held at **95** with the 11th card, so F11's margin survives again; lab route followed the same day at Shao's request — F16 resolved, `/projects/bits-to-messages/lab` 95/100/100/100, `.electrons-scope` generalised to `.instrument-scope` so two instruments share one exemption rather than accumulating one each |
 
 Human checkpoints (do not cross without review): after E1 (M1), E3 (M2),
 E6 (M3), E7 (M4), then launch (M5).
@@ -146,13 +146,12 @@ E6 (M3), E7 (M4), then launch (M5).
   it does, the fix is paginating or lazy-mounting the grid, not moving the
   floor again.
 
-- **F16 (from S3.7, medium):** `bits-to-messages` ships as a case study with
-  no `/lab` route. The electrons instrument earned its vendored route in
-  S12.1 at 11 rungs of 11; this one is at 4 of 11, and its palette would need
-  the same scoped design-system exemption. Revisit once levels 05–11 have
-  drawings — the eventual answer is a `/projects/bits-to-messages/lab`
-  matching S12.1's treatment, including the sync script pattern so the
-  project repo stays canonical.
+- ~~F16~~ **resolved** (2026-08-21, same day it was raised): Shao asked for the
+  lab route directly, so it shipped rather than waiting for levels 05–11.
+  `/projects/bits-to-messages/lab` at 95/100/100/100. The exemption did not
+  need widening — `.electrons-scope` became `.instrument-scope` and both
+  instruments share it, because they carry the identical six meanings and the
+  class was always named for its first tenant rather than for its job.
 
 - **F10 (from S7.3, small):** inline accent links — the hero's GitHub/LinkedIn
   row, contact, coursework, colophon, and the new 404 — fall back to the
