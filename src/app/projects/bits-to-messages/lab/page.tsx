@@ -43,9 +43,10 @@ export default function BitsLabPage() {
             lede="A frame on a wire, and a receiver deciding what it thinks it saw. Everything here is computed by the same engine that drives a real serial port — nothing is drawn to look like an error."
           >
             <p className="mt-4 max-w-2xl font-mono text-sm text-muted">
-              Drag the rate error past the budget. The amber sample points walk
-              out of the middle of the bits, and the bytes underneath turn red
-              when the stop bit stops landing where it should.
+              Seven rungs, and every one of them can be broken on purpose.
+              Detune a receiver until the stop bit stops landing, pass two
+              flipped bits straight through a parity check, or watch a slow
+              interrupt handler lose bytes off a perfectly good wire.
             </p>
           </PageHeader>
         </div>
@@ -59,9 +60,9 @@ export default function BitsLabPage() {
 
       <Container>
         <p className="py-10 font-mono text-sm text-muted">
-          Levels 01–04 of eleven. The rest of the ladder — overrun, flow
-          control, framing, CRC, and the lost-ACK duplicate — is implemented and
-          tested in the engine but has no drawing yet.{" "}
+          Levels 01–07 of eleven. The rest — COBS framing, CRC, the lost-ACK
+          duplicate, and RS-485 turnaround — is implemented and tested in the
+          engine but has no drawing yet.{" "}
           <a
             href="https://github.com/shaostassen/bits-to-messages"
             className={accentLink}

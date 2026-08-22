@@ -647,45 +647,129 @@ test("the bits instrument keeps the host page's landmarks intact", async ({
 test("the bits instrument is fully rendered in the export, before any JS runs", async ({
   browser,
 }) => {
-  // Its initial state is deterministic, so the trace and the decoded bytes
-  // belong in the HTML. A teaching page that shows a blank box without
+  // Level 01 is the deterministic initial render, so the whole first rung
+  // belongs in the HTML. A teaching page that shows a blank box without
   // JavaScript teaches nothing.
   const page = await browser.newPage({ javaScriptEnabled: false });
   await page.goto("/projects/bits-to-messages/lab");
   await expect(page.getByRole("img", { name: "line trace" })).toBeVisible();
-  // "Hi" is the default payload: 0x48 0x69, decoded cleanly.
-  await expect(page.getByText("48", { exact: true }).first()).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Ladder levels" }),
+  ).toBeVisible();
+  // 0x41 0x69 is level 01's payload, decoded cleanly.
+  await expect(page.getByText("41", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("69", { exact: true }).first()).toBeVisible();
   await page.close();
+});
+
+test("the bits ladder walks, and says what is not drawn yet", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab");
+  const ladder = page.getByRole("navigation", { name: "Ladder levels" });
+
+  await expect(ladder.getByRole("button", { name: /01 LINE/ })).toBeVisible();
+  await ladder.getByRole("button", { name: /06 FIFO/ }).click();
+  await expect(page.getByRole("heading", { name: /06 — FIFO/ })).toBeVisible();
+
+  // The ladder is honest about being seven of eleven rather than silently
+  // starting at seven.
+  await expect(page.getByText(/7 of 11 rungs are drawn/)).toBeVisible();
+  await expect(page.getByText(/10 LINK/)).toBeVisible();
+});
+
+test("a bits level can be linked directly, by number or by name", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab?level=05");
+  await expect(
+    page.getByRole("heading", { name: /05 — ERRORS/ }),
+  ).toBeVisible();
+
+  await page.goto("/projects/bits-to-messages/lab?level=flow");
+  await expect(page.getByRole("heading", { name: /07 — FLOW/ })).toBeVisible();
 });
 
 test("detuning the receiver past its budget breaks the link", async ({
   page,
 }) => {
-  await page.goto("/projects/bits-to-messages/lab");
-  const slider = page.getByRole("slider", {
-    name: /receiver rate error/i,
-  });
+  await page.goto("/projects/bits-to-messages/lab?level=04");
+  const slider = page.getByRole("slider", { name: /receiver rate error/i });
 
-  // Inside the budget the frames arrive clean — no error is reported anywhere.
-  await expect(page.getByText(/outside the budget/)).toHaveCount(0);
+  // Assert on the decoded bytes, not on prose: the level's own "break it:"
+  // header carries the phrase "outside the budget" at all times, so matching
+  // text here would have passed for the wrong reason.
   await expect(page.getByTitle("framing", { exact: false })).toHaveCount(0);
 
   // The budget for 8N1 is +3.90% / −4.64%; 6.4% is past it. This is the whole
   // claim of level 04, so it is pinned rather than trusted.
   await slider.fill("6.4");
-  await expect(page.getByText(/outside the budget/)).toBeVisible();
   await expect(
     page.getByTitle("framing", { exact: false }).first(),
   ).toBeVisible();
 
   // And it comes back: the failure is a property of the rate, not a latch.
   await slider.fill("0");
-  await expect(page.getByText(/outside the budget/)).toHaveCount(0);
+  await expect(page.getByTitle("framing", { exact: false })).toHaveCount(0);
+});
+
+test("two flipped bits pass parity undetected", async ({ page }) => {
+  // Level 05's whole point: parity reports whether the count of ones is odd,
+  // so an even number of errors cancels and the wrong byte is delivered clean.
+  await page.goto("/projects/bits-to-messages/lab?level=05");
+  const flips = page.getByLabel("flip data bits");
+
+  await flips.selectOption("1");
+  await expect(page.getByTitle("parity").first()).toBeVisible();
+
+  await flips.selectOption("2");
+  await expect(page.getByTitle("parity")).toHaveCount(0);
+  await expect(page.getByTitle("wrong, undetected").first()).toBeVisible();
+
+  // Odd again, and parity catches it again.
+  await flips.selectOption("3");
+  await expect(page.getByTitle("parity").first()).toBeVisible();
+});
+
+test("a slow service routine loses bytes off a perfect wire", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab?level=06");
+  const latency = page.getByRole("slider", {
+    name: /service routine latency/i,
+  });
+
+  await latency.fill("0");
+  await expect(page.getByText(/nothing is lost/)).toBeVisible();
+
+  // Past the latency budget the FIFO overruns, and the loss leaves no trace
+  // on the wire at all.
+  await latency.fill("510");
+  await expect(page.getByText(/bytes are gone/)).toBeVisible();
+});
+
+test("in-band flow control eats bytes out of a binary payload", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab?level=07");
+  await expect(page.getByText(/transparent here/)).toBeVisible();
+
+  // The payload contains 0x11 and 0x13 as data, which XON/XOFF consumes as
+  // commands. Three of ten bytes never reach the application.
+  await page.getByLabel("what you are sending").selectOption("binary");
+  await expect(
+    page.getByText(/bytes of your firmware image are gone/),
+  ).toBeVisible();
+
+  // Two wires instead of two byte values, and the payload survives.
+  await page.getByLabel("flow control").selectOption("rtscts");
+  await expect(
+    page.getByText(/binary payloads pass through untouched/),
+  ).toBeVisible();
 });
 
 test("the bits instrument is keyboard operable", async ({ page }) => {
-  await page.goto("/projects/bits-to-messages/lab");
+  await page.goto("/projects/bits-to-messages/lab?level=04");
   const slider = page.getByRole("slider", { name: /receiver rate error/i });
   await slider.focus();
   await expect(slider).toBeFocused();
