@@ -99,16 +99,26 @@ export const App = ({ chrome = true }: AppProps = {}) => {
 
       <div style={S.pending}>
         <p style={U.note}>
-          {LEVELS.length} of {TOTAL_RUNGS} rungs are drawn. The rest are implemented and tested in
-          the engine, and have no drawings yet:{" "}
-          {PENDING.map((p, i) => (
-            <span key={p.n}>
-              {i > 0 ? " · " : ""}
-              <span style={{ color: C.dim }}>
-                {padded(p.n)} {p.name}
-              </span>
-            </span>
-          ))}
+          {PENDING.length === 0 ? (
+            <>
+              All {TOTAL_RUNGS} rungs are drawn. The ladder stops here on purpose: above a shared
+              bus the next honest layer is addressing and routing, and that is a different subject
+              rather than a taller version of this one.
+            </>
+          ) : (
+            <>
+              {LEVELS.length} of {TOTAL_RUNGS} rungs are drawn. The rest are implemented and tested
+              in the engine, and have no drawings yet:{" "}
+              {PENDING.map((p, i) => (
+                <span key={p.n}>
+                  {i > 0 ? " · " : ""}
+                  <span style={{ color: C.dim }}>
+                    {padded(p.n)} {p.name}
+                  </span>
+                </span>
+              ))}
+            </>
+          )}
         </p>
       </div>
 

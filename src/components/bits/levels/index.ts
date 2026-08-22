@@ -1,10 +1,15 @@
 /**
  * The ladder.
  *
- * Eleven rungs are designed; seven are drawn. The remaining four are
- * implemented and tested in @bits/core and are listed here as `pending` rather
- * than hidden — a ladder that silently starts at seven would misrepresent both
- * what exists and what is left.
+ * All eleven rungs, and every one of them can be broken on purpose — a level
+ * without a failure mode is not finished.
+ *
+ * The shape is deliberate. Rungs 01-07 are about getting one byte across a wire
+ * correctly; 08-10 are about the fact that a correct byte stream is still not a
+ * message, and that an intact message is still not a delivered one. Level 11 is
+ * a coda rather than a rung stacked on top: everything before it assumed two
+ * ends and a wire each way, and a shared bus breaks that assumption rather than
+ * building on it.
  */
 
 import type { ComponentType } from "react";
@@ -15,6 +20,10 @@ import { LevelBaud } from "./04-Baud";
 import { LevelErrors } from "./05-Errors";
 import { LevelFifo } from "./06-Fifo";
 import { LevelFlow } from "./07-Flow";
+import { LevelMessage } from "./08-Message";
+import { LevelIntegrity } from "./09-Integrity";
+import { LevelLink } from "./10-Link";
+import { LevelBus } from "./11-Bus";
 
 export interface Level {
   /** 1-based rung number, matching the README and the case study. */
@@ -85,15 +94,46 @@ export const LEVELS: Level[] = [
     failure: "0x13 eaten out of a binary payload; and a two-correct-ends deadlock",
     Component: LevelFlow,
   },
+  {
+    n: 8,
+    slug: "message",
+    name: "MESSAGE",
+    teaches: "a byte stream has no boundaries — COBS framing, and recovering sync",
+    failure: "join mid-stream and lose exactly one frame",
+    Component: LevelMessage,
+  },
+  {
+    n: 9,
+    slug: "integrity",
+    name: "INTEGRITY",
+    teaches: "CRC-16/CCITT against the checksums that look like they work",
+    failure: "two errors in one bit column pass an XOR untouched",
+    Component: LevelIntegrity,
+  },
+  {
+    n: 10,
+    slug: "link",
+    name: "LINK",
+    teaches: "ACK, retransmission, and what a sequence number is actually for",
+    failure: "a lost ACK delivers the message twice, and nothing reports an error",
+    Component: LevelLink,
+  },
+  {
+    n: 11,
+    slug: "bus",
+    name: "BUS",
+    teaches: "RS-485 multidrop, half-duplex turnaround, and delimiting by silence",
+    failure: "a driver released late fights the next talker for the pair",
+    Component: LevelBus,
+  },
 ];
 
-/** Designed, implemented in the engine, not yet drawn. */
-export const PENDING = [
-  { n: 8, name: "MESSAGE", teaches: "a stream has no boundaries — COBS framing and resync" },
-  { n: 9, name: "INTEGRITY", teaches: "CRC-16/CCITT against an XOR checksum" },
-  { n: 10, name: "LINK", teaches: "ACK/NAK, sequence numbers, and the duplicate a lost ACK causes" },
-  { n: 11, name: "BUS", teaches: "RS-485 multidrop and half-duplex turnaround" },
-] as const;
+/**
+ * Nothing is pending any more. Kept as an explicit empty list rather than
+ * deleted, because the instrument renders a note from it and "there is nothing
+ * left" is a statement worth making rather than an absence.
+ */
+export const PENDING: readonly { n: number; name: string; teaches: string }[] = [];
 
 export const TOTAL_RUNGS = LEVELS.length + PENDING.length;
 
