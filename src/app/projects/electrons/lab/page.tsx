@@ -27,7 +27,7 @@ export const metadata: Metadata = pageMetadata({
  * and footer so this page owns them; that is a landmark question rather than a
  * style one, which is why the component makes it a prop.
  *
- * `.electrons-scope` carries the palette exemption documented in the
+ * `.instrument-scope` carries the palette exemption documented in the
  * design-system skill.
  */
 export default function ElectronsLabPage() {
@@ -51,7 +51,7 @@ export default function ElectronsLabPage() {
         </div>
       </Container>
 
-      <div className="electrons-scope border-y border-border">
+      <div className="instrument-scope border-y border-border">
         <div className="mx-auto max-w-6xl px-4 py-8">
           <ElectronsToInstructions chrome={false} />
         </div>

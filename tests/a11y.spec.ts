@@ -5,7 +5,7 @@ import { siteRoutes } from "@/lib/routes";
 // Derived, so a new project is audited the day it ships. This list used to
 // be hand-written and had already lost /projects/huey-autonomous-combat-robot.
 // Notable members: super-gold-hunters and blaze-and-heat are the routes with
-// a <video>, electrons/lab the only one with the palette exemption.
+// a <video>; the two /lab routes are the ones with the palette exemption.
 const pages = [...siteRoutes(), "/definitely-not-a-page" /* 404 boundary */];
 
 const themes = ["light", "dark"] as const;

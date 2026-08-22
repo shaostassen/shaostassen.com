@@ -300,23 +300,28 @@
 }
 
 /*
- * Instrument scope — Electrons → Instructions (S12.1).
+ * Instrument scope — Electrons → Instructions (S12.1), Bits → Messages (S3.7).
  *
  * A documented, bounded exemption from the three-channel accent rule; see the
- * Exemptions section of .claude/skills/design-system. That demo teaches with
- * color: six mutually-exclusive electrical meanings, each of which must stay
+ * Exemptions section of .claude/skills/design-system. Both demos teach with
+ * color: six mutually-exclusive meanings, each of which must stay
  * distinguishable from the other five. Three of them already exist in the site
  * palette and are bound to it here, so only three are genuinely new.
+ *
+ * Named for the job rather than the first tenant. The two instruments share one
+ * palette on purpose — amber means "in flight, not yet trustworthy" in both, a
+ * settling logic level in one and an unacknowledged packet in the other — so
+ * they share one exemption rather than accumulating one each.
  *
  * Deliberately fixed rather than themed. This is an instrument face — a scope
  * bezel is black in a bright lab too — so it does not follow light-dark(), and
  * color-scheme keeps its native controls dark in the light theme.
  *
- * The variables are consumed by src/components/electrons/theme.ts, which emits
- * var(--e-*, <fallback>); the fallbacks are that repo's canonical values and
- * keep its standalone build working untouched.
+ * The variables are consumed by each component's theme.ts, which emits
+ * var(--e-*, <fallback>); the fallbacks are those repos' canonical values and
+ * keep their standalone builds working untouched.
  */
-.electrons-scope {
+.instrument-scope {
   color-scheme: dark;
 
   /* bound to the site's dark scope channels */
