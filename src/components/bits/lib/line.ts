@@ -35,10 +35,7 @@ export const CFG_8N1: LineConfig = {
   invert: false,
 };
 
-export const withBaud = (cfg: LineConfig, baud: number): LineConfig => ({
-  ...cfg,
-  baud,
-});
+export const withBaud = (cfg: LineConfig, baud: number): LineConfig => ({ ...cfg, baud });
 
 const PARITY_CODE: Record<Parity, string> = {
   none: "N",
@@ -53,9 +50,7 @@ export const formatFraming = (cfg: LineConfig): string =>
   `${cfg.dataBits}${PARITY_CODE[cfg.parity]}${cfg.stopBits}`;
 
 /** Parse "8N1" style shorthand. Throws on anything it does not recognise. */
-export const parseFraming = (
-  s: string,
-): Pick<LineConfig, "dataBits" | "parity" | "stopBits"> => {
+export const parseFraming = (s: string): Pick<LineConfig, "dataBits" | "parity" | "stopBits"> => {
   const m = /^([5-9])([NEOMS])(1|1\.5|2)$/i.exec(s.trim());
   if (!m) throw new Error(`unrecognised framing: ${s}`);
   const [, d, p, stop] = m as unknown as [string, string, string, string];
@@ -123,8 +118,7 @@ export const lastSampledBitIndex = (cfg: LineConfig): number =>
 export const bitPeriod = (cfg: LineConfig): number => 1 / cfg.baud;
 
 /** Seconds to put one whole frame on the wire. */
-export const frameDuration = (cfg: LineConfig): number =>
-  frameBitCount(cfg) / cfg.baud;
+export const frameDuration = (cfg: LineConfig): number => frameBitCount(cfg) / cfg.baud;
 
 /**
  * Payload throughput in bytes/sec — always less than baud/8, because the start
@@ -135,8 +129,7 @@ export const throughputBytesPerSec = (cfg: LineConfig): number =>
   cfg.baud / frameBitCount(cfg);
 
 /** Apply RS-232 pin inversion, if this config asks for it. */
-export const toPin = (bit: Bit, cfg: LineConfig): Bit =>
-  cfg.invert ? ((bit ^ 1) as Bit) : bit;
+export const toPin = (bit: Bit, cfg: LineConfig): Bit => (cfg.invert ? ((bit ^ 1) as Bit) : bit);
 
 /** Recover the logical bit from a pin level. Involutive with `toPin`. */
 export const fromPin = (level: Bit, cfg: LineConfig): Bit =>

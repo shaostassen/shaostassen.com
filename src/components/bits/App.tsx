@@ -1,37 +1,24 @@
 "use client";
 
 /**
- * Levels 01-04 in one panel, and the groundwork for the rest of the ladder.
+ * The instrument.
  *
- * Everything shown here is computed by @bits/core — the same module the server
- * runs behind a real device node. When the decoded row below turns red, it is
- * red because a receiver genuinely sampled the wrong bit cell, not because a
- * component decided to draw an error.
+ * Seven of eleven rungs, each of which can be broken on purpose — a level
+ * without a failure mode is not finished. Everything shown is computed by
+ * @bits/core, the same module the server runs behind a real device node. When
+ * something turns red it is red because a receiver genuinely sampled the wrong
+ * bit cell, not because a component decided to draw an error.
+ *
+ * Level 01 is the deterministic initial render, so the whole first rung ships
+ * in the static HTML and works before any JavaScript runs. The URL is read
+ * after mount rather than during render, which is what keeps that true.
  */
 
-import { useMemo, useState } from "react";
-import {
-  CFG_8N1,
-  type LineConfig,
-  type Parity,
-  encode,
-  formatFraming,
-  frameBitCount,
-  runLink,
-  throughputBytesPerSec,
-  toleranceFastFrac,
-  toleranceSlowFrac,
-  withBaud,
-} from "./lib";
-import { Scope } from "./Scope";
+import { useEffect, useState } from "react";
+import { LEVELS, PENDING, TOTAL_RUNGS, findLevel, padded } from "./levels/index";
 import { C } from "./theme";
-
-const BAUDS = [9600, 19200, 38400, 57600, 115200] as const;
-const PARITIES: Parity[] = ["none", "even", "odd"];
-
-const hex = (n: number) => n.toString(16).toUpperCase().padStart(2, "0");
-const printable = (n: number) =>
-  n >= 0x20 && n < 0x7f ? String.fromCharCode(n) : "·";
+import { MONO, S as U } from "./ui";
+import type { CSSProperties } from "react";
 
 export interface AppProps {
   /**
@@ -43,39 +30,25 @@ export interface AppProps {
 }
 
 export const App = ({ chrome = true }: AppProps = {}) => {
-  const [text, setText] = useState("Hi");
-  const [baud, setBaud] = useState<number>(115200);
-  const [rxErrorPct, setRxErrorPct] = useState(0);
-  const [parity, setParity] = useState<Parity>("none");
-  const [stopBits, setStopBits] = useState<1 | 2>(1);
+  const [current, setCurrent] = useState(1);
 
-  const txCfg: LineConfig = useMemo(
-    () => ({ ...CFG_8N1, baud, parity, stopBits }),
-    [baud, parity, stopBits],
-  );
-  // A receiver mistuned by rxErrorPct. Nothing else about it differs.
-  const rxCfg = useMemo(
-    () => withBaud(txCfg, txCfg.baud * (1 + rxErrorPct / 100)),
-    [txCfg, rxErrorPct],
-  );
+  // Deep links are applied after mount: reading location during render would
+  // make the server and the client disagree about what to draw.
+  useEffect(() => {
+    const fromUrl = findLevel(new URLSearchParams(window.location.search).get("level"));
+    if (fromUrl) setCurrent(fromUrl.n);
+  }, []);
 
-  const data = useMemo(
-    () => Array.from(new TextEncoder().encode(text || " ")),
-    [text],
-  );
-  const result = useMemo(
-    () => runLink(data, txCfg, rxCfg, { gapBits: 1 }),
-    [data, txCfg, rxCfg],
-  );
-  const waveform = useMemo(
-    () => encode(data, txCfg, { gapBits: 1 }),
-    [data, txCfg],
-  );
+  const go = (n: number) => {
+    setCurrent(n);
+    const url = new URL(window.location.href);
+    url.searchParams.set("level", padded(n));
+    // replaceState, not pushState: one level must not become one history entry.
+    window.history.replaceState(null, "", url);
+  };
 
-  const fast = toleranceFastFrac(txCfg) * 100;
-  const slow = toleranceSlowFrac(txCfg) * 100;
-  const overBudget = rxErrorPct > fast || rxErrorPct < -slow;
-
+  const level = LEVELS.find((l) => l.n === current) ?? LEVELS[0]!;
+  const { Component } = level;
   const Body = chrome ? "main" : "div";
 
   return (
@@ -84,136 +57,67 @@ export const App = ({ chrome = true }: AppProps = {}) => {
         <header style={S.head}>
           <h1 style={S.h1}>BITS → MESSAGES</h1>
           <p style={S.sub}>
-            A byte stream is not a message. This is the first rung: a frame on a
-            wire, and a receiver deciding what it thinks it saw.
+            A byte stream is not a message. Everything between those two things is a layer somebody
+            had to build, and a UART gives you none of it.
           </p>
         </header>
       )}
 
-      <section style={S.panel}>
-        <div style={S.row}>
-          <label style={S.label}>
-            payload
-            <input
-              value={text}
-              onChange={(e) => setText(e.target.value.slice(0, 8))}
-              style={S.input}
-              aria-label="payload"
-            />
-          </label>
-
-          <label style={S.label}>
-            baud
-            <select
-              value={baud}
-              onChange={(e) => setBaud(Number(e.target.value))}
-              style={S.input}
+      <nav aria-label="Ladder levels" style={S.nav}>
+        {LEVELS.map((l) => {
+          const active = l.n === current;
+          return (
+            <button
+              key={l.n}
+              type="button"
+              onClick={() => go(l.n)}
+              aria-current={active ? "true" : undefined}
+              style={{
+                ...S.tab,
+                color: active ? C.bg : C.text,
+                background: active ? C.HI : "transparent",
+                borderColor: active ? C.HI : C.rule,
+              }}
             >
-              {BAUDS.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
-          </label>
+              {padded(l.n)} {l.name}
+            </button>
+          );
+        })}
+      </nav>
 
-          <label style={S.label}>
-            parity
-            <select
-              value={parity}
-              onChange={(e) => setParity(e.target.value as Parity)}
-              style={S.input}
-            >
-              {PARITIES.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label style={S.label}>
-            stop bits
-            <select
-              value={stopBits}
-              onChange={(e) => setStopBits(Number(e.target.value) as 1 | 2)}
-              style={S.input}
-            >
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-            </select>
-          </label>
-        </div>
-
-        <div style={S.row}>
-          <label style={{ ...S.label, flex: 1 }}>
-            receiver rate error {rxErrorPct > 0 ? "+" : ""}
-            {rxErrorPct.toFixed(2)}%
-            <input
-              type="range"
-              min={-8}
-              max={8}
-              step={0.05}
-              value={rxErrorPct}
-              onChange={(e) => setRxErrorPct(Number(e.target.value))}
-              aria-label="receiver rate error, percent"
-              style={S.range}
-            />
-          </label>
-        </div>
-
-        <p style={{ ...S.note, color: overBudget ? C.BAD : C.dim }}>
-          budget for {formatFraming(txCfg)}: +{fast.toFixed(2)}% / −
-          {slow.toFixed(2)}%{" · "}
-          {frameBitCount(txCfg)} bits per frame
-          {" · "}
-          {throughputBytesPerSec(txCfg).toFixed(0)} bytes/s
-          {overBudget ? " · outside the budget" : ""}
+      <div style={S.header}>
+        <h2 style={S.h2}>
+          {padded(level.n)} — {level.name}
+        </h2>
+        <p style={S.teaches}>{level.teaches}</p>
+        <p style={S.failure}>
+          <span style={{ color: C.BAD }}>break it:</span> {level.failure}
         </p>
-      </section>
+      </div>
 
-      <section style={S.panel}>
-        <Scope waveform={waveform} rxCfg={rxCfg} bytes={result.bytes} />
-      </section>
+      <Component />
 
-      <section style={S.panel}>
-        <h2 style={S.h2}>what the receiver decoded</h2>
-        <div style={S.bytes}>
-          {result.bytes.length === 0 && (
-            <span style={{ color: C.dim }}>nothing arrived</span>
-          )}
-          {result.bytes.map((b, i) => {
-            const bad = b.errors.length > 0;
-            const wrong = b.value !== data[i];
-            return (
-              <div
-                key={i}
-                style={{
-                  ...S.byte,
-                  borderColor: bad ? C.BAD : wrong ? C.WARN : C.rule,
-                  color: bad ? C.BAD : wrong ? C.WARN : C.HI,
-                }}
-                title={b.errors.join(", ") || "clean"}
-              >
-                <div style={S.byteHex}>{hex(b.value)}</div>
-                <div style={S.byteChar}>{printable(b.value)}</div>
-                {bad && <div style={S.byteErr}>{b.errors[0]}</div>}
-              </div>
-            );
-          })}
-        </div>
-        <p style={S.note}>
-          sent {data.map(hex).join(" ")} — amber is a byte that arrived intact
-          and wrong, which is the failure worth being afraid of.
+      <div style={S.pending}>
+        <p style={U.note}>
+          {LEVELS.length} of {TOTAL_RUNGS} rungs are drawn. The rest are implemented and tested in
+          the engine, and have no drawings yet:{" "}
+          {PENDING.map((p, i) => (
+            <span key={p.n}>
+              {i > 0 ? " · " : ""}
+              <span style={{ color: C.dim }}>
+                {padded(p.n)} {p.name}
+              </span>
+            </span>
+          ))}
         </p>
-      </section>
+      </div>
 
       {chrome && (
         <footer style={S.foot}>
-          <p style={S.note}>
-            The same engine runs behind a real device node:{" "}
-            <code style={S.code}>pnpm serve</code> puts this instrument on a{" "}
-            <code style={S.code}>/dev/ttys*</code> you can open with screen.
+          <p style={U.note}>
+            The same engine runs behind a real device node: <code style={S.code}>pnpm serve</code>{" "}
+            puts this instrument on a <code style={S.code}>/dev/ttys*</code> you can open with
+            screen.
           </p>
         </footer>
       )}
@@ -221,76 +125,37 @@ export const App = ({ chrome = true }: AppProps = {}) => {
   );
 };
 
-const mono = "ui-monospace, SFMono-Regular, Menlo, monospace";
+export default App;
 
-const S: Record<string, React.CSSProperties> = {
+const S: Record<string, CSSProperties> = {
   page: {
     background: C.bg,
     color: C.text,
-    fontFamily: mono,
+    fontFamily: MONO,
     minHeight: "100vh",
     padding: "32px 20px",
     maxWidth: 980,
     margin: "0 auto",
   },
-  embedded: { color: C.text, fontFamily: mono },
+  embedded: { color: C.text, fontFamily: MONO },
   head: { marginBottom: 24 },
   h1: { fontSize: 22, letterSpacing: 2, margin: 0, color: C.HI },
-  h2: {
-    fontSize: 13,
-    letterSpacing: 1,
-    margin: "0 0 10px",
-    color: C.CYA,
-    fontWeight: 400,
-  },
-  sub: {
-    color: C.dim,
-    fontSize: 13,
-    margin: "8px 0 0",
-    maxWidth: 620,
-    lineHeight: 1.5,
-  },
-  panel: {
-    background: C.panel,
-    border: `1px solid ${C.rule}`,
-    padding: 16,
-    marginBottom: 16,
-  },
-  row: {
-    display: "flex",
-    gap: 16,
-    flexWrap: "wrap",
-    alignItems: "flex-end",
-    marginBottom: 12,
-  },
-  label: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-    fontSize: 11,
-    color: C.dim,
-  },
-  input: {
-    background: C.bg,
-    color: C.text,
-    border: `1px solid ${C.rule}`,
-    padding: "0 10px",
+  sub: { color: C.dim, fontSize: 13, margin: "8px 0 0", maxWidth: "62ch", lineHeight: 1.5 },
+  nav: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 },
+  tab: {
+    fontFamily: MONO,
+    fontSize: 12,
+    padding: "0 12px",
     minHeight: 44,
-    fontFamily: mono,
-    fontSize: 13,
-  },
-  range: { width: "100%", minHeight: 44, accentColor: C.WARN },
-  note: { fontSize: 11, color: C.dim, margin: "6px 0 0", lineHeight: 1.5 },
-  bytes: { display: "flex", gap: 8, flexWrap: "wrap" },
-  byte: {
     border: "1px solid",
-    padding: "6px 8px",
-    minWidth: 34,
-    textAlign: "center",
+    cursor: "pointer",
+    letterSpacing: 0.5,
   },
-  byteHex: { fontSize: 13 },
-  byteChar: { fontSize: 11, color: C.dim },
-  byteErr: { fontSize: 9, marginTop: 2 },
-  foot: { marginTop: 24 },
+  header: { marginBottom: 16 },
+  h2: { fontSize: 15, letterSpacing: 1, margin: 0, color: C.HI, fontWeight: 400 },
+  teaches: { fontSize: 12, color: C.dim, margin: "6px 0 0", lineHeight: 1.5 },
+  failure: { fontSize: 12, color: C.text, margin: "4px 0 0", lineHeight: 1.5 },
+  pending: { borderTop: `1px solid ${C.rule}`, paddingTop: 12, marginTop: 8 },
+  foot: { marginTop: 20 },
   code: { color: C.CYA },
 };

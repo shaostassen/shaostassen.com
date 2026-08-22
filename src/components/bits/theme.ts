@@ -37,5 +37,4 @@ export const C = {
   dim: "var(--e-dim, #8b9a93)",
 } as const;
 
-export const glow = (c: string, r = 3): string =>
-  `drop-shadow(0 0 ${r}px ${c})`;
+export const glow = (c: string, r = 3): string => `drop-shadow(0 0 ${r}px ${c})`;

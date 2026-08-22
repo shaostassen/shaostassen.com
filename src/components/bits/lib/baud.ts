@@ -27,23 +27,18 @@ import { lastSampledBitIndex } from "./line";
 import { OVERSAMPLE } from "./receiver";
 
 /** How far the receiver's assumed rate sits from the transmitter's, as a fraction. */
-export const deviationFrac = (txBaud: number, rxBaud: number): number =>
-  txBaud / rxBaud - 1;
+export const deviationFrac = (txBaud: number, rxBaud: number): number => txBaud / rxBaud - 1;
 
 export const deviationPct = (txBaud: number, rxBaud: number): number =>
   deviationFrac(txBaud, rxBaud) * 100;
 
 /** Earliest tick within a bit window that the receiver samples. */
-export const firstSampleTick = (
-  oversample: number,
-  majorityVote: boolean,
-): number => (majorityVote ? (oversample >> 1) - 1 : oversample >> 1);
+export const firstSampleTick = (oversample: number, majorityVote: boolean): number =>
+  majorityVote ? (oversample >> 1) - 1 : oversample >> 1;
 
 /** Latest tick within a bit window that the receiver samples. */
-export const lastSampleTick = (
-  oversample: number,
-  majorityVote: boolean,
-): number => (majorityVote ? (oversample >> 1) + 1 : oversample >> 1);
+export const lastSampleTick = (oversample: number, majorityVote: boolean): number =>
+  majorityVote ? (oversample >> 1) + 1 : oversample >> 1;
 
 /**
  * Fastest txBaud/rxBaud ratio that still lands every sample inside its bit,
@@ -80,9 +75,7 @@ export const maxRatio = (
   majorityVote = true,
 ): number => {
   const k = lastSampledBitIndex(cfg);
-  return (
-    (k + 1) / (k + (lastSampleTick(oversample, majorityVote) + 1) / oversample)
-  );
+  return (k + 1) / (k + (lastSampleTick(oversample, majorityVote) + 1) / oversample);
 };
 
 /** Slowest ratio. Late edge detection only helps here, so the ideal bound holds. */
@@ -140,41 +133,30 @@ export const withinTolerance = (
   majorityVote = true,
 ): boolean => {
   const r = txBaud / rxBaud;
-  return (
-    r < maxRatio(cfg, oversample, majorityVote) &&
-    r > minRatio(cfg, oversample, majorityVote)
-  );
+  return r < maxRatio(cfg, oversample, majorityVote) && r > minRatio(cfg, oversample, majorityVote);
 };
 
 /** The rates everybody actually uses, all descended from 75 baud teleprinters. */
 export const STANDARD_BAUDS = [
-  300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 230400,
-  460800, 921600,
+  300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 230400, 460800, 921600,
 ] as const;
 
 /**
  * Real UARTs cannot produce an arbitrary baud rate. They divide a peripheral
  * clock by an integer, so the rate you get is the rate the divisor allows.
  */
-export const divisorFor = (
-  fclk: number,
-  baud: number,
-  oversample: number = OVERSAMPLE,
-): number => Math.max(1, Math.round(fclk / (oversample * baud)));
+export const divisorFor = (fclk: number, baud: number, oversample: number = OVERSAMPLE): number =>
+  Math.max(1, Math.round(fclk / (oversample * baud)));
 
-export const actualBaud = (
-  fclk: number,
-  divisor: number,
-  oversample: number = OVERSAMPLE,
-): number => fclk / (oversample * divisor);
+export const actualBaud = (fclk: number, divisor: number, oversample: number = OVERSAMPLE): number =>
+  fclk / (oversample * divisor);
 
 /** Fractional error between the baud you asked for and the baud you got. */
 export const divisorErrorFrac = (
   fclk: number,
   baud: number,
   oversample: number = OVERSAMPLE,
-): number =>
-  actualBaud(fclk, divisorFor(fclk, baud, oversample), oversample) / baud - 1;
+): number => actualBaud(fclk, divisorFor(fclk, baud, oversample), oversample) / baud - 1;
 
 /**
  * Why an Arduino at 16 MHz runs its 115200 port in double-speed mode: at 16x
@@ -193,7 +175,5 @@ export const ARDUINO_115200 = {
  * independent check on the derivation above. D is data bits plus parity bits,
  * S the samples per bit, SF and SM the first and middle sample indices.
  */
-export const avrRslow = (D: number, S = 16, SF = 8): number =>
-  ((D + 1) * S) / (S - 1 + D * S + SF);
-export const avrRfast = (D: number, S = 16, SM = 9): number =>
-  ((D + 2) * S) / ((D + 1) * S + SM);
+export const avrRslow = (D: number, S = 16, SF = 8): number => ((D + 1) * S) / (S - 1 + D * S + SF);
+export const avrRfast = (D: number, S = 16, SM = 9): number => ((D + 2) * S) / ((D + 1) * S + SM);

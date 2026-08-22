@@ -84,13 +84,11 @@ export const runWaveform = (
  * Every value the receiver produced, untruncated. Use this rather than
  * `payloadOf` for 9-bit data, where a Uint8Array would silently drop bit 8.
  */
-export const valuesOf = (r: LinkResult): number[] =>
-  r.bytes.map((b) => b.value);
+export const valuesOf = (r: LinkResult): number[] => r.bytes.map((b) => b.value);
 
 /** The values as bytes. Only meaningful when the config carries 8 bits or fewer. */
 export const payloadOf = (r: LinkResult): Uint8Array =>
   Uint8Array.from(r.bytes.map((b) => b.value));
 
 /** True when every frame crossed without a single flag raised. */
-export const isCleanLink = (r: LinkResult): boolean =>
-  r.bytes.every((b) => b.errors.length === 0);
+export const isCleanLink = (r: LinkResult): boolean => r.bytes.every((b) => b.errors.length === 0);

@@ -67,9 +67,7 @@ export const encode = (
 
 /** A break: the line held at space for longer than one whole frame. */
 export const encodeBreak = (cfg: LineConfig, frames = 1.5): Waveform => {
-  const count = Math.round(
-    (1 + cfg.dataBits + (hasParity(cfg) ? 1 : 0) + cfg.stopBits) * frames,
-  );
+  const count = Math.round((1 + cfg.dataBits + (hasParity(cfg) ? 1 : 0) + cfg.stopBits) * frames);
   const bits: Bit[] = [IDLE, IDLE];
   for (let i = 0; i < count; i++) bits.push(0);
   bits.push(IDLE, IDLE, IDLE);
@@ -97,11 +95,7 @@ export const pinLevelAt = (wf: Waveform, t: number, cfg: LineConfig): Bit =>
  * receiver's clock touches the transmitter's signal, and it is where baud
  * mismatch physically happens: the ticks land where they land.
  */
-export const sample = (
-  wf: Waveform,
-  tickRate: number,
-  extraTicks = 0,
-): Bit[] => {
+export const sample = (wf: Waveform, tickRate: number, extraTicks = 0): Bit[] => {
   const ticks = Math.ceil(duration(wf) * tickRate) + extraTicks;
   const out: Bit[] = new Array<Bit>(ticks);
   for (let k = 0; k < ticks; k++) out[k] = levelAt(wf, k / tickRate);
@@ -112,8 +106,7 @@ export const sample = (
 export const flipBit = (wf: Waveform, index: number): Waveform => {
   const bits = wf.bits.slice();
   const cur = bits[index];
-  if (cur === undefined)
-    throw new RangeError(`bit ${index} is outside the waveform`);
+  if (cur === undefined) throw new RangeError(`bit ${index} is outside the waveform`);
   bits[index] = (cur ^ 1) as Bit;
   return { bits, baud: wf.baud };
 };

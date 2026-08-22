@@ -11,3 +11,5 @@ export * from "./wire";
 export * from "./receiver";
 export * from "./baud";
 export * from "./link";
+export * from "./fifo";
+export * from "./flow";

@@ -142,10 +142,8 @@ export class Receiver {
 
     // Every sample point is measured from the start edge, never from the end of
     // the previous bit. A free-running receiver does not re-align mid-frame.
-    const offset =
-      this.tickIndex - this.startTick - this.bitSlot * this.oversample;
-    if (offset >= this.midTick - 1 && offset <= this.resolveTick)
-      this.votes.push(level);
+    const offset = this.tickIndex - this.startTick - this.bitSlot * this.oversample;
+    if (offset >= this.midTick - 1 && offset <= this.resolveTick) this.votes.push(level);
     if (offset < this.resolveTick) return null;
 
     const bit = this.resolveBit();
@@ -179,21 +177,14 @@ export class Receiver {
 
       case "stop": {
         const errors: RxErrorFlag[] = [];
-        if (
-          hasParity(this.cfg) &&
-          this.parityRead !== parityBit(this.value, this.cfg)
-        ) {
+        if (hasParity(this.cfg) && this.parityRead !== parityBit(this.value, this.cfg)) {
           errors.push("parity");
         }
         const framing = bit !== 1;
         if (framing) errors.push("framing");
         // A break is not a distinct signal — it is an all-zero frame whose stop
         // bit is also zero. The receiver infers it; the wire never says it.
-        if (
-          framing &&
-          this.value === 0 &&
-          (!hasParity(this.cfg) || this.parityRead === 0)
-        ) {
+        if (framing && this.value === 0 && (!hasParity(this.cfg) || this.parityRead === 0)) {
           errors.push("break");
         }
         if (this.noisy) errors.push("noise");
