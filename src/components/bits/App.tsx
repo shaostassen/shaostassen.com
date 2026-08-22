@@ -16,6 +16,7 @@
 
 import { useEffect, useState } from "react";
 import { LEVELS, PENDING, TOTAL_RUNGS, findLevel, padded } from "./levels/index";
+import { Live } from "./Live";
 import { C } from "./theme";
 import { MONO, S as U } from "./ui";
 import type { CSSProperties } from "react";
@@ -30,23 +31,30 @@ export interface AppProps {
 }
 
 export const App = ({ chrome = true }: AppProps = {}) => {
-  const [current, setCurrent] = useState(1);
+  /** A rung number, or "live" — which is a mode, not a twelfth rung. */
+  const [current, setCurrent] = useState<number | "live">(1);
 
   // Deep links are applied after mount: reading location during render would
   // make the server and the client disagree about what to draw.
   useEffect(() => {
-    const fromUrl = findLevel(new URLSearchParams(window.location.search).get("level"));
+    const raw = new URLSearchParams(window.location.search).get("level");
+    if (raw === "live") {
+      setCurrent("live");
+      return;
+    }
+    const fromUrl = findLevel(raw);
     if (fromUrl) setCurrent(fromUrl.n);
   }, []);
 
-  const go = (n: number) => {
+  const go = (n: number | "live") => {
     setCurrent(n);
     const url = new URL(window.location.href);
-    url.searchParams.set("level", padded(n));
+    url.searchParams.set("level", n === "live" ? "live" : padded(n));
     // replaceState, not pushState: one level must not become one history entry.
     window.history.replaceState(null, "", url);
   };
 
+  const live = current === "live";
   const level = LEVELS.find((l) => l.n === current) ?? LEVELS[0]!;
   const { Component } = level;
   const Body = chrome ? "main" : "div";
@@ -83,19 +91,39 @@ export const App = ({ chrome = true }: AppProps = {}) => {
             </button>
           );
         })}
+        {/* Set apart on purpose: LIVE is a mode, not a twelfth rung. The ladder
+            is closed, and this points it at a real port rather than extending it. */}
+        <span aria-hidden="true" style={S.navGap} />
+        <button
+          type="button"
+          onClick={() => go("live")}
+          aria-current={live ? "true" : undefined}
+          style={{
+            ...S.tab,
+            color: live ? C.bg : C.CYA,
+            background: live ? C.CYA : "transparent",
+            borderColor: C.CYA,
+          }}
+        >
+          LIVE
+        </button>
       </nav>
 
       <div style={S.header}>
-        <h2 style={S.h2}>
-          {padded(level.n)} — {level.name}
-        </h2>
-        <p style={S.teaches}>{level.teaches}</p>
-        <p style={S.failure}>
-          <span style={{ color: C.BAD }}>break it:</span> {level.failure}
+        <h2 style={S.h2}>{live ? "LIVE — a real port" : `${padded(level.n)} — ${level.name}`}</h2>
+        <p style={S.teaches}>
+          {live
+            ? "the same engine, pointed at bytes that actually crossed a wire"
+            : level.teaches}
         </p>
+        {!live && (
+          <p style={S.failure}>
+            <span style={{ color: C.BAD }}>break it:</span> {level.failure}
+          </p>
+        )}
       </div>
 
-      <Component />
+      {live ? <Live /> : <Component />}
 
       <div style={S.pending}>
         <p style={U.note}>
@@ -151,7 +179,8 @@ const S: Record<string, CSSProperties> = {
   head: { marginBottom: 24 },
   h1: { fontSize: 22, letterSpacing: 2, margin: 0, color: C.HI },
   sub: { color: C.dim, fontSize: 13, margin: "8px 0 0", maxWidth: "62ch", lineHeight: 1.5 },
-  nav: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 },
+  nav: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20, alignItems: "center" },
+  navGap: { width: 12 },
   tab: {
     fontFamily: MONO,
     fontSize: 12,
