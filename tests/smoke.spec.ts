@@ -622,3 +622,74 @@ test("the demostack cockpit clip ships without preloading it", async ({
   await expect(video).toHaveAttribute("aria-describedby", "loop-desc");
   await expect(page.locator("#loop-desc")).toContainText("autopilot on");
 });
+
+test("the bits case study links to its instrument", async ({ page }) => {
+  await page.goto("/projects/bits-to-messages");
+  await page
+    .getByRole("link", { name: /open the instrument/i })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/projects\/bits-to-messages\/lab$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: /Bits/ }),
+  ).toBeVisible();
+});
+
+test("the bits instrument keeps the host page's landmarks intact", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab");
+  // chrome={false} must not introduce a second <main> or a second <h1>.
+  await expect(page.locator("main")).toHaveCount(1);
+  await expect(page.locator("h1")).toHaveCount(1);
+});
+
+test("the bits instrument is fully rendered in the export, before any JS runs", async ({
+  browser,
+}) => {
+  // Its initial state is deterministic, so the trace and the decoded bytes
+  // belong in the HTML. A teaching page that shows a blank box without
+  // JavaScript teaches nothing.
+  const page = await browser.newPage({ javaScriptEnabled: false });
+  await page.goto("/projects/bits-to-messages/lab");
+  await expect(page.getByRole("img", { name: "line trace" })).toBeVisible();
+  // "Hi" is the default payload: 0x48 0x69, decoded cleanly.
+  await expect(page.getByText("48", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("69", { exact: true }).first()).toBeVisible();
+  await page.close();
+});
+
+test("detuning the receiver past its budget breaks the link", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab");
+  const slider = page.getByRole("slider", {
+    name: /receiver rate error/i,
+  });
+
+  // Inside the budget the frames arrive clean — no error is reported anywhere.
+  await expect(page.getByText(/outside the budget/)).toHaveCount(0);
+  await expect(page.getByTitle("framing", { exact: false })).toHaveCount(0);
+
+  // The budget for 8N1 is +3.90% / −4.64%; 6.4% is past it. This is the whole
+  // claim of level 04, so it is pinned rather than trusted.
+  await slider.fill("6.4");
+  await expect(page.getByText(/outside the budget/)).toBeVisible();
+  await expect(
+    page.getByTitle("framing", { exact: false }).first(),
+  ).toBeVisible();
+
+  // And it comes back: the failure is a property of the rate, not a latch.
+  await slider.fill("0");
+  await expect(page.getByText(/outside the budget/)).toHaveCount(0);
+});
+
+test("the bits instrument is keyboard operable", async ({ page }) => {
+  await page.goto("/projects/bits-to-messages/lab");
+  const slider = page.getByRole("slider", { name: /receiver rate error/i });
+  await slider.focus();
+  await expect(slider).toBeFocused();
+  const before = await slider.inputValue();
+  await page.keyboard.press("ArrowRight");
+  expect(Number(await slider.inputValue())).toBeGreaterThan(Number(before));
+});

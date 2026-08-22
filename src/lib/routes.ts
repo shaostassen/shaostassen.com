@@ -56,7 +56,10 @@ export const staticRoutes = [
  * Hand-written pages nested under a content segment — they have no MDX
  * entry, so they cannot be derived.
  */
-export const extraRoutes = ["/projects/electrons/lab"] as const;
+export const extraRoutes = [
+  "/projects/electrons/lab",
+  "/projects/bits-to-messages/lab",
+] as const;
 
 /**
  * Built but deliberately kept out of the sitemap. Asserted absent, so
