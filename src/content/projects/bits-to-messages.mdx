@@ -15,7 +15,7 @@ metrics:
   - label: rungs
     value: "11, each breakable"
   - label: tests
-    value: "126"
+    value: "148"
   - label: core runtime deps
     value: "0"
 ---
@@ -73,7 +73,7 @@ Starting the server prints a device path, and `screen` connects to it like
 hardware. The fault injector does not scramble bytes: for a baud mismatch it
 decodes the payload with a receiver tuned to the wrong rate and puts those bytes
 on the wire, so the corruption is what a mistuned UART would really produce —
-deterministic, and reproducible from the spec string alone. 113 tests cover it,
+deterministic, and reproducible from the spec string alone. 148 tests cover it,
 and the integration test opens the character device for real, on macOS and on
 the Linux CI runner.
 
@@ -84,8 +84,13 @@ multidrop the next honest layer is addressing and routing, and that is a
 different subject rather than a taller version of this one. Knowing where to
 stop is part of the design.
 
-What is left is the other half of the thesis. The browser and the server share
-an engine but never actually meet — a WebSocket bridge would let the instrument
-scope a _live_ link, the same trace fed by real bytes off a real port. It needs
-a running server, so it cannot work on a static site. Local only, which is an
-honest limit rather than a missing feature.
+The other half of the thesis is done too. A WebSocket bridge — hand-rolled to
+RFC 6455, because framing a stream is the same problem level 08 solves with a
+delimiter and level 11 solves with silence — lets the instrument scope a _live_
+link. Press connect and the trace stops being computed: it is drawn from bytes
+that actually crossed the port, and anything typed into the browser crosses it
+for real, where a terminal on the same device node sees the reply.
+
+That needs a server running locally, so on a static site the panel stays idle
+and says so. An honest limit rather than a missing feature, and the reason it
+never connects on its own.

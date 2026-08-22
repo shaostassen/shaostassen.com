@@ -849,3 +849,40 @@ test("a driver released late fights the next talker for the bus", async ({
     page.getByText(/two output stages are driving one pair/),
   ).toBeVisible();
 });
+
+test("the LIVE panel explains itself and never connects on its own", async ({
+  page,
+}) => {
+  // A page that opens a socket the moment it loads is doing something the
+  // reader did not ask for — and on this static host there is no server to
+  // reach, so it would only ever log a failed connection. The gate forbids
+  // console errors, and this is what keeps that true.
+  const consoleErrors: string[] = [];
+  page.on("console", (m) => {
+    if (m.type() === "error") consoleErrors.push(m.text());
+  });
+  page.on("pageerror", (e) => consoleErrors.push(e.message));
+
+  const sockets: string[] = [];
+  page.on("websocket", (ws) => sockets.push(ws.url()));
+
+  await page.goto("/projects/bits-to-messages/lab?level=live");
+  await expect(
+    page.getByRole("heading", { name: /LIVE — a real port/ }),
+  ).toBeVisible();
+  await expect(page.getByText(/Nothing is connected/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "connect" })).toBeVisible();
+
+  await page.waitForTimeout(500);
+  expect(sockets).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+});
+
+test("LIVE is a mode, not a twelfth rung", async ({ page }) => {
+  await page.goto("/projects/bits-to-messages/lab");
+  const ladder = page.getByRole("navigation", { name: "Ladder levels" });
+  // Eleven numbered rungs plus LIVE, and the closing note still says eleven.
+  await expect(ladder.getByRole("button")).toHaveCount(12);
+  await expect(page.getByText(/All 11 rungs are drawn/)).toBeVisible();
+  await expect(ladder.getByRole("button", { name: "LIVE" })).toBeVisible();
+});

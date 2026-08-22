@@ -64,7 +64,9 @@ export default function BitsLabPage() {
           All eleven rungs, from a voltage on a wire to a shared bus. The ladder
           stops there on purpose: above multidrop the next honest layer is
           addressing and routing, which is a different subject rather than a
-          taller version of this one.{" "}
+          taller version of this one. The LIVE panel needs a server running on
+          your own machine, so on this page it stays idle and explains itself —
+          a real limit of a static site rather than a broken feature.{" "}
           <a
             href="https://github.com/shaostassen/bits-to-messages"
             className={accentLink}
