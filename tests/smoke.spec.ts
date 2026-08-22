@@ -662,9 +662,7 @@ test("the bits instrument is fully rendered in the export, before any JS runs", 
   await page.close();
 });
 
-test("the bits ladder walks, and says what is not drawn yet", async ({
-  page,
-}) => {
+test("the bits ladder walks all eleven rungs and closes", async ({ page }) => {
   await page.goto("/projects/bits-to-messages/lab");
   const ladder = page.getByRole("navigation", { name: "Ladder levels" });
 
@@ -672,10 +670,10 @@ test("the bits ladder walks, and says what is not drawn yet", async ({
   await ladder.getByRole("button", { name: /06 FIFO/ }).click();
   await expect(page.getByRole("heading", { name: /06 — FIFO/ })).toBeVisible();
 
-  // The ladder is honest about being seven of eleven rather than silently
-  // starting at seven.
-  await expect(page.getByText(/7 of 11 rungs are drawn/)).toBeVisible();
-  await expect(page.getByText(/10 LINK/)).toBeVisible();
+  // All eleven rungs, and the coda closes it rather than trailing off.
+  await ladder.getByRole("button", { name: /11 BUS/ }).click();
+  await expect(page.getByRole("heading", { name: /11 — BUS/ })).toBeVisible();
+  await expect(page.getByText(/All 11 rungs are drawn/)).toBeVisible();
 });
 
 test("a bits level can be linked directly, by number or by name", async ({
@@ -776,4 +774,78 @@ test("the bits instrument is keyboard operable", async ({ page }) => {
   const before = await slider.inputValue();
   await page.keyboard.press("ArrowRight");
   expect(Number(await slider.inputValue())).toBeGreaterThan(Number(before));
+});
+
+test("joining a stream mid-flight costs exactly one message", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab?level=08");
+
+  // Chunking is the transport's business, not the protocol's: a frame split
+  // across four reads and a frame delivered whole decode the same.
+  const chunk = page.getByRole("slider", { name: /read chunk size/i });
+  await chunk.fill("1");
+  await expect(page.getByText(/^delivered — LED ON$/)).toBeVisible();
+  await chunk.fill("40");
+  await expect(page.getByText(/^delivered — LED ON$/)).toBeVisible();
+
+  // A listener that opens the port late loses the frame it lands in, and
+  // exactly that one — the bound is the reason to use a self-delimiting frame.
+  await page.getByLabel("the listener").selectOption("midstream");
+  await expect(page.getByText(/discarded \(cobs\)/)).toBeVisible();
+  await expect(page.getByText(/^delivered — READ:TEMP\?$/)).toBeVisible();
+  await expect(page.getByText(/^delivered — \*IDN\?$/)).toBeVisible();
+});
+
+test("an xor checksum passes damage a CRC catches", async ({ page }) => {
+  await page.goto("/projects/bits-to-messages/lab?level=09");
+  const damage = page.getByLabel("corruption");
+
+  // One flipped bit is caught by everything, which is why testing against one
+  // flipped bit proves nothing.
+  await damage.selectOption("one");
+  await expect(page.getByText(/passes: damage undetected/)).toHaveCount(0);
+
+  // Two errors in the same bit column cancel in the XOR exactly.
+  await damage.selectOption("column");
+  await expect(page.getByText(/passes: damage undetected/)).toHaveCount(1);
+
+  // Neither XOR nor a sum depends on order, so a byte swap defeats both.
+  await damage.selectOption("swap");
+  await expect(page.getByText(/passes: damage undetected/)).toHaveCount(2);
+});
+
+test("a lost ACK delivers the message twice when nobody checks sequence", async ({
+  page,
+}) => {
+  // The failure the whole ladder climbs towards: both frames intact, both CRCs
+  // valid, no flag raised anywhere, and the valve opened twice.
+  await page.goto("/projects/bits-to-messages/lab?level=10");
+  await expect(page.getByText(/One send, one ACK, one delivery/)).toBeVisible();
+
+  await page.getByLabel("drop").selectOption("ack");
+  await expect(page.getByText(/duplicate recognised by seq/)).toBeVisible();
+  await expect(page.getByText(/valve was opened twice/)).toHaveCount(0);
+
+  await page
+    .getByRole("checkbox", { name: /check sequence numbers/i })
+    .uncheck();
+  await expect(page.getByText(/valve was opened twice/)).toBeVisible();
+});
+
+test("a driver released late fights the next talker for the bus", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab?level=11");
+  const release = page.getByRole("slider", { name: /driver release delay/i });
+
+  // Ten bit times of quiet between talkers, so anything up to that is clean.
+  await release.fill("10");
+  await expect(page.getByText(/One driver at a time/)).toBeVisible();
+
+  // Past it, two output stages drive one pair. No hardware flag reports this.
+  await release.fill("16");
+  await expect(
+    page.getByText(/two output stages are driving one pair/),
+  ).toBeVisible();
 });

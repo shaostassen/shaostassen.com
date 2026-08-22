@@ -10,12 +10,12 @@ timeframe: "2026"
 role: "Solo"
 repo: "https://github.com/shaostassen/bits-to-messages"
 featured: true
-status: in-progress
+status: complete
 metrics:
-  - label: rungs drawn
-    value: "7 of 11"
+  - label: rungs
+    value: "11, each breakable"
   - label: tests
-    value: "113"
+    value: "126"
   - label: core runtime deps
     value: "0"
 ---
@@ -79,7 +79,13 @@ the Linux CI runner.
 
 ## What I'd do next
 
-Levels 01–07 are drawn; 08–11 are implemented and tested in the engine but have
-no UI yet. Finishing the engine before the drawings was deliberate, and the
-order stands. After that, a WebSocket bridge so the browser can scope a live
-link — the same trace, fed by real bytes off a real port.
+All eleven rungs are drawn. The ladder stops at a shared bus on purpose: above
+multidrop the next honest layer is addressing and routing, and that is a
+different subject rather than a taller version of this one. Knowing where to
+stop is part of the design.
+
+What is left is the other half of the thesis. The browser and the server share
+an engine but never actually meet — a WebSocket bridge would let the instrument
+scope a _live_ link, the same trace fed by real bytes off a real port. It needs
+a running server, so it cannot work on a static site. Local only, which is an
+honest limit rather than a missing feature.

@@ -43,10 +43,11 @@ export default function BitsLabPage() {
             lede="A frame on a wire, and a receiver deciding what it thinks it saw. Everything here is computed by the same engine that drives a real serial port — nothing is drawn to look like an error."
           >
             <p className="mt-4 max-w-2xl font-mono text-sm text-muted">
-              Seven rungs, and every one of them can be broken on purpose.
+              Eleven rungs, and every one of them can be broken on purpose.
               Detune a receiver until the stop bit stops landing, pass two
-              flipped bits straight through a parity check, or watch a slow
-              interrupt handler lose bytes off a perfectly good wire.
+              flipped bits straight through a parity check, or lose an
+              acknowledgement and watch the message get delivered twice with
+              nothing anywhere reporting an error.
             </p>
           </PageHeader>
         </div>
@@ -60,9 +61,10 @@ export default function BitsLabPage() {
 
       <Container>
         <p className="py-10 font-mono text-sm text-muted">
-          Levels 01–07 of eleven. The rest — COBS framing, CRC, the lost-ACK
-          duplicate, and RS-485 turnaround — is implemented and tested in the
-          engine but has no drawing yet.{" "}
+          All eleven rungs, from a voltage on a wire to a shared bus. The ladder
+          stops there on purpose: above multidrop the next honest layer is
+          addressing and routing, which is a different subject rather than a
+          taller version of this one.{" "}
           <a
             href="https://github.com/shaostassen/bits-to-messages"
             className={accentLink}
