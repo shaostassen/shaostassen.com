@@ -16,6 +16,7 @@
 
 import { useEffect, useState } from "react";
 import { LEVELS, PENDING, TOTAL_RUNGS, findLevel, padded } from "./levels/index";
+import { Journey } from "./Journey";
 import { Live } from "./Live";
 import { C } from "./theme";
 import { MONO, S as U } from "./ui";
@@ -31,30 +32,32 @@ export interface AppProps {
 }
 
 export const App = ({ chrome = true }: AppProps = {}) => {
-  /** A rung number, or "live" — which is a mode, not a twelfth rung. */
-  const [current, setCurrent] = useState<number | "live">(1);
+  /** A rung number, or a mode. Modes are not rungs; the ladder stays at eleven. */
+  const [current, setCurrent] = useState<number | "live" | "journey">(1);
 
   // Deep links are applied after mount: reading location during render would
   // make the server and the client disagree about what to draw.
   useEffect(() => {
     const raw = new URLSearchParams(window.location.search).get("level");
-    if (raw === "live") {
-      setCurrent("live");
+    if (raw === "live" || raw === "journey") {
+      setCurrent(raw);
       return;
     }
     const fromUrl = findLevel(raw);
     if (fromUrl) setCurrent(fromUrl.n);
   }, []);
 
-  const go = (n: number | "live") => {
+  const go = (n: number | "live" | "journey") => {
     setCurrent(n);
     const url = new URL(window.location.href);
-    url.searchParams.set("level", n === "live" ? "live" : padded(n));
+    url.searchParams.set("level", typeof n === "string" ? n : padded(n));
     // replaceState, not pushState: one level must not become one history entry.
     window.history.replaceState(null, "", url);
   };
 
   const live = current === "live";
+  const journey = current === "journey";
+  const mode = live || journey;
   const level = LEVELS.find((l) => l.n === current) ?? LEVELS[0]!;
   const { Component } = level;
   const Body = chrome ? "main" : "div";
@@ -91,9 +94,23 @@ export const App = ({ chrome = true }: AppProps = {}) => {
             </button>
           );
         })}
-        {/* Set apart on purpose: LIVE is a mode, not a twelfth rung. The ladder
-            is closed, and this points it at a real port rather than extending it. */}
+        {/* Set apart on purpose: these are modes, not twelfth and thirteenth
+            rungs. The ladder is closed at eleven; JOURNEY walks one message
+            across it three ways, and LIVE points it at a real port. */}
         <span aria-hidden="true" style={S.navGap} />
+        <button
+          type="button"
+          onClick={() => go("journey")}
+          aria-current={journey ? "true" : undefined}
+          style={{
+            ...S.tab,
+            color: journey ? C.bg : C.VIO,
+            background: journey ? C.VIO : "transparent",
+            borderColor: C.VIO,
+          }}
+        >
+          JOURNEY
+        </button>
         <button
           type="button"
           onClick={() => go("live")}
@@ -110,20 +127,28 @@ export const App = ({ chrome = true }: AppProps = {}) => {
       </nav>
 
       <div style={S.header}>
-        <h2 style={S.h2}>{live ? "LIVE — a real port" : `${padded(level.n)} — ${level.name}`}</h2>
+        <h2 style={S.h2}>
+          {live
+            ? "LIVE — a real port"
+            : journey
+              ? "JOURNEY — one message, three protocols"
+              : `${padded(level.n)} — ${level.name}`}
+        </h2>
         <p style={S.teaches}>
           {live
             ? "the same engine, pointed at bytes that actually crossed a wire"
-            : level.teaches}
+            : journey
+              ? "type something and follow it across as UART, SPI and I2C"
+              : level.teaches}
         </p>
-        {!live && (
+        {!mode && (
           <p style={S.failure}>
             <span style={{ color: C.BAD }}>break it:</span> {level.failure}
           </p>
         )}
       </div>
 
-      {live ? <Live /> : <Component />}
+      {live ? <Live /> : journey ? <Journey /> : <Component />}
 
       <div style={S.pending}>
         <p style={U.note}>

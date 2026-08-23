@@ -9,6 +9,8 @@
 
 import type { Bit, LineConfig } from "./line";
 import { hasParity, parityBit, toPin } from "./line";
+import type { BusTrace, TraceMark } from "./trace";
+import { normalise } from "./trace";
 
 export interface Waveform {
   /** One logical bit per transmitter bit period, starting at t = 0. */
@@ -109,4 +111,37 @@ export const flipBit = (wf: Waveform, index: number): Waveform => {
   if (cur === undefined) throw new RangeError(`bit ${index} is outside the waveform`);
   bits[index] = (cur ^ 1) as Bit;
   return { bits, baud: wf.baud };
+};
+
+/**
+ * The same waveform as a multi-signal trace, so UART can be drawn by the same
+ * renderer as SPI and I2C.
+ *
+ * It has exactly one signal, and that is the comparison worth making: the other
+ * two protocols spend a wire on a clock so the receiver never has to guess when
+ * to look. UART has only this line, which is why everything from level 03 to
+ * level 06 exists.
+ */
+export const uartTrace = (
+  data: ArrayLike<number>,
+  cfg: LineConfig,
+  ticksPerBit = 4,
+  opts: EncodeOptions = {},
+): BusTrace => {
+  const wf = encode(data, cfg, opts);
+  const levels: Bit[] = [];
+  const marks: TraceMark[] = [];
+
+  wf.bits.forEach((bit, i) => {
+    for (let t = 0; t < ticksPerBit; t++) levels.push(toPin(bit, cfg));
+    // Mid-bit, which is where a 16x receiver's majority vote lands.
+    marks.push({ tick: i * ticksPerBit + Math.floor(ticksPerBit / 2), kind: "sample" });
+  });
+
+  return normalise({
+    ticksPerBit,
+    length: levels.length,
+    marks,
+    signals: [{ name: cfg.invert ? "TX (RS-232)" : "TX", levels }],
+  });
 };

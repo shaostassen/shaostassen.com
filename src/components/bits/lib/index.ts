@@ -17,3 +17,6 @@ export * from "./crc";
 export * from "./protocol";
 export * from "./arq";
 export * from "./bus";
+export * from "./trace";
+export * from "./spi";
+export * from "./i2c";
