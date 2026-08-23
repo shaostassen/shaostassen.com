@@ -49,6 +49,12 @@ export default function BitsLabPage() {
               acknowledgement and watch the message get delivered twice with
               nothing anywhere reporting an error.
             </p>
+            <p className="mt-3 max-w-2xl font-mono text-sm text-muted">
+              Start with <strong>JOURNEY</strong>: type a message and follow it
+              across as UART, then SPI, then I2C — the same bytes taking three
+              different routes, and three different answers to the only question
+              a receiver really has.
+            </p>
           </PageHeader>
         </div>
       </Container>

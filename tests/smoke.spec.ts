@@ -878,11 +878,78 @@ test("the LIVE panel explains itself and never connects on its own", async ({
   expect(consoleErrors).toEqual([]);
 });
 
-test("LIVE is a mode, not a twelfth rung", async ({ page }) => {
+test("the modes sit beside the ladder rather than extending it", async ({
+  page,
+}) => {
   await page.goto("/projects/bits-to-messages/lab");
   const ladder = page.getByRole("navigation", { name: "Ladder levels" });
-  // Eleven numbered rungs plus LIVE, and the closing note still says eleven.
-  await expect(ladder.getByRole("button")).toHaveCount(12);
+
+  // Eleven *numbered* rungs is the invariant; the modes are not rungs, and the
+  // closing note has to keep saying eleven however many modes get added.
+  const numbered = ladder.getByRole("button", { name: /^\d\d / });
+  await expect(numbered).toHaveCount(11);
   await expect(page.getByText(/All 11 rungs are drawn/)).toBeVisible();
+
+  await expect(ladder.getByRole("button", { name: "JOURNEY" })).toBeVisible();
   await expect(ladder.getByRole("button", { name: "LIVE" })).toBeVisible();
+});
+
+test("JOURNEY carries one message across all three protocols", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab?level=journey");
+  await expect(
+    page.getByRole("heading", {
+      name: /JOURNEY — one message, three protocols/,
+    }),
+  ).toBeVisible();
+
+  const protocol = page.getByLabel("protocol");
+  const message = page.getByLabel("message to send");
+  await message.fill("Hi!");
+
+  // UART: one wire, and the receiver has to infer when to look.
+  await expect(page.getByText("inferred")).toBeVisible();
+  await expect(page.getByText(/Arrived intact/)).toBeVisible();
+
+  // SPI: four wires, and the clock arrives on one of them.
+  await protocol.selectOption("spi");
+  await expect(page.getByText("on its own wire").first()).toBeVisible();
+  await expect(page.getByText(/Arrived intact/)).toBeVisible();
+
+  // I2C: two wires again, but now with addressing on a shared bus.
+  await protocol.selectOption("i2c");
+  await expect(page.getByText("112 usable")).toBeVisible();
+  await expect(page.getByText(/Arrived intact/)).toBeVisible();
+});
+
+test("each protocol fails in its own characteristic way", async ({ page }) => {
+  await page.goto("/projects/bits-to-messages/lab?level=journey");
+  const protocol = page.getByLabel("protocol");
+  const breakIt = page.getByLabel("break it");
+
+  // UART just past budget: the stop bit lands wrong while the data survives —
+  // you lose your reason to believe the bytes before you lose the bytes.
+  await breakIt.selectOption("6.4");
+  await expect(page.getByText(/That is a framing error/)).toBeVisible();
+  await expect(page.getByText(/the values are still correct/)).toBeVisible();
+  await breakIt.selectOption("14");
+  await expect(page.getByText(/the bytes are wrong/)).toBeVisible();
+
+  // SPI mode mismatch: wrong bytes, and nothing anywhere to report it.
+  await protocol.selectOption("spi");
+  await breakIt.selectOption("1");
+  await expect(
+    page.getByText(/SPI has no error detection of any kind/),
+  ).toBeVisible();
+  // CPOL alone only renames the edges, so modes 0 and 2 still interoperate.
+  await breakIt.selectOption("2");
+  await expect(page.getByText(/Arrived intact/)).toBeVisible();
+
+  // I2C: the ninth clock is what makes "nobody is there" detectable at all.
+  await protocol.selectOption("i2c");
+  await breakIt.selectOption("0x18");
+  await expect(
+    page.getByText(/Nothing acknowledged the address/),
+  ).toBeVisible();
 });

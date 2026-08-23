@@ -12,10 +12,10 @@ repo: "https://github.com/shaostassen/bits-to-messages"
 featured: true
 status: complete
 metrics:
-  - label: rungs
-    value: "11, each breakable"
+  - label: protocols
+    value: "UART, SPI, I2C"
   - label: tests
-    value: "148"
+    value: "172"
   - label: core runtime deps
     value: "0"
 ---
@@ -73,9 +73,26 @@ Starting the server prints a device path, and `screen` connects to it like
 hardware. The fault injector does not scramble bytes: for a baud mismatch it
 decodes the payload with a receiver tuned to the wrong rate and puts those bytes
 on the wire, so the corruption is what a mistuned UART would really produce —
-deterministic, and reproducible from the spec string alone. 148 tests cover it,
+deterministic, and reproducible from the spec string alone. 172 tests cover it,
 and the integration test opens the character device for real, on macOS and on
 the Linux CI runner.
+
+## One message, three protocols
+
+The instrument's JOURNEY panel takes whatever you type and follows it across:
+characters to bytes, bytes to transitions on wires, a receiver deciding when to
+look, and back to characters. The same message goes three ways, and the
+comparison is the content — every difference between UART, SPI and I2C is a
+different answer to one question.
+
+UART infers timing from an agreed rate, so it needs a start bit, an accurate
+clock at both ends, and a framing-error flag for when that fails. SPI spends a
+wire on the clock and deletes every timing failure at once — and spends nothing
+on checking, which is why a CPOL/CPHA mismatch is completely silent. I2C spends
+a wire too, then buys a shared bus with the complexity it saved: open-drain
+lines, START and STOP framing that costs no byte value, seven-bit addressing,
+and an acknowledgement on every ninth clock. It is the only one of the three
+that can tell you the far end is not there.
 
 ## What I'd do next
 
