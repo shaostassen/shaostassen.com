@@ -73,10 +73,22 @@ export const BusScope = ({ trace, scale = 5, showSamples = true }: BusScopeProps
           const base = TOP + row * ROW + AMP;
           const y = (level: number) => base - level * AMP;
           const d: string[] = [];
-          sig.levels.forEach((lv, t) => {
-            d.push(`${t === 0 ? "M" : "L"} ${x(t)} ${y(lv)}`);
-            d.push(`L ${x(t + 1)} ${y(lv)}`);
-          });
+
+          if (sig.volts && sig.voltRange) {
+            // An analogue signal: draw the actual voltage against its range.
+            // RS-232 and RS-485 are arguments about volts, and squaring them
+            // off into levels would hide the entire point.
+            const [lo, hi] = sig.voltRange;
+            const yv = (v: number) => base - ((v - lo) / (hi - lo)) * (AMP * 2) + AMP;
+            sig.volts.forEach((v, t) => {
+              d.push(`${t === 0 ? "M" : "L"} ${x(t)} ${yv(v)}`);
+            });
+          } else {
+            sig.levels.forEach((lv, t) => {
+              d.push(`${t === 0 ? "M" : "L"} ${x(t)} ${y(lv)}`);
+              d.push(`L ${x(t + 1)} ${y(lv)}`);
+            });
+          }
 
           return (
             <g key={sig.name}>
@@ -94,12 +106,38 @@ export const BusScope = ({ trace, scale = 5, showSamples = true }: BusScopeProps
                   pull-up
                 </text>
               )}
+              {sig.volts && sig.voltRange && (
+                <>
+                  <text x={4} y={base + 12} fill={C.dim} fontSize={8} fontFamily="monospace">
+                    volts
+                  </text>
+                  {/* Zero volts, so the reader can see which side of it the
+                      signal is sitting on — RS-232's mark is negative. */}
+                  <line
+                    x1={LABEL_W}
+                    x2={width - 8}
+                    y1={
+                      base -
+                      ((0 - sig.voltRange[0]) / (sig.voltRange[1] - sig.voltRange[0])) * (AMP * 2) +
+                      AMP
+                    }
+                    y2={
+                      base -
+                      ((0 - sig.voltRange[0]) / (sig.voltRange[1] - sig.voltRange[0])) * (AMP * 2) +
+                      AMP
+                    }
+                    stroke={C.rule}
+                    strokeWidth={1}
+                    strokeDasharray="2 3"
+                  />
+                </>
+              )}
               <path
                 d={d.join(" ")}
                 fill="none"
-                stroke={C.HI}
+                stroke={sig.volts ? C.CYA : C.HI}
                 strokeWidth={1.8}
-                style={{ filter: glow(C.HI, 2) }}
+                style={{ filter: glow(sig.volts ? C.CYA : C.HI, 2) }}
               />
             </g>
           );

@@ -21,6 +21,17 @@ export interface SignalTrace {
   levels: Bit[];
   /** Open-drain lines are pulled up, never driven high. Drawn differently. */
   openDrain?: boolean;
+  /**
+   * Actual volts per tick, when the point being made is analogue.
+   *
+   * Everything above the physical layer is content to call a line high or low.
+   * RS-232 and RS-485 are arguments about *voltage* — how far it survives, and
+   * what happens when the ground at each end is not the same ground — so those
+   * two need real numbers rather than bits, and a renderer that draws them.
+   */
+  volts?: number[];
+  /** Range to scale `volts` against, as [min, max]. */
+  voltRange?: [number, number];
 }
 
 export type MarkKind =

@@ -20,3 +20,8 @@ export * from "./bus";
 export * from "./trace";
 export * from "./spi";
 export * from "./i2c";
+export * from "./can";
+export * from "./manchester";
+export * from "./onewire";
+export * from "./physical";
+export * from "./usb";

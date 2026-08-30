@@ -17,15 +17,26 @@
 import { useMemo, useState } from "react";
 import {
   CFG_8N1,
+  MANCHESTER_DEFAULT,
   MODE_NAMES,
   SPI_DEFAULT,
+  TIMING,
+  type ManchesterConvention,
   type SpiMode,
   USABLE_ADDRESSES,
+  RS232,
+  RS485,
+  canTransmit,
   i2cWrite,
+  manchester,
+  noiseMarginVolts,
+  oneWireWrite,
+  physicalLink,
   runLink,
   spiTransfer,
   throughputBytesPerSec,
   uartTrace,
+  usbOutTransaction,
   valuesOf,
   withBaud,
 } from "./lib";
@@ -33,12 +44,27 @@ import { BusScope } from "./BusScope";
 import { ByteGrid, Field, Note, Panel, Prose, Row, Select, Stat, Stats, hex } from "./ui";
 import { C } from "./theme";
 
-type Protocol = "uart" | "spi" | "i2c";
+type Protocol =
+  | "uart"
+  | "spi"
+  | "i2c"
+  | "can"
+  | "onewire"
+  | "manchester"
+  | "rs232"
+  | "rs485"
+  | "usb";
 
 const PROTOCOLS = [
   { value: "uart", label: "UART — one wire, agreed rate" },
   { value: "spi", label: "SPI — four wires, master clock" },
   { value: "i2c", label: "I2C — two wires, shared bus" },
+  { value: "can", label: "CAN — two wires, arbitrated" },
+  { value: "onewire", label: "1-Wire — one wire, pulse width" },
+  { value: "manchester", label: "Manchester — clock inside the data" },
+  { value: "rs232", label: "RS-232 — one wire against ground" },
+  { value: "rs485", label: "RS-485 — a differential pair" },
+  { value: "usb", label: "USB — host-scheduled, NRZI" },
 ];
 
 const UART_FAULTS = [
@@ -58,6 +84,35 @@ const I2C_FAULTS = [
   { value: "0x18", label: "address 0x18 — nobody home" },
 ];
 
+const CAN_FAULTS = [
+  { value: "normal", label: "one node, others listening" },
+  { value: "alone", label: "alone on the bus — nobody to ACK" },
+  { value: "contested", label: "a brake node transmits at the same instant" },
+];
+
+const ONEWIRE_FAULTS = [
+  { value: "present", label: "a device answers the reset" },
+  { value: "absent", label: "nothing on the wire" },
+];
+
+const MANCHESTER_FAULTS = [
+  { value: "ieee802.3", label: "both ends use IEEE 802.3" },
+  { value: "thomas", label: "receiver uses G. E. Thomas" },
+];
+
+/** Shared between RS-232 and RS-485 on purpose: flip between them to compare. */
+const NOISE_FAULTS = [
+  { value: "0", label: "quiet line" },
+  { value: "4", label: "4 V of induced noise" },
+  { value: "6", label: "6 V ground offset between the ends" },
+  { value: "40", label: "40 V — beyond anything's range" },
+];
+
+const USB_FAULTS = [
+  { value: "present", label: "a device answers at that address" },
+  { value: "absent", label: "nothing answers — the host times out" },
+];
+
 const DEVICE = 0x42;
 const MAX_CHARS = 5;
 
@@ -71,6 +126,11 @@ export const Journey = () => {
   const [uartErr, setUartErr] = useState("0");
   const [spiSlaveMode, setSpiSlaveMode] = useState("0");
   const [i2cAddr, setI2cAddr] = useState("0x42");
+  const [canMode, setCanMode] = useState("normal");
+  const [oneWire, setOneWire] = useState("present");
+  const [manchesterRx, setManchesterRx] = useState("ieee802.3");
+  const [noise, setNoise] = useState("0");
+  const [usbDevice, setUsbDevice] = useState("present");
 
   const bytes = useMemo(
     () => Array.from(new TextEncoder().encode(message.slice(0, MAX_CHARS) || " ")),
@@ -108,19 +168,118 @@ export const Journey = () => {
         duplex: t.masterRead,
       };
     }
-    const target = Number(i2cAddr);
-    const t = i2cWrite(target, bytes, [DEVICE]);
+    if (protocol === "i2c") {
+      const target = Number(i2cAddr);
+      const t = i2cWrite(target, bytes, [DEVICE]);
+      return {
+        trace: t.trace,
+        received: t.delivered,
+        errors: t.delivered.map(() => [] as string[]),
+        wires: 2,
+        note: "START, seven address bits and a direction bit, then nine clocks per byte",
+        clocked: true,
+        nacked: t.addressNacked,
+      };
+    }
+    if (protocol === "can") {
+      const mine = { name: "sensor", id: 0x080, data: bytes };
+      const nodes =
+        canMode === "contested"
+          ? [mine, { name: "brake", id: 0x008, data: [0xff] }]
+          : [mine];
+      const t = canTransmit(nodes, { listeners: canMode !== "alone" });
+      const iWon = t.winner === "sensor";
+      return {
+        trace: t.trace,
+        // Losing arbitration is not corruption: my frame simply did not go this
+        // round. Reporting the winner's bytes as mine would be a lie.
+        received: iWon ? t.delivered : [],
+        errors: (iWon ? t.delivered : []).map(() => [] as string[]),
+        wires: 2,
+        note: `identifier first, ${t.stuffBits} stuff bits inserted, CRC-15, then an ACK slot every receiver pulls down`,
+        clocked: false,
+        acked: t.acked,
+        winner: t.winner,
+        lostArbitration: !iWon,
+        frameBits: t.frameBits,
+      };
+    }
+    if (protocol === "onewire") {
+      const t = oneWireWrite(bytes, oneWire === "present");
+      return {
+        trace: t.trace,
+        received: t.delivered,
+        errors: t.delivered.map(() => [] as string[]),
+        wires: 1,
+        note: `reset, presence, then one slot per bit — ${TIMING.oneLowUs} us low means one, ${TIMING.zeroLowUs} us means zero`,
+        clocked: false,
+        presence: t.presence,
+        durationUs: t.durationUs,
+        resetShare: t.resetShare,
+      };
+    }
+    if (protocol === "rs232" || protocol === "rs485") {
+      const volts = Number(noise);
+      // The same disturbance either way — the only thing that differs is how
+      // the receiver decides, which is the whole comparison.
+      const t = physicalLink(bytes, CFG_8N1, protocol, {
+        noiseVolts: protocol === "rs232" ? volts : 0,
+        groundOffsetVolts: protocol === "rs485" ? volts : 0,
+      });
+      return {
+        trace: t.trace,
+        received: t.received,
+        errors: t.received.map(() => [] as string[]),
+        wires: protocol === "rs232" ? 3 : 2,
+        note:
+          protocol === "rs232"
+            ? `one signal wire against a shared ground, +/-${RS232.driverVolts} V driven, decided at a +/-3 V threshold`
+            : `two wires carrying equal and opposite swings, decided on the difference at ${RS485.differentialThreshold * 1000} mV`,
+        clocked: false,
+        physical: true,
+        flippedBits: t.flippedBits,
+        worstCommonMode: t.worstCommonMode,
+        margin: noiseMarginVolts(protocol),
+      };
+    }
+    if (protocol === "usb") {
+      const t = usbOutTransaction(bytes, { deviceResponds: usbDevice === "present" });
+      return {
+        trace: t.trace,
+        received: t.delivered,
+        errors: t.delivered.map(() => [] as string[]),
+        wires: 4,
+        note: `SYNC, a PID and its complement, then NRZI with ${t.stuffedBits} stuffed bits — and SE0 to end each packet`,
+        clocked: false,
+        usbPackets: t.packets,
+        acked: t.acked,
+      };
+    }
+    const tx = MANCHESTER_DEFAULT;
+    const rx = { ...MANCHESTER_DEFAULT, convention: manchesterRx as ManchesterConvention };
+    const t = manchester(bytes, tx, rx);
     return {
       trace: t.trace,
-      received: t.delivered,
-      errors: t.delivered.map(() => [] as string[]),
-      wires: 2,
-      note: "START, seven address bits and a direction bit, then nine clocks per byte",
-      clocked: true,
-      nacked: t.addressNacked,
-      events: t.events,
+      received: t.decoded,
+      errors: t.decoded.map(() => [] as string[]),
+      wires: 1,
+      note: "a guaranteed transition in the middle of every bit — the clock travels inside the data",
+      clocked: false,
+      dutyCycle: t.dutyCycle,
+      transitions: t.transitions,
     };
-  }, [protocol, bytes, uartErr, spiSlaveMode, i2cAddr]);
+  }, [
+    protocol,
+    bytes,
+    uartErr,
+    spiSlaveMode,
+    i2cAddr,
+    canMode,
+    oneWire,
+    manchesterRx,
+    noise,
+    usbDevice,
+  ]);
 
   const decoded = new TextDecoder().decode(Uint8Array.from(result.received));
   const flagged = result.errors.some((e) => e.length > 0);
@@ -173,6 +332,40 @@ export const Journey = () => {
             {protocol === "i2c" && (
               <Select value={i2cAddr} onChange={setI2cAddr} options={I2C_FAULTS} />
             )}
+            {protocol === "can" && (
+              <Select value={canMode} onChange={setCanMode} options={CAN_FAULTS} />
+            )}
+            {protocol === "rs485" && intact && (result.worstCommonMode ?? 0) > 1 && (
+          <Note>
+            {(result.worstCommonMode ?? 0).toFixed(0)} V of disturbance, and not one bit changed.
+            It landed on both wires equally, so it cancelled the moment the receiver subtracted one
+            from the other. That single fact is why this standard reaches{" "}
+            {RS485.maxCableMetres} m and RS-232 manages {RS232.maxCableMetres}.
+          </Note>
+        )}
+        {protocol === "usb" && intact && (
+          <Note>
+            Three packets, and the device spoke only in the last one. The host addressed it, sent the
+            data, and it answered — it could not have transmitted at any other moment even if it had
+            wanted to.
+          </Note>
+        )}
+        {protocol === "onewire" && (
+              <Select value={oneWire} onChange={setOneWire} options={ONEWIRE_FAULTS} />
+            )}
+            {protocol === "manchester" && (
+              <Select
+                value={manchesterRx}
+                onChange={setManchesterRx}
+                options={MANCHESTER_FAULTS}
+              />
+            )}
+            {(protocol === "rs232" || protocol === "rs485") && (
+              <Select value={noise} onChange={setNoise} options={NOISE_FAULTS} />
+            )}
+            {protocol === "usb" && (
+              <Select value={usbDevice} onChange={setUsbDevice} options={USB_FAULTS} />
+            )}
           </Field>
         </Row>
       </Panel>
@@ -192,9 +385,38 @@ export const Journey = () => {
           <Stat label="clock" value={result.clocked ? "on its own wire" : "inferred"} />
           <Stat
             label="carries"
-            value={protocol === "uart" ? `${throughputBytesPerSec(CFG_8N1).toFixed(0)} B/s` : "as fast as the master clocks"}
+            value={
+              protocol === "uart"
+                ? `${throughputBytesPerSec(CFG_8N1).toFixed(0)} B/s`
+                : protocol === "onewire"
+                  ? "~12.5 kbit/s"
+                  : protocol === "manchester"
+                    ? "half the line rate"
+                    : protocol === "can"
+                      ? "1 Mbit/s classic"
+                      : protocol === "usb"
+                        ? "12 Mbit/s full speed"
+                        : protocol === "rs232"
+                          ? `${RS232.maxCableMetres} m of cable`
+                          : protocol === "rs485"
+                            ? `${RS485.maxCableMetres} m of cable`
+                            : "as fast as the master clocks"
+            }
           />
-          <Stat label="addressing" value={protocol === "i2c" ? `${USABLE_ADDRESSES} usable` : protocol === "spi" ? "one CS per device" : "none — point to point"} />
+          <Stat
+            label="addressing"
+            value={
+              protocol === "i2c"
+                ? `${USABLE_ADDRESSES} usable`
+                : protocol === "spi"
+                  ? "one CS per device"
+                  : protocol === "can"
+                    ? "by message, not by node"
+                    : protocol === "onewire"
+                      ? "64-bit ROM id per device"
+                      : "none — point to point"
+            }
+          />
         </Stats>
       </Stage>
 
@@ -219,6 +441,58 @@ export const Journey = () => {
             idle level and CPHA picks the leading or trailing edge, and the two
             ends have no way to negotiate it. The master is in{" "}
             {MODE_NAMES[0]}.
+          </Prose>
+        )}
+        {protocol === "can" && (
+          <Prose>
+            Every node transmits and reads the bus at the same time. The wire is
+            a wired-AND, so a dominant 0 always beats a recessive 1 — and any
+            node that sends recessive while reading dominant knows it has lost
+            and stops, mid-frame, without disturbing a single bit of the winner.
+            Lowest identifier wins, which makes priority a property of the wire
+            rather than of a scheduler.
+          </Prose>
+        )}
+        {protocol === "onewire" && (
+          <Prose>
+            The master pulls the line low to begin every slot, and the receiver
+            samples at a fixed {TIMING.sampleUs} µs after that falling edge. What
+            it measures is how long the line stayed low — the edge is the clock
+            and the <em>width</em> is the data. Nothing else on this list encodes
+            a bit in time rather than in level.
+          </Prose>
+        )}
+        {protocol === "manchester" && (
+          <Prose>
+            There is nothing to agree and nothing to inspect. Every bit cell
+            contains a transition in its middle by construction, so the receiver
+            recovers the clock from the data itself — which also means no run of
+            identical bits can ever leave it without an edge, and no bit stuffing
+            is needed.
+          </Prose>
+        )}
+        {(protocol === "rs232" || protocol === "rs485") && (
+          <Prose>
+            These two answer a different question from everything else here.
+            The framing is ordinary UART — start bit, eight data bits, stop bit —
+            and what is being argued about is <em>voltage</em>: how far it
+            survives, and what happens when the ground at one end is not the
+            ground at the other.{" "}
+            {protocol === "rs232"
+              ? "RS-232 compares one wire against a shared ground and decides by threshold, so every volt of interference on that wire eats directly into a margin of only 2.5 V against a real driver."
+              : "RS-485 compares two wires against each other and looks only at the difference, so anything that happens to both equally cancels in the subtraction."}
+          </Prose>
+        )}
+        {protocol === "usb" && (
+          <Prose>
+            NRZI inverts the intuition: a <em>zero</em> flips the line and a{" "}
+            <em>one</em> leaves it alone. Paired with stuffing a zero after six
+            ones, that guarantees the line cannot sit still longer than seven bit
+            times, so the receiver always has edges to recover its clock from —
+            the same guarantee Manchester buys, for one stuffed bit per six
+            instead of doubling the rate. And the host schedules everything: no
+            device transmits unless addressed, which is why USB has no
+            arbitration at all.
           </Prose>
         )}
         {protocol === "i2c" && (
@@ -253,6 +527,32 @@ export const Journey = () => {
           {decoded.length > 0 ? decoded : "—"}
         </div>
 
+        {protocol === "onewire" && (
+          <Note>
+            {(result.resetShare ?? 0) > 0
+              ? `That transaction took ${Math.round((result.durationUs ?? 0) / 1000 * 10) / 10} ms, and ${Math.round((result.resetShare ?? 0) * 100)}% of it was the reset pulse alone. `
+              : ""}
+            The trace is drawn to scale, so the 480 µs reset really is that much wider than a 70 µs
+            bit slot. One wire is cheap; it is not fast.
+          </Note>
+        )}
+        {protocol === "manchester" && (
+          <Note>
+            The line spent {Math.round((result.dutyCycle ?? 0) * 100)}% of its time high — DC
+            balance, by construction, which is what lets this signal cross a transformer or a
+            capacitor without drifting. It cost {result.transitions ?? 0} transitions to carry{" "}
+            {bytes.length * 8} bits: two per bit, always. That doubling is the price of not needing
+            a clock wire or an agreed rate.
+          </Note>
+        )}
+        {protocol === "can" && !result.lostArbitration && result.acked && (
+          <Note>
+            {result.frameBits ?? 0} bits went on the wire to carry {bytes.length} bytes, and the
+            frame&apos;s length depends on its contents: five identical bits in a row and the
+            transmitter inserts an opposite one, so the receiver always has edges to resynchronise
+            on. That is why worst-case CAN bus timing is not simply a division.
+          </Note>
+        )}
         {protocol === "spi" && (
           <Note>
             Look at MISO on the trace: it was carrying bytes back the whole time. SPI has no
@@ -296,11 +596,62 @@ export const Journey = () => {
             SPI has no error detection of any kind, so the only evidence anything went wrong is
             that the bytes are wrong. That is the trade for how cheap it is.
           </Note>
-        ) : (
+        ) : protocol === "i2c" ? (
           <Note bad>
             Nothing acknowledged the address, so the master stopped before sending a single byte of
-            payload. This is the failure the ninth clock exists for — I2C is the only one of the
-            three that can tell you the far end is not there.
+            payload. This is the failure the ninth clock exists for.
+          </Note>
+        ) : protocol === "can" && result.lostArbitration ? (
+          <Note bad>
+            My frame did not go this round — <strong>{result.winner}</strong> had the lower
+            identifier and won the bus. But look at what did <em>not</em> happen: nothing was
+            corrupted, no bit of the winner&apos;s frame was disturbed, and my node stopped
+            transmitting the instant it read a dominant bit where it had sent a recessive one. It
+            will simply try again. That is what non-destructive arbitration means, and it is why CAN
+            can guarantee that the highest-priority message on a loaded bus is never delayed by a
+            collision.
+          </Note>
+        ) : protocol === "can" ? (
+          <Note bad>
+            Nobody acknowledged. The ACK slot is transmitted recessive and pulled dominant by any
+            node that received the frame correctly — so a CAN node alone on a bus cannot transmit at
+            all, no matter how healthy its wiring. This is the first thing that happens to everyone
+            wiring up a single node on a bench.
+          </Note>
+        ) : protocol === "onewire" ? (
+          <Note bad>
+            Nothing pulled the line low during the presence window, so the master knows the wire is
+            empty and never starts a single slot. With one conductor and no clock there is nowhere
+            else to put a discovery mechanism — the absence of a pulse <em>is</em> the answer.
+          </Note>
+        ) : protocol === "rs232" ? (
+          <Note bad>
+            The interference pushed the wire across the receiver&apos;s threshold, and{" "}
+            {result.flippedBits ?? 0} bit decisions changed with it. RS-232 compares one wire against
+            a ground it hopes it shares — so every volt of disturbance on that wire is a volt off a
+            margin that is only {(result.margin ?? 0).toFixed(1)} V against a real driver. Now switch
+            the protocol to RS-485 and leave the disturbance exactly where it is.
+          </Note>
+        ) : protocol === "rs485" ? (
+          <Note bad>
+            {(result.worstCommonMode ?? 0) > RS485.commonModeRange[1]
+              ? `Even a differential receiver has to be able to see the wires. ${(result.worstCommonMode ?? 0).toFixed(0)} V of common mode is outside the -7 V to +12 V the standard specifies, so the input stage has run out of range — this is the limit of the trick rather than a failure of it.`
+              : "Something went wrong that the difference could not reject."}
+          </Note>
+        ) : protocol === "usb" ? (
+          <Note bad>
+            Nothing answered at that address, so the host saw no handshake packet and timed the
+            transaction out. Notice what did not happen: no collision, no retry storm, no contention.
+            The device never had the opportunity to say anything, because the host had not asked it
+            to — which is exactly why USB needs no arbitration.
+          </Note>
+        ) : (
+          <Note bad>
+            Every bit arrived inverted. The two ends disagree about which direction of mid-cell
+            transition means one: IEEE 802.3 says a rising edge is a one, G. E. Thomas says it is a
+            zero, and they are exact opposites. Nothing is malformed — an inverted Manchester signal
+            is a perfectly valid Manchester signal — so no analyser, checksum or framing rule will
+            ever flag it. It is the level-01 polarity mistake again, one layer up.
           </Note>
         )}
       </Stage>
@@ -311,11 +662,34 @@ export const Journey = () => {
           the far end know when to look?
         </Prose>
         <Note>
-          UART infers it from an agreed rate, so it needs a start bit, an accurate clock at both
-          ends, and a framing-error flag for when that fails. SPI buys certainty with a wire and
-          spends nothing on checking — which is why a mode mismatch is silent. I2C buys a shared
-          bus with a second wire and an addressing scheme, and is the only one here that gets an
-          acknowledgement back.
+          <strong>UART</strong> infers it from an agreed rate, so it needs a start bit, an accurate
+          clock at both ends, and a framing-error flag for when that fails.{" "}
+          <strong>SPI</strong> buys certainty with a wire and spends nothing on checking — which is
+          why a mode mismatch is silent. <strong>I2C</strong> buys a shared bus with a second wire
+          and an addressing scheme, and acknowledges every byte.
+        </Note>
+        <Note>
+          <strong>CAN</strong> shares a pair too, but resolves collisions instead of avoiding them:
+          the wire is a wired-AND, so the lowest identifier wins and the loser withdraws without
+          damaging anything. <strong>1-Wire</strong> spends nothing at all — the width of the low
+          pulse is the bit, so time carries the data and one conductor carries everything, slowly.{" "}
+          <strong>Manchester</strong> puts the clock inside the data by guaranteeing an edge in
+          every cell, and pays for it with twice the signalling rate.
+        </Note>
+        <Note>
+          <strong>RS-232</strong> and <strong>RS-485</strong> are not a different way to frame a
+          byte — they carry ordinary UART framing, and argue about volts instead. One wire against a
+          shared ground reaches {RS232.maxCableMetres} m; two wires compared against each other reach{" "}
+          {RS485.maxCableMetres} m, because interference common to both cancels in the subtraction.
+          Set a disturbance and flip between them to watch it happen.{" "}
+          <strong>USB</strong> answers &ldquo;who talks&rdquo; by making the question unaskable: the
+          host schedules every transaction, so there is nothing to arbitrate.
+        </Note>
+        <Note>
+          Nine answers, and every one of them is a trade rather than an improvement. The protocols
+          that check the most cost the most wires or the most bandwidth; the cheapest of them — SPI —
+          cannot tell you anything is wrong at all; and two of them are not about framing in the
+          first place. Picking one is choosing which failure you would rather have.
         </Note>
       </Panel>
     </>
