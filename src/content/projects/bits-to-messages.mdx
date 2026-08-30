@@ -13,9 +13,9 @@ featured: true
 status: complete
 metrics:
   - label: protocols
-    value: "UART, SPI, I2C"
+    value: "six, compared"
   - label: tests
-    value: "172"
+    value: "239"
   - label: core runtime deps
     value: "0"
 ---
@@ -73,26 +73,56 @@ Starting the server prints a device path, and `screen` connects to it like
 hardware. The fault injector does not scramble bytes: for a baud mismatch it
 decodes the payload with a receiver tuned to the wrong rate and puts those bytes
 on the wire, so the corruption is what a mistuned UART would really produce —
-deterministic, and reproducible from the spec string alone. 172 tests cover it,
+deterministic, and reproducible from the spec string alone. 239 tests cover it,
 and the integration test opens the character device for real, on macOS and on
 the Linux CI runner.
 
-## One message, three protocols
+## One message, nine ways
 
 The instrument's JOURNEY panel takes whatever you type and follows it across:
 characters to bytes, bytes to transitions on wires, a receiver deciding when to
-look, and back to characters. The same message goes three ways, and the
-comparison is the content — every difference between UART, SPI and I2C is a
-different answer to one question.
+look, and back to characters. The same message goes nine ways, and the comparison
+is the content — every difference between them is a different answer to one
+question, and every one is a trade rather than an improvement.
 
-UART infers timing from an agreed rate, so it needs a start bit, an accurate
-clock at both ends, and a framing-error flag for when that fails. SPI spends a
-wire on the clock and deletes every timing failure at once — and spends nothing
-on checking, which is why a CPOL/CPHA mismatch is completely silent. I2C spends
-a wire too, then buys a shared bus with the complexity it saved: open-drain
-lines, START and STOP framing that costs no byte value, seven-bit addressing,
-and an acknowledgement on every ninth clock. It is the only one of the three
-that can tell you the far end is not there.
+UART infers timing from an agreed rate, so it needs a start bit, accurate clocks
+at both ends, and a framing-error flag for when that fails. SPI spends a wire on
+the clock and deletes every timing failure at once — and spends nothing on
+checking, which is why a CPOL/CPHA mismatch is completely silent. I2C spends a
+wire too, then buys a shared bus with the complexity it saved: open-drain lines,
+START and STOP framing that costs no byte value, seven-bit addressing, and an
+acknowledgement on every ninth clock.
+
+CAN shares a pair as well, but resolves collisions instead of avoiding them. The
+bus is a wired-AND, so every node transmits and reads at once, and any node that
+sends recessive while reading dominant knows it has lost and withdraws
+mid-frame — without disturbing a single bit of the winner's message. Lowest
+identifier wins, which makes priority a property of the wire rather than of a
+scheduler.
+
+1-Wire spends nothing at all: the master's falling edge starts each slot and the
+_width_ of the low period is the bit, so time carries the data and one conductor
+carries everything, slowly. Manchester puts the clock inside the data by
+guaranteeing an edge in the middle of every cell, buying DC balance and freedom
+from any agreed rate at exactly twice the signalling rate.
+
+USB gets the same clock-recovery guarantee as Manchester far more cheaply — NRZI
+plus one stuffed bit per six ones bounds how long the line can sit still — and
+answers "who talks?" by making the question unaskable, since the host schedules
+every transaction.
+
+RS-232 and RS-485 are the odd pair: they are not framing at all. They carry
+ordinary UART bytes and argue about _voltage_, and they are the only signals here
+drawn in real volts rather than levels. Set a disturbance and flip between them.
+Four volts of induced noise destroys RS-232 — whose margin against the ±5.5 V
+charge-pump drivers actually fitted is only 2.5 V — and the identical
+disturbance is invisible to RS-485, because it lands on both wires equally and
+cancels in the subtraction. That one fact is why one reaches 15 m and the other 1200.
+
+Each breaks in the way that is characteristic of it. The one I would point at is
+CAN alone on a bus: perfectly good wiring, a perfectly formed frame, and it
+cannot transmit at all, because the ACK slot is pulled dominant by a _receiver_
+and there isn't one.
 
 ## What I'd do next
 

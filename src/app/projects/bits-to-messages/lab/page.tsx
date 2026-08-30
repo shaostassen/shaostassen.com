@@ -51,9 +51,9 @@ export default function BitsLabPage() {
             </p>
             <p className="mt-3 max-w-2xl font-mono text-sm text-muted">
               Start with <strong>JOURNEY</strong>: type a message and follow it
-              across as UART, then SPI, then I2C — the same bytes taking three
-              different routes, and three different answers to the only question
-              a receiver really has.
+              across as UART, SPI, I2C, CAN, 1-Wire, Manchester or USB — then
+              set a disturbance and flip between RS-232 and RS-485 to watch the
+              same noise destroy one link and vanish on the other.
             </p>
           </PageHeader>
         </div>

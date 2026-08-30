@@ -894,9 +894,7 @@ test("the modes sit beside the ladder rather than extending it", async ({
   await expect(ladder.getByRole("button", { name: "LIVE" })).toBeVisible();
 });
 
-test("JOURNEY carries one message across all three protocols", async ({
-  page,
-}) => {
+test("JOURNEY carries one message across every protocol", async ({ page }) => {
   await page.goto("/projects/bits-to-messages/lab?level=journey");
   await expect(
     page.getByRole("heading", {
@@ -921,6 +919,47 @@ test("JOURNEY carries one message across all three protocols", async ({
   await protocol.selectOption("i2c");
   await expect(page.getByText("112 usable")).toBeVisible();
   await expect(page.getByText(/Arrived intact/)).toBeVisible();
+
+  // CAN, 1-Wire, Manchester and USB all carry the same message too.
+  for (const p of ["can", "onewire", "manchester", "usb"]) {
+    await protocol.selectOption(p);
+    await expect(page.getByText(/Arrived intact/)).toBeVisible();
+  }
+});
+
+test("RS-485 rejects the noise that destroys RS-232", async ({ page }) => {
+  // The best comparison in the whole instrument: identical disturbance, and the
+  // only thing that differs is how the receiver decides.
+  await page.goto("/projects/bits-to-messages/lab?level=journey");
+  const protocol = page.getByLabel("protocol");
+  const breakIt = page.getByLabel("break it");
+
+  await protocol.selectOption("rs232");
+  await expect(page.getByText(/Arrived intact/)).toBeVisible();
+
+  // Four volts against a 2.5 V margin, on one wire referenced to ground.
+  await breakIt.selectOption("4");
+  await expect(page.getByText(/pushed the wire across/)).toBeVisible();
+
+  // The same four volts, now landing on both wires of a pair.
+  await protocol.selectOption("rs485");
+  await expect(page.getByText(/not one bit changed/)).toBeVisible();
+  await expect(page.getByText(/Arrived intact/)).toBeVisible();
+
+  // Differential is not magic: the input stage still has a range.
+  await breakIt.selectOption("40");
+  await expect(page.getByText(/outside the -7 V to \+12 V/)).toBeVisible();
+});
+
+test("USB times out rather than colliding when nobody answers", async ({
+  page,
+}) => {
+  await page.goto("/projects/bits-to-messages/lab?level=journey");
+  await page.getByLabel("protocol").selectOption("usb");
+  await expect(page.getByText(/spoke only in the last one/)).toBeVisible();
+
+  await page.getByLabel("break it").selectOption("absent");
+  await expect(page.getByText(/the host had not asked it/)).toBeVisible();
 });
 
 test("each protocol fails in its own characteristic way", async ({ page }) => {
