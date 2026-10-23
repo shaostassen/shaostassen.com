@@ -17,7 +17,8 @@
     "check:retractions": "node scripts/check-retractions.mjs",
     "validate": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm check:photos && pnpm build && pnpm check:links && pnpm check:retractions && PLAYWRIGHT_NO_BUILD=1 pnpm test && pnpm lighthouse",
     "preview": "node scripts/serve-static.mjs",
-    "deploy": "bash scripts/deploy.sh"
+    "deploy": "bash scripts/deploy.sh",
+    "hardware:sync": "node scripts/sync-hardware.mjs"
   },
   "dependencies": {
     "next": "15.5.20",

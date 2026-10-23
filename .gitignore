@@ -42,6 +42,9 @@ yarn-error.log*
 # what .env.deploy needs.
 !.env.deploy.example
 
+# private hardware inventory (see hardware-inventory.example.json + pnpm hardware:sync)
+hardware-inventory.local.json
+
 # vercel
 .vercel
 

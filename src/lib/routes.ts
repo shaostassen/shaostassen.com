@@ -65,7 +65,7 @@ export const extraRoutes = [
  * Built but deliberately kept out of the sitemap. Asserted absent, so
  * "unindexed" stays a decision rather than an oversight.
  */
-export const unlistedRoutes = ["/styleguide"] as const;
+export const unlistedRoutes = ["/styleguide", "/tools/hardware"] as const;
 
 /** Projects marked `caseStudy: false` — listed on /projects, no detail page. */
 export function listingOnlyProjects(): { slug: string; title: string }[] {

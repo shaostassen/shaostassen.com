@@ -1,0 +1,10 @@
+[
+  {
+    "name": "EXAMPLE — copy this file to hardware-inventory.local.json and edit that instead",
+    "category": "placeholder",
+    "quantity": 1,
+    "location": "nowhere real",
+    "status": "delete me",
+    "notes": "Only 'name' is required. category/location/status/notes are free text, quantity defaults to 1. See src/content/schema.ts (hardwareItemSchema) for the exact shape, and src/content/data/hardware.ts for how this file is used."
+  }
+]

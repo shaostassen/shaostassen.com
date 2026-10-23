@@ -107,4 +107,21 @@ export const educationSchema = z.object({
   details: z.array(z.string()).optional(),
 });
 
+/**
+ * One row of the private hardware inventory at /tools/hardware. Deliberately
+ * unconstrained on category/status (free text, not an enum) — the point of
+ * that page is editing a short list by hand without fighting validation
+ * every time a new category shows up.
+ */
+export const hardwareItemSchema = z.object({
+  name: z.string().min(1),
+  category: z.string().min(1).optional(),
+  quantity: z.number().int().positive().default(1),
+  location: z.string().min(1).optional(),
+  status: z.string().min(1).optional(),
+  notes: z.string().min(1).optional(),
+});
+
+export type HardwareItem = z.infer<typeof hardwareItemSchema>;
+
 export type Education = z.infer<typeof educationSchema>;
