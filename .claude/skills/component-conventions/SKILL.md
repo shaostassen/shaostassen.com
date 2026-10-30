@@ -10,7 +10,8 @@ description: File structure, naming, Tailwind usage, and the accessibility check
 - `src/components/layout/` — Container, Section, PageHeader, Nav, Footer,
   ThemeToggle
 - `src/components/ui/` — Card, Tag, Prose, Timeline, Dot, and `styles.ts`
-- `src/components/projects/` — ProjectCard, ProjectsExplorer
+- `src/components/projects/` — ProjectCard, ProjectMedia, ProjectRow,
+  ProjectsExplorer
 - `src/components/instrument/` — Annotation, GridBackdrop, WaveDivider
 - One component per file, PascalCase filename matching the export
   (`Card.tsx` exports `Card`). Props type exported alongside

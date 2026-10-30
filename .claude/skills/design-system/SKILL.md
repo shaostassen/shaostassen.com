@@ -23,7 +23,7 @@ site, make it earn its place with craft, not decoration.
   NEVER use `dark:` variants. Utilities: `bg-background`, `bg-surface`,
   `border-border`, `text-foreground`, `text-muted`, `text-accent`.
   Values (light / dark), as of the S11.1 repalette: background
-  `#fbfaf7/#07090c`, surface `#f2efe8/#0f1318`, border `#dcd6c8/#262c35`,
+  `#fbfaf7/#07090c`, surface `#f2efe8/#0f1318`, border `#cfc8b4/#262c35` (light darkened in S14.3 so cards read as objects),
   foreground `#14161a/#e8e9ec`, muted `#54585f/#99a0a8`, accent (CH1 amber)
   `#8a5300/#f5b544`, accent-2 (CH2 cyan) `#0e6f88/#3ad7ee`, accent-3 (CH3
   magenta) `#9b2c6f/#f070c0`.
@@ -35,10 +35,13 @@ site, make it earn its place with craft, not decoration.
   self-hosted via next/font. Sizes: Tailwind defaults plus `text-display`
   (clamp 2.5–3.25rem, for h1), `text-title` (1.5rem, for h2) and
   `text-subtitle` (1.1875rem, for **every** h3 — components and `.prose`
-  alike, which is why the token exists). No ad-hoc font sizes.
+  alike, which is why the token exists). `text-hero` (clamp 2.75–5rem) is the
+  home page's name only; inner pages keep `text-display` because case-study
+  titles are long. The one sanctioned h3 exception is the `feature` project
+  card, which uses `text-title`/`lg:text-3xl`. No other ad-hoc font sizes.
 - **Space:** 8pt scale — Tailwind spacing in multiples of 2 (`p-2/4/6/8`,
   `gap-4/6`, `py-16/24`). `Section` owns vertical rhythm (`py-16 sm:py-24`);
-  `Container` owns gutters (`max-w-5xl px-6`). If spacing looks uneven, fix
+  `Container` owns gutters (`max-w-6xl px-6`, widened from 5xl in S14.3). If spacing looks uneven, fix
   the scale usage, don't nudge pixels.
 - **Where each spacing decision lives** — don't re-decide these per page:
 
@@ -91,6 +94,30 @@ Rules:
   `src/components/electrons/`, which is rsynced from another repo and not
   ours to restyle. `rounded-full` is fine for actual circles (the Timeline
   node), which is not a corner radius.
+
+## Project cards (S14)
+
+The site's work is its visuals, so a project card leads with media.
+
+- **Media is the project's own output, never illustrated.** A cover is an
+  instrument screenshot, a game or plot frame, or one of the project's own
+  photos, cut to 16:9 WebP by `scripts/make-covers.mjs` (committed, so covers
+  are regenerable). Frontmatter `cover` is `{ src, alt }`, so alt cannot be
+  forgotten.
+- **No honest visual → readout tile.** The project's real headline metric, set
+  large in amber on graph paper (`ProjectMedia`). Content, not texture, so it
+  is not `aria-hidden`.
+- **The metric appears once per card.** On a readout tile it is the media; with
+  a cover it sits in the body. Never both.
+- **At most three tags on a card.** All of them live on the case study.
+- **Card covers are `alt=""`.** The heading names the project; announcing the
+  cover too says it twice inside one link. `cover.alt` is for where the image
+  stands alone.
+- **Never an `<article>` (or other sectioning element) inside the card `<a>`.**
+  A link's name is computed from its content and a sectioning element is
+  skipped, leaving the link with no accessible name. A smoke test pins this.
+- **Home page: lead, then list.** `src/content/data/home.ts` names the lead
+  projects; the first renders as the `feature` card, the rest as `ProjectRow`s.
 
 ## Exemptions
 
