@@ -1,0 +1,117 @@
+---
+slug: cuda-mppi-controller
+title: "CUDA MPPI Controller"
+oneLiner: "A sampling-based model-predictive controller whose CPU reference and CUDA kernel call the same rollout function, so they cannot disagree about the algorithm — verified on the CPU side, with the Jetson GPU run still to come."
+category: systems-hpc
+track: individual
+tags: [CUDA, C++20, MPPI, Model predictive control, OpenMP, CMake, Jetson]
+timeframe: "2026"
+role: "Solo"
+repo: "https://github.com/shaostassen/CUDA_MPPI_Controller"
+featured: false
+status: in-progress
+metrics:
+  - { label: "cartpole swing-up, CPU", value: "99–100 of 100 seeds" }
+  - { label: "OpenMP, 8 threads (dev Mac)", value: "4.16× at K = 16k" }
+---
+
+## Problem
+
+Model predictive path integral control picks a motor command by simulating
+thousands of random futures a few dozen steps ahead and averaging them by cost.
+Every future is independent, which makes it a natural GPU workload, and a
+hard-real-time one: at 100 Hz the whole sample, roll out, reduce and update
+cycle gets 10 ms.
+
+I wanted to write that in CUDA for a Jetson Orin and measure it honestly
+against CPU, OpenMP and PyTorch baselines on the same chip.
+
+## Constraints
+
+- The Jetson is the only CUDA machine I have. I edit from a Mac over SSH, and
+  the Mac cannot build CUDA, so the CPU reference came first and the GPU port is
+  written against it.
+- FP32 throughout. Noise comes from a header-only Philox4x32-10 generator keyed
+  by seed, iteration, rollout and timestep, with no cuRAND, so CPU and GPU can
+  draw bit-identical noise and a parity test can be strict instead of
+  statistical.
+- Every benchmark claim has to be reproducible from one script.
+
+## Approach
+
+The CPU reference has the cartpole and pendulum dynamics, information-theoretic
+MPPI, a finite-horizon LQR cross-check, and an OpenMP execution policy. The CUDA
+port runs one thread per rollout with rollout and cost fused in one kernel. The
+reduction is written twice, once from CUB and cuBLAS and once with hand-rolled
+warp shuffles, plus a variant that regenerates noise from the counters instead
+of storing it. Both reductions stay in the repo, so the comparison is data.
+
+<figure>
+  <video
+    controls
+    preload="none"
+    width="640"
+    height="360"
+    poster="/projects/cuda-mppi-controller/poster.jpg"
+    src="/projects/cuda-mppi-controller/swingup.mp4"
+    aria-describedby="swingup-desc"
+  >
+    Your browser cannot play embedded video. The description below covers what
+    the clip shows.
+  </video>
+  <figcaption id="swingup-desc">
+    Ten seconds of the CPU reference swinging a cartpole up from hanging, no
+    sound. The red pole balances on the blue cart. The faint blue arcs are a
+    subsample of the 512 futures the controller evaluated at that step, replayed
+    exactly as it costed them. The overlay shows time, force and pole angle.
+  </figcaption>
+</figure>
+
+## Why it's technically hard
+
+The usual way to port a controller is to rewrite the rollout inside a kernel,
+then spend the parity budget finding where the two quietly disagree. Here
+`rollout_and_cost()` is one function, marked to compile for host and device. The
+CPU controller, the OpenMP path and the CUDA kernel all call it, and the kernel
+body is two lines: work out the rollout index, call the function. The two
+backends can only differ in how they evaluate `sin` and `cos`, which is what the
+1e-4 relative tolerance is for.
+
+The second problem was a contradiction in my own plan. The noise wants a
+time-major layout, so that adjacent threads read adjacent memory. It also wants
+to be a column-major matrix, so the weighted sum is one cuBLAS call. The two
+agree only when there is a single control input, as on the cartpole. A layout
+with the control index before the rollout index satisfies both for any number of
+inputs and coalesces better. I could check that without a GPU: a host test
+emulates the exact `cublasSgemv` call, with the same transpose, leading
+dimension and indexing, and requires it to reproduce the reference weighted sum.
+
+## Result
+
+What is measured is the CPU side. All 49 CPU tests pass. Swinging up from
+hanging at K = 512 samples and a 50-step horizon succeeds on 99 to 100 of 100
+seeded runs against a threshold of 95. The one-run spread between platforms is
+their maths libraries.
+
+Near upright, the controller's mean force tracks the finite-horizon LQR gain.
+The effective-gain ratios are 0.82 to 1.02 against a stated tolerance of 0.75 to
+1.25. The finite-horizon gain is the fair target, because it is the problem a
+50-step horizon approximates. The OpenMP path matches the serial one bit for
+bit across 60 iterations at 8 threads. On an M-series dev Mac it reaches 4.16×
+at K = 16k, and it is slower at 6 threads than at 4 because static scheduling
+hands equal chunks to the efficiency cores.
+
+What is not measured: **the CUDA code has never run.** The kernels and reductions
+are syntax-checked against clang's CUDA frontend only. There is no GPU parity
+result, no timing and no benchmark table. The harness writes a row with a
+reason when a backend cannot run, and leaves the power column empty off a
+Jetson, rather than filling either with a guess.
+
+## What I'd do next
+
+Run `scripts/gpu-test.sh` on the Jetson: CPU-to-GPU cost parity within 1e-4
+relative, then the GPU swing-up, then the benchmark table against CPU, OpenMP,
+PyTorch eager and `torch.compile` with CUDA graphs. The plan's targets, 50× over
+one CPU core and 5× over eager PyTorch, are targets and not results, and the
+compiled baseline is the one that makes any number credible. After that comes the
+quadrotor figure-eight at 100 Hz, which has not been started.
