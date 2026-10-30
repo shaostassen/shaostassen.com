@@ -39,6 +39,8 @@ here. Per-story working logs live in `log/`.
 | S3.11 | E3   | bits-to-messages: UART, SPI and I2C end to end | done   | JOURNEY mode ships 2026-08-21 — one message followed across in five stages, protocol switchable; lab holds **96**/100/100/100 at 26.5 kB; SPI and I2C are new engine modules with a shared trace type so all three render through one component (the comparison is the content: three answers to "how does the far end know when to look?"); each breakable — SPI mode mismatch is *silent* since the protocol has no error detection at all, I2C's ninth clock is the only ACK of the three; found and fixed a real defect — the UART case reported "arrived intact" because I compared byte values and ignored the error flags, which turned into the better lesson that drift reaches the stop bit before the data; Pages enabled by Shao, so the deploy tracks main again and the standalone demo is live; 250 → 254 tests |
 | S3.12 | E3   | bits-to-messages: CAN, 1-Wire, Manchester, USB, RS-232/485 | done   | JOURNEY goes from three protocols to **nine**, 2026-08-21; lab holds **96**/100/100/100 at 33.7 kB; five new engine modules and `SignalTrace.volts` so RS-232/RS-485 can be drawn in real voltages rather than levels; the demo worth trying is setting a disturbance and flipping between those two — 4 V destroys RS-232 and vanishes on RS-485, which only works because RS-232 is modelled with the ±5.5 V charge-pump drivers actually fitted rather than the standard's permitted ±15 (2.5 V of margin, not 12 — the generous figure would have flattered it with headroom real hardware lacks); CAN's non-destructive arbitration is asserted by delivering the contested frame byte-identically to the uncontested one; two tests failed on first run and both were my claims rather than the code — 16 V really is outside RS-485's common-mode range, so "rejects it" and "beyond its range" are now separate tests; 254 → 258 tests |
 | S13.1 | E13  | Hardware inventory tool (internal, unlisted)   | done   | `/tools/hardware` live, 2026-10-23 — requested directly by Shao, new epic since it is a private tool, not a case study; item list AES-256-GCM encrypted at build time (Node `crypto`), decrypted client-side via WebCrypto on password entry (no server exists under `output: 'export'`, and the repo is public, so a plain committed file + UI-only gate would not actually be private); data lives only in a gitignored local file + Vercel env var, never git; `pnpm hardware:sync` pushes edits; excluded from sitemap/nav/audits via `unlistedRoutes`; `pnpm validate` green (258 tests, Lighthouse on all 19 audited routes); still pending Shao's own `HARDWARE_PASSWORD` + real inventory, so the page shows its unconfigured state until he sets those |
+| S3.13 | E3   | SpeechForge: voice-cloning evaluation harness case study | done | /projects/speechforge live 2026-10-30 (96/100/100/100); requested directly by Shao after a portfolio sync, so it jumped the queue; sourced from the public repo's README and `docs/VALIDATION.md`, with the 155-test claim re-run in a clean venv rather than quoted; leads on the author's own case-folding mistake (WER 0.112 → 0.022 from sentence case alone) and tells the retracted "majority blend" verdict plainly; prose not tables because the MDX pipeline has no `remark-gfm`; the workstation page's plain-text mention now links to it |
+| S3.14 | E3   | CUDA MPPI controller case study (CPU side measured, GPU not yet run) | done | /projects/cuda-mppi-controller live 2026-10-30 (98/100/100/100), `status: in-progress`; requested directly by Shao, who asked for it before the first Jetson run — I had advised waiting, so the page states in bold that **the CUDA code has never run** and carries CPU-side numbers only (49/49 tests reproduced, swing-up 99–100 of 100 seeds, LQR gain ratios 0.82–1.02, OpenMP 4.16× on a dev Mac, quoted from the repo and labelled as such); the 1.8 MB GIF became a 185 KB MP4; no board is named as the measured platform because of F18 |
 
 Human checkpoints (do not cross without review): after E1 (M1), E3 (M2),
 E6 (M3), E7 (M4), then launch (M5).
@@ -86,6 +88,28 @@ E6 (M3), E7 (M4), then launch (M5).
   S3.1's index should group by it. High-school content TBD.
 
 ## Follow-ups
+
+- **F17 (from S3.14, revisit):** the CUDA MPPI page ships with no GPU result.
+  When `scripts/gpu-test.sh` and Table 1 have run on the Jetson, update the
+  Result section, add the speedup and Hz/W figures that exist by then, and
+  reconsider `status` and `featured`. Until then no GPU number may appear on
+  the site.
+
+- **F18 (from S3.14, needs Shao):** the About page says the Jetson is an
+  **Orin Nano**; the MPPI repo's `PLAN.md` was revised on 2026-10-15 to an
+  **AGX Orin 64 GB**. Both cannot be the board he owns. Whichever it is,
+  About and the MPPI page should agree. The MPPI page currently says only
+  "Jetson Orin" so it is not wrong either way.
+
+- **F19 (from S3.13/S3.14, watch F11):** `/projects` measured **92** here with
+  13 cards, against the 90 floor and the 95 recorded at 11 cards. Different
+  machine, so not a regression proof, but the margin is narrowing as F11
+  predicted. The next card or two may breach it; the fix is lazy-mounting the
+  grid, not moving the floor.
+
+- **F20 (from S3.13/S3.14, small):** both new pages are `featured: false`.
+  Nine projects are already featured, so which ones get the home strip is
+  Shao's call.
 
 - **F13 (from S3.6, for the _game_ repo, not this site):** in
   `~/Documents/combat-robots-game`, `DriveBench` reports zero banked damage
