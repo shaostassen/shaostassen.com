@@ -41,7 +41,18 @@ export const projectSchema = z.object({
    * route. Prevents "coming soon" pages, which are worse than nothing.
    */
   caseStudy: z.boolean().default(true),
-  cover: z.string().optional(),
+  /**
+   * Card image, produced by scripts/make-covers.mjs from the project's own
+   * output (instrument screenshots, game frames, its own photos). `alt` is
+   * part of the shape so a cover cannot ship without it. A project with no
+   * honest visual omits this and gets a readout tile of its headline metric.
+   */
+  cover: z
+    .object({
+      src: z.string().regex(/^\/projects\/[a-z0-9-]+\/cover\.webp$/),
+      alt: z.string().min(1),
+    })
+    .optional(),
   metrics: z
     .array(z.object({ label: z.string(), value: z.string() }))
     .optional(),
