@@ -95,11 +95,11 @@ E6 (M3), E7 (M4), then launch (M5).
   reconsider `status` and `featured`. Until then no GPU number may appear on
   the site.
 
-- **F18 (from S3.14, needs Shao):** the About page says the Jetson is an
-  **Orin Nano**; the MPPI repo's `PLAN.md` was revised on 2026-10-15 to an
-  **AGX Orin 64 GB**. Both cannot be the board he owns. Whichever it is,
-  About and the MPPI page should agree. The MPPI page currently says only
-  "Jetson Orin" so it is not wrong either way.
+- ~~F18~~ **resolved** (2026-10-30, Shao): "Jetson Orin" is fine to display.
+  The About page says **Orin Nano** and the MPPI repo's `PLAN.md` was revised
+  on 2026-10-15 to an **AGX Orin 64 GB**; the MPPI page says only "Jetson
+  Orin", which Shao confirmed stands. No page change. Name a specific board
+  only once something has run on it and the number needs one.
 
 - **F19 (from S3.13/S3.14, watch F11):** `/projects` measured **92** here with
   13 cards, against the 90 floor and the 95 recorded at 11 cards. Different
