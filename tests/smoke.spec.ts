@@ -163,6 +163,24 @@ test("case study renders from validated MDX", async ({ page }) => {
   await expect(page.getByRole("link", { name: /full reports/i })).toBeVisible();
 });
 
+test("every project link on the home page and index has an accessible name", async ({
+  page,
+}) => {
+  // Cards are links wrapping media and text. A wrapper element that name
+  // computation skips (an <article> inside the <a>) leaves the link with no
+  // name while the page still looks and reads fine, so assert it directly.
+  for (const route of ["/", "/projects"]) {
+    await page.goto(route);
+    const links = page.locator('main a[href^="/projects/"]');
+    const count = await links.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      const snapshot = await links.nth(i).ariaSnapshot();
+      expect(snapshot, `link ${i} on ${route}`).toMatch(/^- '?link "[^"]+"/);
+    }
+  }
+});
+
 test("landing card links to the case study", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: /Fast Robots/ }).click();
