@@ -8,6 +8,9 @@ export type PageHeaderProps = {
   title: React.ReactNode;
   /** One sentence under the title. */
   lede?: React.ReactNode;
+  /** `hero` is the home page's larger name and lede; every other route uses
+   *  `default`. */
+  size?: "default" | "hero";
   /** Anything below the lede — metrics, tags, repo links. */
   children?: React.ReactNode;
   className?: string;
@@ -26,15 +29,33 @@ export function PageHeader({
   meta,
   title,
   lede,
+  size = "default",
   children,
   className,
 }: PageHeaderProps) {
+  const hero = size === "hero";
   return (
     <header className={className}>
       {annotation && <Annotation className="mb-5">{annotation}</Annotation>}
       {meta && <p className="mb-3 font-mono text-sm text-muted">{meta}</p>}
-      <h1 className="font-display text-display">{title}</h1>
-      {lede && <p className="mt-4 max-w-2xl text-lg text-muted">{lede}</p>}
+      <h1
+        className={
+          hero ? "font-display text-hero" : "font-display text-display"
+        }
+      >
+        {title}
+      </h1>
+      {lede && (
+        <p
+          className={
+            hero
+              ? "mt-6 max-w-xl text-xl leading-relaxed text-muted"
+              : "mt-4 max-w-2xl text-lg text-muted"
+          }
+        >
+          {lede}
+        </p>
+      )}
       {children}
     </header>
   );

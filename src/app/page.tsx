@@ -8,17 +8,32 @@ import { WaveDivider } from "@/components/instrument/WaveDivider";
 import { Photo } from "@/components/photo/Photo";
 import { Plate } from "@/components/photo/Plate";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { ProjectRow } from "@/components/projects/ProjectRow";
 import { PersonJsonLd } from "@/components/seo/PersonJsonLd";
 import { Dot } from "@/components/ui/Dot";
 import { accentLink, mutedLink } from "@/components/ui/styles";
+import { leadSlugs } from "@/content/data/home";
 import { profile } from "@/content/data/profile";
 import { allProjects } from "@/lib/content";
+import { cn } from "@/lib/cn";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({ path: "/" });
 
 export default async function Home() {
-  const featured = (await allProjects()).filter((p) => p.featured);
+  const all = await allProjects();
+  const lead = leadSlugs.map((slug) => {
+    const project = all.find((p) => p.slug === slug);
+    if (!project) {
+      throw new Error(
+        `Home lead "${slug}" is not a project — fix src/content/data/home.ts`,
+      );
+    }
+    return project;
+  });
+  const rest = all.filter(
+    (p) => p.featured && !(leadSlugs as readonly string[]).includes(p.slug),
+  );
 
   return (
     <div>
@@ -31,9 +46,10 @@ export default async function Home() {
               <PageHeader
                 annotation="shaostassen.com"
                 title="Shao Stassen"
+                size="hero"
                 lede="I work where software meets hardware — control loops on microcontrollers, autonomous robots, and the ML systems that let them see."
               />
-              <p className="animate-fade-up mt-8 font-mono text-sm text-muted [animation-delay:160ms]">
+              <p className="animate-fade-up mt-10 font-mono text-base text-muted [animation-delay:160ms]">
                 <a href={profile.github} className={accentLink}>
                   GitHub ↗
                 </a>
@@ -68,17 +84,37 @@ export default async function Home() {
       <Section className="pt-10 sm:pt-12">
         <Container>
           <div className="animate-fade-up [animation-delay:240ms]">
-            <Annotation>selected work</Annotation>
-            <h2 className="mt-4 font-display text-title">
-              Things I have built
-            </h2>
-            <p className="mt-2 font-mono text-sm text-muted">
-              full case studies in progress
-            </p>
-            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {featured.map((p) => (
+            <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+              <div>
+                <Annotation>selected work</Annotation>
+                <h2 className="mt-4 font-display text-title">
+                  Things I have built
+                </h2>
+              </div>
+              <Link
+                href="/projects"
+                className={cn(accentLink, "font-mono text-sm")}
+              >
+                all projects →
+              </Link>
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <ProjectCard project={lead[0]} variant="feature" />
+              </div>
+              {lead.slice(1).map((p) => (
                 <ProjectCard key={p.slug} project={p} />
               ))}
+            </div>
+
+            <div className="mt-16">
+              <Annotation>more work</Annotation>
+              <div className="mt-4 grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+                {rest.map((p) => (
+                  <ProjectRow key={p.slug} project={p} />
+                ))}
+              </div>
             </div>
           </div>
         </Container>

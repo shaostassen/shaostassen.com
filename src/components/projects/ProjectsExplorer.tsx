@@ -80,7 +80,7 @@ export function ProjectsExplorer({ projects }: { projects: Project[] }) {
               {trackLabels[track]}
             </h2>
             {group.length > 0 ? (
-              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {group.map((p) => (
                   <ProjectCard key={p.slug} project={p} />
                 ))}
