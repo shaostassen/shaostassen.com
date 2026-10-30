@@ -1,0 +1,116 @@
+---
+slug: speechforge
+title: "SpeechForge"
+oneLiner: "Zero-shot voice cloning inside an evaluation harness that scores every result against a ground-truth row — and caught seven of my own measurement errors, two of them already written up as findings."
+category: ml-cv
+track: individual
+tags: [Voice cloning, TTS, Chatterbox, CosyVoice 2, Evaluation, Whisper, Python]
+timeframe: "Summer 2026"
+role: "Solo"
+repo: "https://github.com/shaostassen/speechforge"
+featured: false
+status: in-progress
+metrics:
+  - { label: "WER from one input fix", value: "0.112 → 0.022 (n=60)" }
+  - { label: "own errors caught", value: "7, logged in the repo" }
+---
+
+## Problem
+
+Voice-cloning demos are easy to make and hard to trust: the sample that gets
+posted is the one that came out well. I wanted to clone a voice from a few
+seconds of audio and, more than that, to be able to say whether it had worked —
+as a number a stranger could reproduce.
+
+The motivating application is pronunciation. Synthesize a sentence in a native
+speaker's voice, convert it onto the learner's own, and let the learner hear
+themselves saying it correctly.
+
+## Constraints
+
+- CPU only. Every number comes from one Ryzen 9 9950X with no GPU, the
+  [remote box](/projects/ml-workstation-edge-pipeline) that also ran
+  [SpeechLens](/projects/speechlens).
+- The repo is public, so the models have to be usable in public. For cloning
+  models the restriction often lives in the weights rather than the code, so
+  every model's code and weight licences are audited and the excluded ones are
+  listed with the reason.
+- A result is not recorded unless its hardware, model, date and raw log are.
+
+## Approach
+
+Two cloning backends, Chatterbox and CosyVoice 2, sit behind one interface,
+with Piper as a non-autoregressive control. Intelligibility is scored by two
+independent recognisers, Whisper and a HuBERT-CTC model, and speaker similarity
+by an encoder. SpeechLens supplies the recogniser and its per-word confidence.
+
+Every table carries a ground-truth row: the real recording, put through the
+same scorer. It bounds what any other number can mean. Synthesis is seeded by
+default, and the core install can score a directory of wav files without a TTS
+stack. 155 tests pass offline with no weights and no network.
+
+## Why it's technically hard
+
+The measurement is easier to get wrong than the synthesis.
+
+My biggest finding is a mistake of mine. LibriSpeech and EdAcc ship transcripts
+as unpunctuated `ALL CAPS`, a convention for scoring, and I passed them to a
+generative model as though they were input. On LibriSpeech test-clean at n=60,
+Chatterbox scored 0.112 WER on the raw capitals and 0.022 in sentence case,
+same utterances, against 0.021 for the real recordings. Changing case and
+adding a full stop cut the error fivefold, and it refuted a README claim that
+the gap was real. What made it findable was the ground-truth row reproducing
+the published 2.1%: the harness had been measuring correctly all along, so the
+anomaly had to be my input.
+
+The effect looks specific to autoregressive models. In a paired study, same
+utterance and seed with only the case differing, Chatterbox went from 0.109 to
+0.025 (sign test p = 1e-7). Piper, which emits in one pass, went from 0.051 to
+0.036 (p = 0.36). Runaway generation appeared only in autoregressive decoders
+and only on capitals.
+
+The second backend's first score, 0.212 against 0.022, was also partly mine. I
+declined to publish that ranking, because its 10 s reference cap came from the
+vendor's documentation rather than a measurement. Where the cap truncated the
+reference, WER was 0.507 (n=25); where it did not, 0.033 (n=35). Without
+truncation CosyVoice 2 scores 0.036.
+
+That was the fourth constant I took from documentation that did not transfer,
+after a published similarity ceiling (0.69–0.76 in papers, 0.89–0.98 on valid
+same-speaker pairs here), a vendor real-time claim that was about 6× off, and
+the same cap on the first backend. The other three errors came from studies
+that printed a plausible table while hiding their own gap.
+
+## Result
+
+Each backend at a measured reference cap lands essentially on the real
+recordings: 0.022 WER for Chatterbox and 0.036 for CosyVoice 2, against 0.021,
+with speaker similarity 0.949 and 0.958 against 0.964. That is a trade-off, not
+a ranking. It is one corpus, one language, n=60.
+
+On accented speech (12 EdAcc speakers, n=72) the conversion stage does not
+damage the words: 0.073 WER against 0.076 for the native synthesis it started
+from, and 0.087 for plain cloning. It is partial, not a clean transfer. Scored
+against the source speaker's real audio, the output sits 65% of the way toward
+the learner and 56% toward the source.
+
+Correcting only the flagged words keeps the voice and loses the words.
+Regenerating 19.5% of the audio retains 99% of the identity ceiling, but WER
+rises to 0.253 from 0.176 for the untouched recording. Damage tracks how much
+is replaced (correlation +0.675), not how many seams there are (+0.109), so the
+crossfades are fine and the fragments are the problem.
+
+One retraction is worth naming. Comparing against the source's synthesis rather
+than its real audio flatters the result by +0.070, because the conversion
+shares its vocoder and prosody. It pushed a per-utterance rate from 44% to 54%
+and produced a "majority blend" verdict that I retracted. The function that
+computes it now refuses the unmatched input.
+
+## What I'd do next
+
+Synthesize the whole utterance, then splice in only the corrected region, since
+two words generated alone get no context to fit the gap. The two recognisers
+are not independent on LibriSpeech, where HuBERT is trained, so the pair
+agrees there partly through domain match. And one non-autoregressive model is
+not a family: the architecture claim needs more than Piper before I would state
+it as general.
